@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+csd-xsettings &
+/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &
+
+#sxhkd -c /home/cr1ogen/.config/qtile/sxhkd/sxhkdrc &
+picom &
+nitrogen --restore &
+pasystray &
