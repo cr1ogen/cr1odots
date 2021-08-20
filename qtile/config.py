@@ -278,12 +278,12 @@ def init_widgets_list():
             text = '',    
             foreground = colors[6],
             background = colors[4],
-            mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(terminal + '-e ncmpcpp')}
+            mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(terminal + '-e mocp')}
             ),
-        widget.KeyboardLayout (
+        widget.Moc (
             foreground = colors[6],
             background = colors[4],
-            configured_keyboards = ['us', 'es']
+            play_color = 'd06d32'
             ),
         widget.TextBox (
             text= '',
@@ -292,46 +292,46 @@ def init_widgets_list():
             padding = 0,
             fontsize = 26
             ),
-        widget.TextBox(
-            text = '',
-            foreground = colors[2],
-            background = colors[0],
-            fontsize = 28
-            ),
-        widget.Volume (
-            background = colors[0],
-            foreground = colors[2],
-            mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('pavucontrol')}
-            ), 
-        widget.TextBox (
-            text= '',
-            foreground = colors[4],
-            background = colors[0],
-            padding = 0,
-            fontsize = 26
-            ),
-        widget.TextBox (
-            text = "ﴽ ",
-            background = colors[4],
-            foreground = colors[2],
-            padding = 0,
-            fontsize = 22
-            ),
-        widget.Net ( # requires python-psutil package
-            interface = "eno1",
-            format = '{down} ﬕ {up} ',
-            foreground = colors[2],
-            background = colors[4],
-            padding = 1,
-            mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('nm-connection-editor')}
-            ),
-        widget.TextBox (
-            text= '',
-            foreground = colors[0],
-            background = colors[4],
-            padding = 0,
-            fontsize = 26
-            ),
+        #widget.TextBox(
+        #    text = '',
+        #    foreground = colors[2],
+        #    background = colors[0],
+        #    fontsize = 28
+        #    ),
+        #widget.Volume (
+        #    background = colors[0],
+        #    foreground = colors[2],
+        #    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('pavucontrol')}
+        #    ), 
+        #widget.TextBox (
+        #    text= '',
+        #    foreground = colors[4],
+        #    background = colors[0],
+        #    padding = 0,
+        #    fontsize = 26
+        #    ),
+        #widget.TextBox (
+        #    text = "ﴽ ",
+        #    background = colors[4],
+        #    foreground = colors[2],
+        #    padding = 0,
+        #    fontsize = 22
+        #    ),
+        #widget.Net ( # requires python-psutil package
+        #    interface = "eno1",
+        #    format = '{down}  {up} ',
+        #    foreground = colors[2],
+        #    background = colors[4],
+        #    padding = 1,
+        #    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('nm-connection-editor')}
+        #    ),
+        #widget.TextBox (
+        #    text= '',
+        #    foreground = colors[0],
+        #    background = colors[4],
+        #    padding = 0,
+        #    fontsize = 26
+        #    ),
         widget.TextBox (
             text = "  ",
             foreground = colors[2],
@@ -339,11 +339,10 @@ def init_widgets_list():
             padding = 0,
             fontsize = 20
             ),
-        widget.Memory (
+        widget.KeyboardLayout (
             foreground = colors[2],
             background = colors[0],
-            mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(terminal + 'e htop')},
-            padding = 5
+            configured_keyboards = ['us', 'es']
             ),
         widget.TextBox (
             text= '',
@@ -355,17 +354,19 @@ def init_widgets_list():
         widget.Clock (
             foreground = colors[2],
             background = colors[4],
-            format = "%Y-%m-%d %H:%M (%A)"
+            format = "%Y-%m-%d %H:%M"
             ),
         widget.CurrentLayoutIcon (
             custom_icon_paths = [os.path.expanduser("~/.config/qtile/icons")],
             foreground = colors[0],
             background = colors[4],
-            padding = 5
+            padding = 4,
+            scale = 0.7
             ),
         widget.Systray(
                 background = colors[4],
-                padding = 0
+                icon_size = 14,
+                padding = 10
             )
         ]
     return widgets_list
