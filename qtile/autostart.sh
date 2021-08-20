@@ -5,3 +5,5 @@ xscreensaver --no-splash &
 nitrogen --restore &
 /usr/bin/dunst &
 picom --experimental-backends &
+pasystray &
+qrazercfg-applet &
