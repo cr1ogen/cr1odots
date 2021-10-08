@@ -225,22 +225,23 @@ screens = [
                 widget.Clock(
                     format='%a %H:%M %p',
                     fontsize=14,
-                     foreground='f6737d',
+                    foreground='f6737d',
+                ),
+                widget.CurrentLayoutIcon(
+                    custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
+                    scale=0.5,
+                    foreground='f6737d'
                 ),
                 widget.Systray(
                     icon_size=22,
                     padding=1,
-                ),
-                widget.CurrentLayoutIcon(
-                    custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
-                    scale=0.6,
                 )
                 
             ],
-            28,
+            32,
             background="#1A1E21",
             margin=[8, 8, 0, 8],
-            opacity=0.90,
+            opacity=0.80,
         ),
      )
 ]
