@@ -239,7 +239,7 @@ screens = [
                 
             ],
             32,
-            background="#1A1E21",
+            background=colors[0],
             margin=[8, 8, 0, 8],
             opacity=0.80,
         ),
