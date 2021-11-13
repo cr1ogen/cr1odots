@@ -53,9 +53,7 @@ def load_colors(cache):
     lazy.reload()
 load_colors(cache)
 
-colors[0]
 
-    
 mod = "mod4"
 terminal = "kitty" #guess_terminal()
 
@@ -112,11 +110,11 @@ keys = [
     ),
 
     Key([],"Print", lazy.spawn("scrot")),
-    
+
     #Aplicaciones
     Key([mod], "backslash", lazy.spawn("firefox"), desc="Launch Browser"),
-    Key([mod,"shift"], "backslash", lazy.spawn("pcmanfm"), desc="Launch File"),
-    
+    Key([mod,"shift"], "backslash", lazy.spawn("thunar"), desc="Launch File"),
+
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
@@ -165,6 +163,7 @@ layouts = [
     layout.Floating(border_width=0, margin=8),
     # layout.Matrix(),
     layout.MonadTall(border_width=0, margin=8),
+    layout.VerticalTile(),
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
@@ -201,7 +200,7 @@ screens = [
                     active='f6737d',
                     this_current_screen_border='f6737d',
                     padding_x=7,
-                    padding_y=12,
+                    padding_y=22,
                     borderwidth=2,
                     fontsize=26,
                 ),
@@ -213,10 +212,14 @@ screens = [
                     highlight_method='text',
                     border='f6737d',
                     foreground='3b3a3a',
+                    font='JetBrains Mono',
                     #max_title_width=330,
-                    fontsize=13,
-                    padding=1
-                ),    
+                    fontsize=14,
+                    padding=5,
+                ),
+                #widget.StatusNotifier(
+                #    icon_size=22,
+                #    ),
                 widget.KeyboardLayout(
                     configured_keyboards=["us", "es"],
                     fontsize=13,
@@ -234,14 +237,17 @@ screens = [
                 ),
                 widget.Systray(
                     icon_size=22,
-                    padding=1,
+                    padding=5,
+                ),
+                widget.Sep(
+                    linewidth=0,
                 )
-                
+
             ],
             32,
             background=colors[0],
             margin=[8, 8, 0, 8],
-            opacity=0.80,
+            opacity=0.90,
         ),
      )
 ]
@@ -263,10 +269,10 @@ floating_layout = layout.Floating(float_rules=[
     # Run the utility of `xprop` to see the wm class and name of an X client.
     *layout.Floating.default_float_rules,
     Match(wm_class='confirmreset'),  # gitk
-    Match(wm_class='makebranch'),  # gitk
-    Match(wm_class='maketag'),  # gitk
+    Match(wm_class='qjackctl'),  # gitk
+    Match(wm_class='arandr'),  # gitk
     Match(wm_class="Steam"),
-    Match(wm_class='ssh-askpass'),  # ssh-askpass
+    Match(wm_class='psensor'),  # ssh-askpass
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
 ])
