@@ -5,28 +5,11 @@
 # Copyright (c) 2012 Craig Barnes
 # Copyright (c) 2013 horsik
 # Copyright (c) 2013 Tao Sauvage
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
 
 from typing import List  # noqa: F401
 
-from libqtile import bar, layout, hook
+from libqtile import bar
+from libqtile import layout, hook
 from libqtile import widget
 from qtile_extras import widget as extrawidgets
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
@@ -89,7 +72,7 @@ keys = [
 
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod], "backslash", lazy.spawn("firefox"), desc="Launch Browser"),
-    Key([mod,"shift"], "backslash", lazy.spawn("nautilus"), desc="Launch File"),
+    Key([mod,"shift"], "backslash", lazy.spawn("thunar"), desc="Launch File"),
 
 
     #Audio
@@ -116,32 +99,65 @@ keys = [
 
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+    Key([mod, "control"], "p", lazy.spawn("wlogout"), desc="Power Options"),
     Key([mod], "r", lazy.spawncmd(),
         desc="Spawn a command using a prompt widget"),
 ]
 
-groups = [Group(i) for i in "12345678"]
+# groups = [Group(i) for i in "12345678"]
+
+groups = []
+
+# FOR QWERTY KEYBOARDS
+group_names = ["1", "2", "3", "4", "5", "6", "7", "8",]
+
+#group_labels = ["1 ", "2 ", "3 ", "4 ", "5 ", "6 ", "7 ", "8 ",]
+group_labels = ["", "", "", "", "", "", "", "", "", "\uf89f", ]
+#group_labels = ["Web", "Edit/chat", "Image", "Gimp", "Meld", "Video", "Vb", "Files", "Mail", "Music",]
+
+group_layouts = ["monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", ]
+#group_layouts = ["monadtall", "matrix", "monadtall", "bsp", "monadtall", "matrix", "monadtall", "bsp", "monadtall", "monadtall",]
+
+for i in range(len(group_names)):
+    groups.append(
+        Group(
+            name=group_names[i],
+            layout=group_layouts[i].lower(),
+            label=group_labels[i],
+        ))
 
 for i in groups:
     keys.extend([
         # mod1 + letter of group = switch to group
-        Key([mod], i.name, lazy.group[i.name].toscreen(),
-            desc="Switch to group {}".format(i.name)),
+        Key(
+            [mod],
+            i.name, lazy.group[i.name].toscreen(),
+            desc="Switch to group {}".format(i.name),
+        ),
 
         # mod1 + shift + letter of group = switch to & move focused window to group
-        Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
-            desc="Switch to & move focused window to group {}".format(i.name)),
+        Key(
+            [mod, "shift"],
+            i.name, lazy.window.togroup(i.name, switch_group=True),
+            desc="Switch to & move focused window to group {}".format(i.name),
+        ),
         # Or, use below if you prefer not to switch to that group.
         # # mod1 + shift + letter of group = move focused window to group
         # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
         #     desc="move focused window to group {}".format(i.name)),
-    ])
+    ]
+)
 
 layouts = [
     layout.MonadTall(border_width=0, margin=8),
     layout.Floating(),
     layout.Max(),
 ]
+
+## MOUSE CALLBACKS
+
+def open_pavucontrol(qtile):
+    qtile.cmd_spawn('pavucontrol')
 
 widget_defaults = dict(
     font='JetBrains Mono',
@@ -152,21 +168,21 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper = '~/Imágenes/Wallpapers/spruce_forest.jpg',
+        wallpaper = '~/Imágenes/Wallpapers/arco-login.png',
         wallpaper_mode = 'fill',
         top=bar.Bar(
           [
                 widget.GroupBox(
-                    highlight_method='text',
-                    active='f6737d',
-                    this_current_screen_border='f6737d',
+                    highlight_method='line',
+                    active='585e6c',
+                    this_current_screen_border='585e6c',
                     fontsize=14,
                     padding_x=5,
                 ),
                 widget.TaskList(
                     highlight_method='text',
-                    border='f6737d',
-                    this_current_screen_border='f6737d',
+                    border='585e6c',
+                    this_current_screen_border='585e6c',
                     max_title_width=350,
                     icon_size=26,
                     padding=2,
@@ -179,26 +195,22 @@ screens = [
                 widget.Moc(
                     play_color='f6737d',
                 ),
-                #widget.Volume(
-                #    channel="Master",
-                #    volume_app='pavucontrol',
-                #),
                 extrawidgets.ALSAWidget(
                     mode='both',
-                    theme_path='/home/cr1ogen/.local/share/icons/We10X-orange-dark',
-                    bar_width=25,
-                ),
+                    mouse_callbacks={'Button1':open_pavucontrol},
+                    theme_path='~/.local/share/icons/Zafiro-Icons-Dark-Black-f/',
+                ),    
                 extrawidgets.StatusNotifier(
                 ),    
                 widget.CurrentLayoutIcon(
                     scale=0.5,
-                )
+                ),
             ],
             28,
             margin=[4, 8, 0, 8],
-            background='#232831',
+            background='#2b313c',
             opacity=0.95,
-            border_width=[2, 2, 2, 2],  # Draw top and bottom borders
+            #border_width=[2, 2, 2, 2],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
     ),
@@ -225,7 +237,8 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='makebranch'),  # gitk
     Match(wm_class='maketag'),  # gitk
     Match(wm_class='ssh-askpass'),  # ssh-askpass
-    #Match(wm_class='wlogout'),
+    Match(wm_class='wlogout'),
+    Match(wm_class='xfce4-notifyd'),
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
 ])
