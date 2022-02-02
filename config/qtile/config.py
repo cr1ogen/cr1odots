@@ -10,7 +10,7 @@ from typing import List  # noqa: F401
 
 from libqtile import bar
 from libqtile import layout, hook
-from libqtile import widget
+from libqtile import widget, qtile
 from qtile_extras import widget as extrawidgets
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
@@ -24,6 +24,20 @@ import subprocess
 def autostart():
     home = os.path.expanduser('~')
     subprocess.call([home + '/.config/qtile/autostart.sh'])
+
+# Pywal
+
+colors = []
+cache='/home/cr1ogen/.cache/wal/colors'
+def load_colors(cache):
+    with open(cache, 'r') as file:
+        for i in range(8):
+            colors.append(file.readline().strip())
+    colors.append('#ffffff')
+    lazy.reload()
+load_colors(cache)
+
+
 
 mod = "mod4"
 terminal = "kitty"
@@ -90,8 +104,9 @@ keys = [
     ),
 
     #Run Apps
-    Key([mod], "b", lazy.spawn("rofi -show drun -modi drun" ),
+    Key([mod], "b", lazy.spawn("rofi -show drun -modi drun"),
         desc="Spawn a command using a prompt widget"),
+    Key([mod], "r", lazy.spawn("rofi -show run"), desc="run apps"),  
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
@@ -100,9 +115,10 @@ keys = [
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod, "control"], "p", lazy.spawn("wlogout"), desc="Power Options"),
-    Key([mod], "r", lazy.spawncmd(),
-        desc="Spawn a command using a prompt widget"),
 ]
+    #Key([mod], "r", lazy.spawncmd(),
+        #desc="Spawn a command using a prompt widget"),
+
 
 # groups = [Group(i) for i in "12345678"]
 
@@ -112,8 +128,8 @@ groups = []
 group_names = ["1", "2", "3", "4", "5", "6", "7", "8",]
 
 #group_labels = ["1 ", "2 ", "3 ", "4 ", "5 ", "6 ", "7 ", "8 ",]
-group_labels = ["", "", "", "", "", "", "", "", "", "\uf89f", ]
-#group_labels = ["Web", "Edit/chat", "Image", "Gimp", "Meld", "Video", "Vb", "Files", "Mail", "Music",]
+#group_labels = ["", "", "", "", "", "", "", "", "", "\uf89f", ]
+group_labels = ["Web", "Edit", "Image", "Gimp", "Meld", "Video", "Vb", "Files", "Mail", "Music",]
 
 group_layouts = ["monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", ]
 #group_layouts = ["monadtall", "matrix", "monadtall", "bsp", "monadtall", "matrix", "monadtall", "bsp", "monadtall", "monadtall",]
@@ -154,13 +170,8 @@ layouts = [
     layout.Max(),
 ]
 
-## MOUSE CALLBACKS
-
-def open_pavucontrol(qtile):
-    qtile.cmd_spawn('pavucontrol')
-
 widget_defaults = dict(
-    font='JetBrains Mono',
+    font='JetBrainsMonoExtraBold',
     fontsize=13,
     padding=3,
 )
@@ -168,15 +179,16 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper = '~/Imágenes/Wallpapers/arco-login.png',
+        wallpaper = '~/Imágenes/Wallpapers/florest-stair2.jpg',
         wallpaper_mode = 'fill',
         top=bar.Bar(
           [
                 widget.GroupBox(
                     highlight_method='line',
-                    active='585e6c',
-                    this_current_screen_border='585e6c',
-                    fontsize=14,
+                    active='ffffff',
+                    inactive='ffffff',
+                    this_current_screen_border='ffffff',
+                    fontsize=13,
                     padding_x=5,
                 ),
                 widget.TaskList(
@@ -197,8 +209,8 @@ screens = [
                 ),
                 extrawidgets.ALSAWidget(
                     mode='both',
-                    mouse_callbacks={'Button1':open_pavucontrol},
-                    theme_path='~/.local/share/icons/Zafiro-Icons-Dark-Black-f/',
+                    mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
+                    theme_path='~/.local/share/icons/oomox-Numix-Oscure/',
                 ),    
                 extrawidgets.StatusNotifier(
                 ),    
@@ -208,7 +220,7 @@ screens = [
             ],
             28,
             margin=[4, 8, 0, 8],
-            background='#2b313c',
+            background=colors[0],
             opacity=0.95,
             #border_width=[2, 2, 2, 2],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
@@ -237,7 +249,6 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='makebranch'),  # gitk
     Match(wm_class='maketag'),  # gitk
     Match(wm_class='ssh-askpass'),  # ssh-askpass
-    Match(wm_class='wlogout'),
     Match(wm_class='xfce4-notifyd'),
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
