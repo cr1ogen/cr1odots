@@ -15,6 +15,8 @@ from qtile_extras import widget as extrawidgets
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
+import pywal
+import barra
 
 # Autostart
 import os
@@ -33,7 +35,7 @@ def load_colors(cache):
     with open(cache, 'r') as file:
         for i in range(8):
             colors.append(file.readline().strip())
-    colors.append('#ffffff')
+    colors.append('#00000000')
     lazy.reload()
 load_colors(cache)
 
@@ -106,7 +108,7 @@ keys = [
     #Run Apps
     Key([mod], "b", lazy.spawn("rofi -show drun -modi drun"),
         desc="Spawn a command using a prompt widget"),
-    Key([mod], "r", lazy.spawn("rofi -show run"), desc="run apps"),  
+    Key([mod], "r", lazy.spawn("rofi -show run"), desc="run apps"),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
@@ -125,13 +127,13 @@ keys = [
 groups = []
 
 # FOR QWERTY KEYBOARDS
-group_names = ["1", "2", "3", "4", "5", "6", "7", "8",]
+group_names = ["1", "2", "3", "4", "5", "6",]
 
-#group_labels = ["1 ", "2 ", "3 ", "4 ", "5 ", "6 ", "7 ", "8 ",]
-#group_labels = ["", "", "", "", "", "", "", "", "", "\uf89f", ]
-group_labels = ["Web", "Edit", "Image", "Gimp", "Meld", "Video", "Vb", "Files", "Mail", "Music",]
+#group_labels = ["1 ", "2 ", "3 ", "4 ", "5 ", "6 ",]
+group_labels = [" ₁", " ₂", " ₃", "阮 ₄", " ₅", " ₆", ]
+#group_labels = ["Web", "Edit", "Image", "Music", "Files", "Games",]
 
-group_layouts = ["monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", ]
+group_layouts = ["monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall",]
 #group_layouts = ["monadtall", "matrix", "monadtall", "bsp", "monadtall", "matrix", "monadtall", "bsp", "monadtall", "monadtall",]
 
 for i in range(len(group_names)):
@@ -172,7 +174,7 @@ layouts = [
 
 widget_defaults = dict(
     font='JetBrainsMonoExtraBold',
-    fontsize=13,
+    fontsize=14,
     padding=3,
 )
 extension_defaults = widget_defaults.copy()
@@ -183,12 +185,21 @@ screens = [
         wallpaper_mode = 'fill',
         top=bar.Bar(
           [
+                widget.Image(
+                    filename='~/.config/qtile/debian.png',
+                    mouse_callbacks={'Button1' : lambda: qtile.cmd_spawn("rofi -show drun -modi drun")},
+                    margin_x=10,
+                    margin_y=4,
+                    background=colors[0],
+                ),
                 widget.GroupBox(
+                    borderwidth=2,
                     highlight_method='line',
                     active='ffffff',
                     inactive='ffffff',
                     this_current_screen_border='ffffff',
-                    fontsize=13,
+                    font='FiraCode Nerd Font',
+                    fontsize=14,
                     padding_x=5,
                 ),
                 widget.TaskList(
@@ -196,7 +207,7 @@ screens = [
                     border='585e6c',
                     this_current_screen_border='585e6c',
                     max_title_width=350,
-                    icon_size=26,
+                    icon_size=30,
                     padding=2,
                 ),
                 widget.Clock(
@@ -221,7 +232,7 @@ screens = [
             28,
             margin=[4, 8, 0, 8],
             background=colors[0],
-            opacity=0.95,
+            opacity=0.85,
             #border_width=[2, 2, 2, 2],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
@@ -270,3 +281,4 @@ auto_minimize = True
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
 wmname = "LG3D"
+
