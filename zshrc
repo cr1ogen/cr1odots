@@ -40,8 +40,13 @@ antigen theme candy
 # Tell Antigen that you're done.
 antigen apply
 
+export SPICETIFY_INSTALL="/home/cr1ogen/.spicetify"
+export PATH="$SPICETIFY_INSTALL:$PATH"
 
 # Aliases
 
 alias ls='exa -l --icons --color=always --group-directories-first'
 alias la='exa -l --all --icons --color=always --group-directories-first'
+alias firefox='MOZ_ENABLE_WAYLAND=1 firefox'
+### RANDOM COLOR SCRIPT ###
+#colorscript random
