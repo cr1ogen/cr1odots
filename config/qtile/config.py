@@ -16,7 +16,7 @@ from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 import pywal
-import barra
+from settings.bar import bar
 
 # Autostart
 import os
@@ -27,6 +27,19 @@ def autostart():
     home = os.path.expanduser('~')
     subprocess.call([home + '/.config/qtile/autostart.sh'])
 
+ # Get the number of connected screens
+
+# @hook.subscribe.screens_reconfigured
+def get_monitors():
+    xr = qtile.screens
+    result = len(xr) - 1 if len(xr) > 2 else len(xr)
+    if result <= 0:
+        result = 1
+    logger.warning(f"Number of monitors: {result}")
+    return result
+
+monitors = 1
+    
 # Pywal
 
 colors = []
@@ -35,7 +48,7 @@ def load_colors(cache):
     with open(cache, 'r') as file:
         for i in range(8):
             colors.append(file.readline().strip())
-    colors.append('#00000000')
+    colors.append('#000000')
     lazy.reload()
 load_colors(cache)
 
@@ -43,7 +56,7 @@ load_colors(cache)
 
 mod = "mod4"
 terminal = "kitty"
-
+home = os.path.expanduser('~')
 keys = [
     # A list of available commands that can be bound to keys can be found
     # at https://docs.qtile.org/en/latest/manual/config/lazy.html
@@ -105,7 +118,7 @@ keys = [
         lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")
     ),
 
-    #Run Apps
+    # Run Apps
     Key([mod], "b", lazy.spawn("rofi -show drun -modi drun"),
         desc="Spawn a command using a prompt widget"),
     Key([mod], "r", lazy.spawn("rofi -show run"), desc="run apps"),
@@ -117,60 +130,78 @@ keys = [
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod, "control"], "p", lazy.spawn("wlogout"), desc="Power Options"),
+    
+    # Take a screenshot of the selected region
+    Key([mod], "Print",
+        lazy.spawn(home + "/.local/bin/screenshot.sh selected-region"),
+        desc='Save the selected region of the screen to the screenshots folder'
+        ),
+    # Capture region of screen to clipboard
+    Key([mod, "shift"], "Print",
+        lazy.spawn(home + "/.local/bin/screenshot.sh save-to-clipboard"),
+        desc='Capture a region of the screen to the clipboard'
+        ),
 ]
-    #Key([mod], "r", lazy.spawncmd(),
-        #desc="Spawn a command using a prompt widget"),
+
 
 
 # groups = [Group(i) for i in "12345678"]
 
-groups = []
 
-# FOR QWERTY KEYBOARDS
-group_names = ["1", "2", "3", "4", "5", "6",]
 
-#group_labels = ["1 ", "2 ", "3 ", "4 ", "5 ", "6 ",]
-group_labels = [" ₁", " ₂", " ₃", "阮 ₄", " ₅", " ₆", ]
-#group_labels = ["Web", "Edit", "Image", "Music", "Files", "Games",]
+# Groups with matches
 
-group_layouts = ["monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall",]
-#group_layouts = ["monadtall", "matrix", "monadtall", "bsp", "monadtall", "matrix", "monadtall", "bsp", "monadtall", "monadtall",]
-
-for i in range(len(group_names)):
-    groups.append(
-        Group(
-            name=group_names[i],
-            layout=group_layouts[i].lower(),
-            label=group_labels[i],
-        ))
-
-for i in groups:
-    keys.extend([
-        # mod1 + letter of group = switch to group
-        Key(
-            [mod],
-            i.name, lazy.group[i.name].toscreen(),
-            desc="Switch to group {}".format(i.name),
-        ),
-
-        # mod1 + shift + letter of group = switch to & move focused window to group
-        Key(
-            [mod, "shift"],
-            i.name, lazy.window.togroup(i.name, switch_group=True),
-            desc="Switch to & move focused window to group {}".format(i.name),
-        ),
-        # Or, use below if you prefer not to switch to that group.
-        # # mod1 + shift + letter of group = move focused window to group
-        # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-        #     desc="move focused window to group {}".format(i.name)),
-    ]
-)
-
-layouts = [
-    layout.MonadTall(border_width=0, margin=8),
-    layout.Floating(),
-    layout.Max(),
+workspaces = [
+    {"name": " ₁", "key": "1", "matches": [Match(wm_class='firefox')], "layout": "monadtall"},
+    {"name": " ₂", "key": "2", "matches": [Match(wm_class='kitty'), Match(wm_class='thunar')], "layout": "monadtall"},
+    {"name": " ₃", "key": "3", "matches": [Match(wm_class='emacs')], "layout": "monadtall"},
+    {"name": " ₄", "key": "4", "matches": [Match(wm_class='telegram-desktop'), Match(wm_class='discord')], "layout": "monadtall"},
+    {"name": " ₅", "key": "5", "matches": [Match(wm_class='gimp-2.99')], "layout": "monadtall"},
+    {"name": "阮 ₆", "key": "6", "matches": [Match(wm_class='Spotify')], "layout": "monadtall"},
+    {"name": " ₇", "key": "7", "matches": [Match(wm_class='soffice')], "layout": "monadtall"},
+    {"name": " ₈", "key": "8", "matches": [Match(wm_class='newsboat')], "layout": "monadtall"},
+    {"name": " ₉", "key": "9", "matches": [Match(wm_class='Steam')], "layout": "monadtall"},
 ]
+
+groups = []
+for workspace in workspaces:
+    matches = workspace["matches"] if "matches" in workspace else None
+    layouts = workspace["layout"] if "layout" in workspace else None
+    groups.append(Group(workspace["name"], matches=matches, layout=layouts))
+    keys.append(Key([mod], workspace["key"], lazy.group[workspace["name"]].toscreen()))
+    keys.append(Key([mod, "shift"], workspace["key"], lazy.window.togroup(workspace["name"])))
+
+# Move window to screen with Mod, Alt and number
+
+
+for i in range(monitors):
+    keys.extend([Key([mod, "mod1"], str(i), lazy.window.toscreen(i))])
+
+# DEFAULT THEME SETTINGS FOR LAYOUTS #
+layout_theme = {"border_width": 2,
+                "margin": 8,
+                "border_focus": colors,
+                "border_normal": colors
+                }
+
+    
+layouts = [
+    layout.MonadTall(**layout_theme, single_border_width=0),
+    layout.Stack(num_stacks=2, **layout_theme),
+    # layout.Max(),
+    # Try more layouts by unleashing below layouts.
+    layout.Bsp(**layout_theme),
+    layout.Columns(**layout_theme),
+    layout.Floating(**layout_theme),
+    # layout.Matrix(),
+    # layout.MonadWide(),
+    # layout.RatioTile(),
+    # layout.Tile(),
+    # layout.TreeTab(),
+    # layout.VerticalTile(),
+    # layout.Zoomy(),
+]
+
 
 widget_defaults = dict(
     font='JetBrainsMonoExtraBold',
@@ -181,7 +212,7 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper = '~/Imágenes/Wallpapers/florest-stair2.jpg',
+        wallpaper = '~/Imágenes/Wallpapers/el_gau10.jpg',
         wallpaper_mode = 'fill',
         top=bar.Bar(
           [
@@ -205,26 +236,26 @@ screens = [
                 widget.TaskList(
                     highlight_method='text',
                     border='585e6c',
-                    this_current_screen_border='585e6c',
+                    this_current_screen_border='ffffff',
                     max_title_width=350,
                     icon_size=30,
                     padding=2,
                 ),
                 widget.Clock(
-                    format='%d %^b %Y  |  %H:%M %p'
+                    format='%d %^b  |  %H:%M %p'
                 ),
                 widget.Spacer(
                 ),
                 widget.Moc(
                     play_color='f6737d',
                 ),
+                extrawidgets.StatusNotifier(
+                    ),
                 extrawidgets.ALSAWidget(
                     mode='both',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
-                    theme_path='~/.local/share/icons/oomox-Numix-Oscure/',
-                ),    
-                extrawidgets.StatusNotifier(
-                ),    
+                    theme_path='/usr/share/icons/Numix/',
+                ),        
                 widget.CurrentLayoutIcon(
                     scale=0.5,
                 ),
