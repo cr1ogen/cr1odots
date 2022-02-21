@@ -10,7 +10,7 @@
 configuration {
 	font:							"Noto Sans 10";
     show-icons:                     true;
-	icon-theme: 					"Papirus";
+	icon-theme: 					"Numix";
     display-drun: 					"";
     drun-display-format:            "{name}";
     disable-history:                false;
@@ -18,6 +18,7 @@ configuration {
 }
 
 /* -- Light -- */
+/*
 * {
     background:                     #e5e5e5ff;
     background-alt:              	#00000000;
@@ -27,19 +28,19 @@ configuration {
     border:		               		#1A73E9FF;
     selected:               		#D7D7D7FF;
 }
-
+*/
 /* -- Dark -- */
-/*
+
 * {
     background:                     #212121ff;
     background-alt:              	#00000000;
     background-bar:                 #151515FF;
     foreground:                     #EDEDEDFF;
     accent:			            	#EDEDED4d;
-    border:		               		#1A73E9FF;
+    border:		               		#FF5722FF;
     selected:               		#151515ff;
 }
-*/
+
 
 window {
     transparency:                   "real";
@@ -48,11 +49,11 @@ window {
 	border:							0px;
 	border-color:					@border;
     border-radius:                  0px;
-	height:							100%;
+	height:							98%;
 	width:							30%;
     location:                       west;
-    x-offset:                       0;
-    y-offset:                       0;
+    x-offset:                       8;
+    y-offset:                       2;
 }
 
 prompt {
