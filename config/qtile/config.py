@@ -5,206 +5,164 @@
 # Copyright (c) 2012 Craig Barnes
 # Copyright (c) 2013 horsik
 # Copyright (c) 2013 Tao Sauvage
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-from typing import List  # noqa: F401
-
-from libqtile import bar
-from libqtile import layout, hook
-from libqtile import widget, qtile
-from qtile_extras import widget as extrawidgets
+## Qtile import ##
+import os
+import subprocess
+from libqtile import bar, layout, widget, hook, qtile
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
-import pywal
-from settings.bar import bar
 
-# Autostart
-import os
-import subprocess
+## Qtile "El Paraguayo" extras import ##
+
+from qtile_extras import widget as extrawidgets
+
+## Llamada de aplicaciones al inicio ##
 
 @hook.subscribe.startup_once
 def autostart():
     home = os.path.expanduser('~')
     subprocess.call([home + '/.config/qtile/autostart.sh'])
 
- # Get the number of connected screens
-
-# @hook.subscribe.screens_reconfigured
-def get_monitors():
-    xr = qtile.screens
-    result = len(xr) - 1 if len(xr) > 2 else len(xr)
-    if result <= 0:
-        result = 1
-    logger.warning(f"Number of monitors: {result}")
-    return result
-
-monitors = 1
-    
-# Pywal
-
-colors = []
-cache='/home/cr1ogen/.cache/wal/colors'
-def load_colors(cache):
-    with open(cache, 'r') as file:
-        for i in range(8):
-            colors.append(file.readline().strip())
-    colors.append('#000000')
-    lazy.reload()
-load_colors(cache)
-
-
 
 mod = "mod4"
-terminal = "kitty"
-home = os.path.expanduser('~')
-keys = [
-    # A list of available commands that can be bound to keys can be found
-    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
+terminal = guess_terminal("kitty")
 
-    # Switch between windows
+keys = [
+    # Se puede encontrar una lista de los comandos disponibles que se pueden vincular a las teclas
+    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
+    # Cambiar entre ventanas.
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
     Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
-    Key([mod], "space", lazy.layout.next(),
-        desc="Move window focus to other window"),
-
-    # Move windows between left/right columns or move up/down in current stack.
-    # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "h", lazy.layout.shuffle_left(),
-        desc="Move window to the left"),
-    Key([mod, "shift"], "l", lazy.layout.shuffle_right(),
-        desc="Move window to the right"),
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down(),
-        desc="Move window down"),
+    Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
+    # Mover ventanas entre las columnas izquierda/derecha o subir/bajar en la pila actual.
+    # Salir del rango en el diseño de Columnas creará una nueva columna.
+    Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
+    Key([mod, "shift"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
+    Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
     Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-
-    # Grow windows. If current window is on the edge of screen and direction
-    # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(),
-        desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(),
-        desc="Grow window to the right"),
-    Key([mod, "control"], "j", lazy.layout.grow_down(),
-        desc="Grow window down"),
+    # Crecer ventanas. Si la ventana actual está en el borde de la pantalla y la dirección
+    # estará en el borde de la pantalla - la ventana se encogería.
+    Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
+    Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
+    Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
     Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    # Alternar entre los lados divididos y no divididos de la pila.
+    # Dividir = todas las ventanas mostradas
+    # Nodividir = 1 ventana mostrada, como el Max layout, pero aun com
+    # multiple paneles de pila.
+    Key(
+        [mod, "shift"],
+        "Return",
+        lazy.layout.toggle_split(),
+        desc="Toggle between split and unsplit sides of stack",
+    ),
+    # Alternar entre diferentes layouts como se define a continuación.
+    Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
+    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
+    Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
 
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key([mod, "shift"], "Return", lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack"),
+    ## Captura de pantalla ##
+    
+    Key([], "Print", lazy.spawn("/home/cr1ogen/.config/rofi/bin/menu_screenshot")),
 
-    # Aplicaciones principales
-
+    ## Aplicaciones mas usadas ##
+  
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod], "backslash", lazy.spawn("firefox"), desc="Launch Browser"),
     Key([mod,"shift"], "backslash", lazy.spawn("thunar"), desc="Launch File"),
-
-
-    #Audio
-    Key(
-        [], "XF86AudioRaiseVolume",
-        lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
-    ),
-    Key(
-        [], "XF86AudioLowerVolume",
-        lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")
-    ),
-    Key(
-        [], "XF86AudioMute",
-        lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")
-    ),
-
-    # Run Apps
-    Key([mod], "b", lazy.spawn("rofi -show drun -modi drun"),
-        desc="Spawn a command using a prompt widget"),
-    Key([mod], "r", lazy.spawn("rofi -show run"), desc="run apps"),
-
-    # Toggle between different layouts as defined below
-    Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
-
-    Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
-    Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod, "control"], "p", lazy.spawn("wlogout"), desc="Power Options"),
-    
-    # Take a screenshot of the selected region
-    Key([mod], "Print",
-        lazy.spawn(home + "/.local/bin/screenshot.sh selected-region"),
-        desc='Save the selected region of the screen to the screenshots folder'
-        ),
-    # Capture region of screen to clipboard
-    Key([mod, "shift"], "Print",
-        lazy.spawn(home + "/.local/bin/screenshot.sh save-to-clipboard"),
-        desc='Capture a region of the screen to the clipboard'
-        ),
 ]
 
+##groups = [Group(i) for i in "123456789"]
 
-
-# groups = [Group(i) for i in "12345678"]
-
-
-
-# Groups with matches
-
-workspaces = [
-    {"name": " ₁", "key": "1", "matches": [Match(wm_class='firefox')], "layout": "monadtall"},
-    {"name": " ₂", "key": "2", "matches": [Match(wm_class='kitty'), Match(wm_class='thunar')], "layout": "monadtall"},
-    {"name": " ₃", "key": "3", "matches": [Match(wm_class='emacs')], "layout": "monadtall"},
-    {"name": " ₄", "key": "4", "matches": [Match(wm_class='telegram-desktop'), Match(wm_class='discord')], "layout": "monadtall"},
-    {"name": " ₅", "key": "5", "matches": [Match(wm_class='gimp-2.99')], "layout": "monadtall"},
-    {"name": "阮 ₆", "key": "6", "matches": [Match(wm_class='Spotify')], "layout": "monadtall"},
-    {"name": " ₇", "key": "7", "matches": [Match(wm_class='soffice')], "layout": "monadtall"},
-    {"name": " ₈", "key": "8", "matches": [Match(wm_class='newsboat')], "layout": "monadtall"},
-    {"name": " ₉", "key": "9", "matches": [Match(wm_class='Steam')], "layout": "monadtall"},
-]
-
-groups = []
-for workspace in workspaces:
-    matches = workspace["matches"] if "matches" in workspace else None
-    layouts = workspace["layout"] if "layout" in workspace else None
-    groups.append(Group(workspace["name"], matches=matches, layout=layouts))
-    keys.append(Key([mod], workspace["key"], lazy.group[workspace["name"]].toscreen()))
-    keys.append(Key([mod, "shift"], workspace["key"], lazy.window.togroup(workspace["name"])))
-
-# Move window to screen with Mod, Alt and number
-
-
-for i in range(monitors):
-    keys.extend([Key([mod, "mod1"], str(i), lazy.window.toscreen(i))])
-
-# DEFAULT THEME SETTINGS FOR LAYOUTS #
-layout_theme = {"border_width": 2,
-                "margin": 8,
-                "border_focus": colors,
-                "border_normal": colors
-                }
-
+groups= [
+    Group("1",
+          label="WEB",
+          ),
+    Group("2",
+          label="EDIT",
+          ),
+    Group("3",
+          label="PROMPT",
+          ),
+    Group("4",
+          label="DATA",
+          ),
+    Group("5",
+          label="MEDIA",
+          ),
+    Group("6",
+          label="GAME",
+          ),
     
+    ]
+
+for i in groups:
+    keys.extend(
+        [
+            # mod1 + letter of group = switch to group
+            Key(
+                [mod],
+                i.name,
+                lazy.group[i.name].toscreen(),
+                desc="Switch to group {}".format(i.name),
+            ),
+            # mod1 + shift + letter of group = switch to & move focused window to group
+            Key(
+                [mod, "shift"],
+                i.name,
+                lazy.window.togroup(i.name, switch_group=True),
+                desc="Switch to & move focused window to group {}".format(i.name),
+            ),
+            # Or, use below if you prefer not to switch to that group.
+            # # mod1 + shift + letter of group = move focused window to group
+            # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
+            #     desc="move focused window to group {}".format(i.name)),
+        ]
+    )
+
 layouts = [
-    layout.MonadTall(**layout_theme, single_border_width=0),
-    layout.Stack(num_stacks=2, **layout_theme),
-    # layout.Max(),
+    layout.Bsp(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=1, margin=6,),
+    layout.Max(),
+    layout.Tile(),
+    layout.Floating(),
     # Try more layouts by unleashing below layouts.
-    layout.Bsp(**layout_theme),
-    layout.Columns(**layout_theme),
-    layout.Floating(**layout_theme),
+    # layout.Stack(num_stacks=2),
     # layout.Matrix(),
+    # layout.MonadTall(),
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
-    # layout.TreeTab(),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]
 
-
 widget_defaults = dict(
-    font='JetBrainsMonoExtraBold',
+    font="JetBrainsMonoExtraBold",
     fontsize=14,
     padding=3,
 )
@@ -212,59 +170,50 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper = '~/Imágenes/Wallpapers/el_gau10.jpg',
+         wallpaper = '~/Imágenes/Wallpapers/el_gau10.jpg',
         wallpaper_mode = 'fill',
+
         top=bar.Bar(
-          [
-                widget.Image(
-                    filename='~/.config/qtile/debian.png',
-                    mouse_callbacks={'Button1' : lambda: qtile.cmd_spawn("rofi -show drun -modi drun")},
-                    margin_x=10,
-                    margin_y=4,
-                    background=colors[0],
-                ),
+            [
                 widget.GroupBox(
-                    borderwidth=2,
-                    highlight_method='line',
-                    active='ffffff',
-                    inactive='ffffff',
-                    this_current_screen_border='ffffff',
-                    font='FiraCode Nerd Font',
-                    fontsize=14,
-                    padding_x=5,
+                    highlight_method='block',
+                    active = '#ffffff',
+                    inactive = '#ffffff',
+                    this_current_screen_border='#ff5722'
                 ),
+                widget.CurrentLayoutIcon(
+                    custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
+                    scale=0.5,
+                ),
+                widget.Prompt(),
                 widget.TaskList(
-                    highlight_method='text',
-                    border='585e6c',
-                    this_current_screen_border='ffffff',
                     max_title_width=350,
-                    icon_size=30,
-                    padding=2,
+                    highlight_method='block',
+                    border='ff5722',
+                    margin_y=1,
                 ),
-                widget.Clock(
-                    format='%d %^b  |  %H:%M %p'
-                ),
-                widget.Spacer(
-                ),
-                widget.Moc(
-                    play_color='f6737d',
-                ),
+                widget.Clock(format="%m-%d | %H:%H %p"),
+                widget.Spacer(),
                 extrawidgets.StatusNotifier(
-                    ),
+                icon_theme='/usr/share/icons/Numix/',
+                ),
                 extrawidgets.ALSAWidget(
                     mode='both',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
                     theme_path='/usr/share/icons/Numix/',
-                ),        
-                widget.CurrentLayoutIcon(
-                    scale=0.5,
+                    margin_y=8,
+                ),
+                widget.Image(
+                    filename='~/.config/qtile/Power.png',
+                    mouse_callbacks={'Button1' : lambda: qtile.cmd_spawn("/home/cr1ogen/.config/rofi/bin/menu_powermenu")},
+                    margin_y=4,
                 ),
             ],
             28,
-            margin=[4, 8, 0, 8],
-            background=colors[0],
-            opacity=0.85,
-            #border_width=[2, 2, 2, 2],  # Draw top and bottom borders
+            margin=[4, 6, 0, 6],
+            background='#212121',
+            opacity=0.95,
+            border_width=[2, 2, 2, 2],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
     ),
@@ -272,29 +221,29 @@ screens = [
 
 # Drag floating layouts.
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(),
-         start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(),
-         start=lazy.window.get_size()),
-    Click([mod], "Button2", lazy.window.bring_to_front())
+    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
+    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
 
 dgroups_key_binder = None
-dgroups_app_rules = []  # type: List
+dgroups_app_rules = []  # type: list
 follow_mouse_focus = True
 bring_front_click = False
 cursor_warp = False
-floating_layout = layout.Floating(float_rules=[
-    # Run the utility of `xprop` to see the wm class and name of an X client.
-    *layout.Floating.default_float_rules,
-    Match(wm_class='confirmreset'),  # gitk
-    Match(wm_class='makebranch'),  # gitk
-    Match(wm_class='maketag'),  # gitk
-    Match(wm_class='ssh-askpass'),  # ssh-askpass
-    Match(wm_class='xfce4-notifyd'),
-    Match(title='branchdialog'),  # gitk
-    Match(title='pinentry'),  # GPG key password entry
-])
+floating_layout = layout.Floating(
+    float_rules=[
+        # Run the utility of `xprop` to see the wm class and name of an X client.
+        *layout.Floating.default_float_rules,
+        Match(wm_class="confirmreset"),  # gitk
+        Match(wm_class="makebranch"),  # gitk
+        Match(wm_class="maketag"),  # gitk
+        Match(wm_class="ssh-askpass"),  # ssh-askpass
+        Match(wm_class="wlogout"),
+        Match(title="branchdialog"),  # gitk
+        Match(title="pinentry"),  # GPG key password entry
+    ]
+)
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 reconfigure_screens = True
@@ -302,6 +251,9 @@ reconfigure_screens = True
 # If things like steam games want to auto-minimize themselves when losing
 # focus, should we respect this or not?
 auto_minimize = True
+
+# When using the Wayland backend, this can be used to configure input devices.
+wl_input_rules = None
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the
@@ -312,4 +264,3 @@ auto_minimize = True
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
 wmname = "LG3D"
-
