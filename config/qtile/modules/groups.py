@@ -3,14 +3,18 @@ from libqtile.command import lazy
 from .keys import mod, keys
 
 groups = [
-    Group(name='1', label="", layout="monadtall"),
+    Group(name='1', label="", layout="monadtall"),
     Group(name='2', label="", matches=[
           Match(wm_class='qutebrowser')], layout="monadtall"),
     Group(name='3', label="", matches=[
           Match(wm_class='Alacritty'), Match(wm_class='code-git')], layout="monadtall"),
     Group(name='4', label="", matches=[
           Match(wm_class='discord')], layout='max'),
-    Group(name='5', label="阮", matches=[Match(wm_class='vlc')], layout='max'),
+    Group(name='5', label="ﰝ", matches=[
+        Match(wm_class='vlc')], layout='max'),
+    Group(name='6', label="", matches=[
+        Match(wm_class='Steam')], layout='monadtall'),
+
 ]
 
 for i in groups:
