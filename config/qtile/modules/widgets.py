@@ -33,6 +33,7 @@ primary_widgets = [
                 extrawidgets.ALSAWidget(
                     mode='icon',
                     theme_path='/home/cr1ogen/.local/share/icons/McMuse-orange-dark',
+                    mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
                 ),
                  widget.CurrentLayoutIcon(
                     scale=0.5,
