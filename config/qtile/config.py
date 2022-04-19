@@ -11,8 +11,6 @@ import subprocess
 from libqtile import bar
 from libqtile.config import Screen
 from libqtile.lazy import lazy
-#from qtile_extras import widget as extrawidgets #Extras
-
 
 # Modules
 
