@@ -46,4 +46,6 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
     Key([mod], "b", lazy.spawn("rofi -show drun"), desc="Launch apps"),
+    Key([mod], "backslash", lazy.spawn("firefox")),
+    Key([mod, "shift"], "backslash", lazy.spawn("nautilus")),
 ]
