@@ -6,12 +6,13 @@
 # Copyright (c) 2013 horsik
 # Copyright (c) 2013 Tao 
 
+
 import os
 import subprocess
 from libqtile import bar
 from libqtile.config import Screen
 from libqtile.lazy import lazy
-#from qtile_extras import widget as extrawidgets #Extras
+from qtile_extras import widget as extrawidgets #Extras
 
 
 # Modules
@@ -23,38 +24,39 @@ from modules.keys import mod, keys, terminal
 from modules.layouts import layouts
 from modules.mouse import mouse
 from modules.widgets import primary_widgets
+from modules.colors import colors
 
-colors = [[],
-          ["#1c1f24", "#1c1f24"],
-          ["#dfdfdf", "#dfdfdf"],
-          ["#ff6c6b", "#ff6c6b"],
-          ["#98be65", "#98be65"],
-          ["#da8548", "#da8548"],
-          ["#51afef", "#51afef"],
-          ["#c678dd", "#c678dd"],
-          ["#46d9ff", "#46d9ff"],
-          ["#a9a1e1", "#a9a1e1"]]
+#colors = [[],
+#          ["#1c1f24", "#1c1f24"],
+#          ["#444444", "#444444"],
+#          ["#ff6c6b", "#ff6c6b"],
+#          ["#98be65", "#98be65"],
+#          ["#da8548", "#da8548"],
+#          ["#51afef", "#51afef"],
+#          ["#c678dd", "#c678dd"],
+#          ["#46d9ff", "#46d9ff"],
+#          ["#a9a1e1", "#a9a1e1"]]
 
 ## Colors from Pywal
 
-cache='/home/cr1ogen/.cache/wal/colors'
-def load_colors(cache):
-    with open(cache, 'r') as file:
-        for i in range(8):
-            colors.append(file.readline().strip())
-    colors.append('#ffffff')
-    lazy.reload()
-load_colors(cache)
+#cache='/home/cr1ogen/.cache/wal/colors'
+#def load_colors(cache):
+#    with open(cache, 'r') as file:
+#        for i in range(8):
+#            colors.append(file.readline().strip())
+#    colors.append('#ffffff')
+#    lazy.reload()
+#load_colors(cache)
 
 
 screens = [
     Screen(
-        wallpaper = '~/Imagenes/Wallpapers/forest.jpg',
+        wallpaper = '~/.local/share/backgrounds/flare.jpg',
         wallpaper_mode = 'fill',
         top=bar.Bar(primary_widgets,
         size=26,
-        opacity=0.90,
-        background=colors[1],
+        opacity=1,
+        background=colors['dark0_soft'],
         border_width=[6, 0, 0, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
