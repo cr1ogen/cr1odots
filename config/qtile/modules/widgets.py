@@ -4,8 +4,10 @@ from libqtile import qtile
 from libqtile import widget
 from qtile_extras import widget as extrawidgets #Extras
 
+from modules.colors import colors
+
 widget_defaults = dict(
-    font="JetBrainsMono Nerd Font",
+    font="Mononoki Nerd Font",
     fontsize=12,
     padding=3,
 )
@@ -16,7 +18,9 @@ primary_widgets = [
                     font="JetBrainsMono Nerd Font",
                     fontsize=18,
                     padding=7,
-                    highlight_method='text',
+                    highlight_method='block',
+                    this_current_screen_border=colors['neutral_orange'], #'c65c0e',
+                    inactive='ffffff',    
                 ),
                 widget.Prompt(
                 ),
@@ -24,12 +28,17 @@ primary_widgets = [
                     font="JetBrainsMono Nerd Font",
                     fontsize=14,
                     highlight_method='text',
+                    foreground='d65d0e',
+                    border='ffffff',
                     max_title_width=200,
+                    theme_mode='preferred',
+                    theme_path='/usr/share/icons/Paper-Mono-Dark', 
                 ),
                 widget.Clock(
                     format=' %d %b, %H:%M %p',
                     font='JetBrainsMono Nerd Font Bold',
-                    fontsize=14,
+                    fontsize=16,
+                    foreground='d65d0e',
                 ),
                 widget.Spacer(
                 ),
@@ -39,13 +48,15 @@ primary_widgets = [
                 widget.TextBox(
                     text='',
                     fontsize=24,
+                    foreground='d65d0e'
                 ),
                 widget.KeyboardLayout(
                 configured_keyboards=['us','es'],
+                foreground='d65d0e'
                 ),
                 extrawidgets.ALSAWidget(
                     mode='icon',
-                    theme_path='/home/cr1ogen/.local/share/icons/BeautyLine',
+                    theme_path='/usr/share/icons/Paper-Mono-Dark',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
                     margin=13,
                 ),
