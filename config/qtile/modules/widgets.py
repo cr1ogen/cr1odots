@@ -17,9 +17,10 @@ primary_widgets = [
                 widget.GroupBox(
                     font="Mononoki Nerd Font",
                     fontsize=18,
-                    padding=7,
+                    padding=9,
+                    center_aligned=True,
                     highlight_method='block',
-                    this_current_screen_border=colors['red'], #'c65c0e',
+                    this_current_screen_border=colors['orange'],
                     inactive=colors['white'],    
                 ),
                 widget.Prompt(
@@ -27,18 +28,26 @@ primary_widgets = [
                 widget.TaskList(
                     font="Mononoki Nerd Font",
                     fontsize=14,
+                    icon_size=20,
+                    margin=3,
                     highlight_method='text',
                     foreground=colors['white'],
-                    border=colors['red'],
+                    border=colors['orange'],
                     max_title_width=200,
                     theme_mode='preferred',
                     theme_path='/usr/share/icons/Paper-Mono-Dark', 
                 ),
+                widget.TextBox(
+                    text='',
+                    foreground=colors['white'],
+                    fontsize=20,
+                    padding=5,
+                ),    
                 widget.Clock(
-                    format=' %d %b, %H:%M %p',
+                    format= '%d %b, %H:%M %p',
                     font='Mononoki Nerd Font Bold',
                     fontsize=16,
-                    foreground=colors['red'],
+                    foreground=colors['orange'],
                 ),
                 widget.Spacer(
                 ),
@@ -47,12 +56,13 @@ primary_widgets = [
                 ),
                 widget.TextBox(
                     text='',
-                    fontsize=24,
-                    foreground=colors['red']
+                    fontsize=22,
+                    padding=5,
+                    foreground=colors['white']
                 ),
                 widget.KeyboardLayout(
                 configured_keyboards=['us','es'],
-                foreground=colors['red']
+                foreground=colors['orange']
                 ),
                 extrawidgets.ALSAWidget(
                     mode='both',
@@ -62,7 +72,8 @@ primary_widgets = [
                 ),
                  extrawidgets.CurrentLayoutIcon(
                     scale=0.7,
-                    custom_icon_paths=["/home/cr1ogen/.config/qtile/layout-icons/gruvbox-light2"],
+                    use_mask=True,
+                    foreground=colors['white'], 
                 ),
 
 ]
