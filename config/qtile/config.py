@@ -26,16 +26,7 @@ from modules.mouse import mouse
 from modules.widgets import primary_widgets
 from modules.colors import colors
 
-#colors = [[],
-#          ["#1c1f24", "#1c1f24"],
-#          ["#444444", "#444444"],
-#          ["#ff6c6b", "#ff6c6b"],
-#          ["#98be65", "#98be65"],
-#          ["#da8548", "#da8548"],
-#          ["#51afef", "#51afef"],
-#          ["#c678dd", "#c678dd"],
-#          ["#46d9ff", "#46d9ff"],
-#          ["#a9a1e1", "#a9a1e1"]]
+
 
 ## Colors from Pywal
 
@@ -56,7 +47,7 @@ screens = [
         top=bar.Bar(primary_widgets,
         size=26,
         opacity=1,
-        background=colors['dark0_soft'],
+        background=colors['dark'],
         border_width=[6, 0, 0, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
