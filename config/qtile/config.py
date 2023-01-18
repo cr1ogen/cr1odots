@@ -23,8 +23,7 @@ from modules.groups import groups
 from modules.keys import mod, keys, terminal
 from modules.layouts import layouts
 from modules.mouse import mouse
-from modules.widgets import primary_widgets
-from modules.colors import colors
+from modules.screens import screens
 
 
 
@@ -40,19 +39,7 @@ from modules.colors import colors
 #load_colors(cache)
 
 
-screens = [
-    Screen(
-        wallpaper = '~/.local/share/backgrounds/flare.jpg',
-        wallpaper_mode = 'fill',
-        top=bar.Bar(primary_widgets,
-        size=26,
-        opacity=1,
-        background=colors['dark'],
-        border_width=[6, 0, 0, 0],  # Draw top and bottom borders
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
-        ),
-    ),
-]
+
 
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: list
