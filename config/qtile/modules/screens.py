@@ -5,13 +5,13 @@ from modules.colors import colors
 
 screens = [
     Screen(
-        wallpaper = '~/.local/share/backgrounds/flare.jpg',
+        wallpaper = '~/.local/share/backgrounds/Red.jpg',
         wallpaper_mode = 'fill',
         top=bar.Bar(primary_widgets,
         size=26,
         opacity=1,
         background=colors['dark'],
-        border_width=[6, 0, 0, 0],  # Draw top and bottom borders
+        margin=[8, 14, 0, 14], 
         ),
     ),
 ]
