@@ -19,7 +19,7 @@ primary_widgets = [
                     fontsize=18,
                     padding=7,
                     highlight_method='block',
-                    this_current_screen_border=colors['neutral_orange'], #'c65c0e',
+                    this_current_screen_border=colors['red'], #'c65c0e',
                     inactive='ffffff',    
                 ),
                 widget.Prompt(
@@ -28,7 +28,7 @@ primary_widgets = [
                     font="JetBrainsMono Nerd Font",
                     fontsize=14,
                     highlight_method='text',
-                    foreground='d65d0e',
+                    foreground=colors['white'],
                     border='ffffff',
                     max_title_width=200,
                     theme_mode='preferred',
@@ -38,7 +38,7 @@ primary_widgets = [
                     format=' %d %b, %H:%M %p',
                     font='JetBrainsMono Nerd Font Bold',
                     fontsize=16,
-                    foreground='d65d0e',
+                    foreground=colors['red'],
                 ),
                 widget.Spacer(
                 ),
@@ -48,21 +48,21 @@ primary_widgets = [
                 widget.TextBox(
                     text='',
                     fontsize=24,
-                    foreground='d65d0e'
+                    foreground=colors['red']
                 ),
                 widget.KeyboardLayout(
                 configured_keyboards=['us','es'],
-                foreground='d65d0e'
+                foreground=colors['red']
                 ),
                 extrawidgets.ALSAWidget(
-                    mode='icon',
+                    mode='both',
                     theme_path='/usr/share/icons/Paper-Mono-Dark',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
                     margin=13,
                 ),
-                 widget.CurrentLayoutIcon(
+                 extrawidgets.CurrentLayoutIcon(
                     scale=0.7,
-                    custom_icon_paths=["/home/cr1ogen/.config/qtile/layout-icons/gruvbox-neutral_orange"],
+                    custom_icon_paths=["/home/cr1ogen/.config/qtile/layout-icons/gruvbox-light2"],
                 ),
 
 ]
