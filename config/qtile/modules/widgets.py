@@ -15,28 +15,28 @@ extension_defaults = widget_defaults.copy()
 
 primary_widgets = [
                 widget.GroupBox(
-                    font="JetBrainsMono Nerd Font",
+                    font="Mononoki Nerd Font",
                     fontsize=18,
                     padding=7,
                     highlight_method='block',
                     this_current_screen_border=colors['red'], #'c65c0e',
-                    inactive='ffffff',    
+                    inactive=colors['white'],    
                 ),
                 widget.Prompt(
                 ),
                 widget.TaskList(
-                    font="JetBrainsMono Nerd Font",
+                    font="Mononoki Nerd Font",
                     fontsize=14,
                     highlight_method='text',
                     foreground=colors['white'],
-                    border='ffffff',
+                    border=colors['red'],
                     max_title_width=200,
                     theme_mode='preferred',
                     theme_path='/usr/share/icons/Paper-Mono-Dark', 
                 ),
                 widget.Clock(
                     format=' %d %b, %H:%M %p',
-                    font='JetBrainsMono Nerd Font Bold',
+                    font='Mononoki Nerd Font Bold',
                     fontsize=16,
                     foreground=colors['red'],
                 ),
