@@ -46,6 +46,8 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
     Key([mod], "b", lazy.spawn("rofi -show drun"), desc="Launch apps"),
+    Key([mod, "shift"], "b", lazy.spawn("rofi -show windowcd"), desc="Laucnh commands"),
     Key([mod], "backslash", lazy.spawn("firefox")),
-    Key([mod, "shift"], "backslash", lazy.spawn("nautilus")),
+    Key([mod, "shift"], "backslash", lazy.spawn("pcmanfm")),
+    Key([], "Print", lazy.spawn("/home/cr1ogen/.local/bin/screenshot"))
 ]
