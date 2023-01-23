@@ -1,6 +1,6 @@
-/** Basic config file **/
-
 configuration {
-  show-icons:         true;
-  icon-theme:         "Papirus";
+    modes: [ combi, drun, run ];
+    combi-modes: [ window, drun, run ];
 }
+
+@theme "erebus"

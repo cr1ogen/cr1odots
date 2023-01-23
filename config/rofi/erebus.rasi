@@ -1,0 +1,126 @@
+/*
+    @THEME: Erebus
+    @AUTHOR: Kadaxi & Kalos Lazo
+    @GITHUB: https://github.com/kadaxi & https://github.com/lzmkalos
+*/
+
+configuration {
+    display-drun: "Search";
+    display-run: "Execute";
+    display-window: "Window";
+    show-icons: true;
+    sidebar-mode: false; // true -> show btn options
+}
+
+* {
+    red-color: #E3622F;
+    border-color: #000000;
+    background-color: #151515;
+    active-background: #191919;
+    separator-color: @red-color;
+    selected-background: @red-color;
+    selected-foreground: #FFFFFF;
+    foreground: #848484;
+    entry-color: #2A2A2A; 
+    font: "CaskaydiaCove Nerd Font 10";
+}
+
+// @GENERAL
+window {
+    location: center;
+    width: 50%;
+    height: 40%;
+    border: 2;
+    padding: 0px 0px; 
+    background-color: @background-color;
+    border-color: @border-color;
+}
+mainbox {
+    border: 0;
+    padding: 10px 10px;
+}
+message {
+    border:       2px 0px 0px;
+    border-color: @separator-color; 
+}
+textbox {
+    text-color: @foreground;
+}
+listview {
+    fixed-height: 0px;
+    spacing:      8px;
+    scrollbar:    true;
+    padding:      5px 0px 0px;
+    border:       2px solid 0px 0px;
+    border-color: @separator-color;
+    dynamic: false;
+    cycle: true;
+}
+
+// @ENTRY
+entry {
+    padding: 10px;
+    text-color: @selected-foreground;
+    vertical-align: 0.5em;
+}
+element {
+    children: [ element-text, element-icon ];
+    padding: 8px;
+    border: 2;
+    spacing: 5px;
+    orientation: horizontal;
+}
+element-icon {
+    size: 1.1em;
+}
+element-text, element.normal {
+    text-color: @foreground;
+    background-color: @entry-color;
+    vertical-align: 0.5;
+}
+element.selected, element-text.selected {
+    background-color: @selected-background;
+    text-color: @selected-foreground;
+}
+
+// @STRUCTURE
+#scrollbar {
+    width:        4px;
+    border:       2px;
+    border-color: @border-color;
+    handle-width: 11px ;
+    padding:      0px 3px;
+    handle-color: @separator-color;
+}
+#sidebar {
+    border:       2px solid 0px 0px;
+    border-color: blue;
+}
+
+// @MISC
+button {
+    padding: 5px 2px;
+    text-color: @foreground;
+}
+button.selected {
+    background-color: @red-color;
+    text-color: @selected-foreground;
+}
+
+// @PROMPT
+prompt {
+    spacing: 0;
+}
+textbox-prompt-colon {
+    expand:     false;
+    str:        " =>";
+    margin:     0px 0.3em 0em 0em ;
+}
+prompt, textbox-prompt-colon {
+    text-color: @red-color;
+    vertical-align: 0.5;
+}
+inputbar {
+    padding: 1px;
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
