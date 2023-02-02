@@ -75,5 +75,12 @@ primary_widgets = [
                     use_mask=True,
                     foreground=colors['white'], 
                 ),
+                widget.TextBox(
+                    text='',
+                    fontsize=21,
+                    padding=9,
+                    #margin=13,
+                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("wlogout")},
+                )
 
 ]
