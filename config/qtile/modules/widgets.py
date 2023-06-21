@@ -16,7 +16,7 @@ extension_defaults = widget_defaults.copy()
 primary_widgets = [
                 widget.GroupBox(
                     font="Mononoki Nerd Font",
-                    fontsize=18,
+                    fontsize=16,
                     padding=9,
                     center_aligned=True,
                     highlight_method='block',
@@ -40,7 +40,7 @@ primary_widgets = [
                 widget.TextBox(
                     text='',
                     foreground=colors['white'],
-                    fontsize=20,
+                    fontsize=18,
                     padding=5,
                 ),    
                 widget.Clock(
@@ -52,13 +52,13 @@ primary_widgets = [
                 widget.Spacer(
                 ),
                 extrawidgets.StatusNotifier(
-                    icon_size=22,
+                    icon_size=20,
                 ),
                 widget.TextBox(
                     text='',
-                    fontsize=22,
+                    fontsize=20,
                     padding=5,
-                    foreground=colors['white']
+                    foreground=colors['white'],
                 ),
                 widget.KeyboardLayout(
                 configured_keyboards=['us','es'],
@@ -76,8 +76,8 @@ primary_widgets = [
                     foreground=colors['white'], 
                 ),
                 widget.TextBox(
-                    text='',
-                    fontsize=21,
+                    text='',
+                    fontsize=18,
                     padding=9,
                     #margin=13,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("wlogout")},
