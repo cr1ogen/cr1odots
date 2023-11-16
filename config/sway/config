@@ -84,7 +84,7 @@ output DP-3 scale 1.7
     floating_modifier $mod normal
 
     #Scaled 4k
-    bindsym $mod+Shift+KP_Subtract exec /home/cr1ogen/.local/bin/04knative
+    bindsym $mod+Shift+KP_Subtract exec /home/cr1ogen/.local/bin/4knative
     bindsym $mod+Shift+KP_Add exec /home/cr1ogen/.local/bin/4kscaled
     
 
