@@ -49,7 +49,7 @@ keys = [
     Key([mod, "shift"], "b", lazy.spawn("rofi -show windowcd"), desc="Laucnh commands"),
     Key([mod], "backslash", lazy.spawn("firefox")),
     Key([mod, "shift"], "backslash", lazy.spawn("pcmanfm")),
-    Key([], "Print", lazy.spawn("/home/cr1ogen/.local/bin/screenshot"))
+    Key([], "Print", lazy.spawn("/home/cr1ogen/.local/bin/screenshot")),
     Key([mod, "shift"], "KP_Subtract", lazy.spawn("/home/cr1ogen/.local/bin/4knative"), desc="Scale to 100%"),
     Key([mod, "shift"], "KP_Add", lazy.spawn("/home/cr1ogen/.local/bin/4kscaled"), desc="Scale to 175%"),
 
