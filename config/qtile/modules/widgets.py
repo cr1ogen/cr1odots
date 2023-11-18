@@ -38,7 +38,7 @@ primary_widgets = [
                     theme_path='/usr/share/icons/Paper-Mono-Dark', 
                 ),
                 widget.TextBox(
-                    text='',
+                    text='󰥔',
                     foreground=colors['white'],
                     fontsize=18,
                     padding=5,
@@ -55,7 +55,7 @@ primary_widgets = [
                     icon_size=20,
                 ),
                 widget.TextBox(
-                    text='',
+                    text='󰌌',
                     fontsize=20,
                     padding=5,
                     foreground=colors['white'],
