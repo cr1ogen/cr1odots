@@ -53,6 +53,7 @@ antigen apply
 
 alias ls='exa -l --icons --color=always --group-directories-first'
 alias la='exa -l --all --icons --color=always --group-directories-first'
+alias ProtonUp='ProtonUp-Qt-2.9.1-x86_64.AppImage'
 ### RANDOM COLOR SCRIPT ###
 #colorscript random
 
