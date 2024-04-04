@@ -35,7 +35,7 @@ primary_widgets = [
                     border=colors['orange'],
                     max_title_width=200,
                     theme_mode='preferred',
-                    theme_path='/usr/share/icons/Paper-Mono-Dark', 
+                    theme_path='/usr/share/icons/Yaru-dark', 
                 ),
                 widget.TextBox(
                     text='󰥔',
@@ -66,7 +66,7 @@ primary_widgets = [
                 ),
                 extrawidgets.ALSAWidget(
                     mode='both',
-                    theme_path='/usr/share/icons/Paper-Mono-Dark',
+                    theme_path='/usr/share/icons/Yaru-dark',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
                     margin=13,
                 ),
