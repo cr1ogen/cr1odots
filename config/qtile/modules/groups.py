@@ -9,7 +9,7 @@ groups = [
     Group(name='3', label="", layout="monadtall"),
     Group(name='4', label="", matches=[
           Match(wm_class='discord')], layout='max'),
-    Group(name='5', label="ﰝ", matches=[
+    Group(name='5', label="", matches=[
         Match(wm_class='pw-jack ardour')], layout='max'),
     Group(name='6', label="", matches=[
         Match(wm_class='iniciar sesión en steam'), Match(wm_class='steam'), Match(wm_class='r2modman'), Match(wm_class='heroic')], layout='monadtall'),
