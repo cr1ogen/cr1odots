@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#volumeicon &
-
 #scale in X11
 xrandr --output DisplayPort-2 --scale 0.60 &
 
@@ -14,9 +12,5 @@ systemctl --user stop  xdg-desktop-portal xdg-desktop-portal-wlr &
 
 exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &
 
-#feh --bg-scale ~/Imágenes/Wallpapers/city.jpeg &
 mpvpaper -vfs -o "loop" DP-3 /home/cr1ogen/.local/share/backgrounds/live/Ninja.mp4 &
-#mpvpaper -f -o "loop" DP-2 /home/cr1ogen/Imágenes/Videowall/video.mp4 &
-#/usr/bin/emacs --daemon &
 dunst &
-#conky-startup &
