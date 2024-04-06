@@ -38,19 +38,34 @@ keys = [
         lazy.layout.toggle_split(),
         desc="Toggle between split and unsplit sides of stack",
     ),
-    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
+
+    #Lanzar Terminal
+    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    
     Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
+
+    #Accesos Directos
     Key([mod], "b", lazy.spawn("rofi -show drun"), desc="Launch apps"),
     Key([mod, "shift"], "b", lazy.spawn("rofi -show windowcd"), desc="Laucnh commands"),
     Key([mod], "backslash", lazy.spawn("firefox")),
-    Key([mod, "shift"], "backslash", lazy.spawn("pcmanfm")),
+    Key([mod, "shift"], "backslash", lazy.spawn("thunar")),
+
+    #Captura de  Pantalla
     Key([], "Print", lazy.spawn("/home/cr1ogen/.local/bin/screenshot")),
+    Key([mod], "Print", lazy.spawn("/home/cr1ogen/.local/bin/selectshot")),
+    
+
+    #Escalar Resolucion de Monitor
     Key([mod, "shift"], "KP_Subtract", lazy.spawn("/home/cr1ogen/.local/bin/4knative"), desc="Scale to 100%"),
     Key([mod, "shift"], "KP_Add", lazy.spawn("/home/cr1ogen/.local/bin/4kscaled"), desc="Scale to 175%"),
+
+    #Control de Volumen
+    Key([], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")),
+    Key([], "XF86AudioRaiseVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")),
+    Key([], "XF86AudioMute", lazy.spawn("pactl set-sink-mute  @DEFAULT_SINK@ toggle")),
 
 ]
