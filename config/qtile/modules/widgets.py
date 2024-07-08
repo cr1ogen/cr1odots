@@ -1,8 +1,9 @@
 import os
 import subprocess
 from libqtile import qtile
-from libqtile import widget
-from qtile_extras import widget as extrawidgets #Extras
+#from libqtile import widget
+from qtile_extras import widget #as extrawidgets #Extras
+from qtile_extras.widget.decorations import RectDecoration
 
 from modules.colors import colors
 
@@ -13,17 +14,29 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
+decoration_group = {
+    "decorations": [
+        RectDecoration(colour=colors['orange'], radius=6, filled=True, padding_y=4, group=True)
+    ],
+    "padding": 10,
+}
+
 primary_widgets = [
                 widget.GroupBox(
                     font="Mononoki Nerd Font",
                     fontsize=16,
-                    padding=9,
+                    #margin=-2,
                     center_aligned=True,
-                    highlight_method='block',
-                    this_current_screen_border=colors['orange'],
-                    inactive=colors['white'],    
+                    highlight_method='text',
+                    highlight_color=colors['orange'],
+                    this_current_screen_border=colors['white'],
+                    inactive=colors['white'],
+                    **decoration_group,
                 ),
-                widget.Prompt(
+                    widget.CurrentLayoutIcon(
+                    scale=0.7,
+                    use_mask=True,
+                    foreground=colors['white'], 
                 ),
                 widget.TaskList(
                     font="Mononoki Nerd Font",
@@ -39,22 +52,20 @@ primary_widgets = [
                 ),
                 widget.TextBox(
                     text='󰥔',
-                    foreground=colors['white'],
+                    #foreground=colors['white'],
                     fontsize=18,
-                    padding=5,
+                    **decoration_group,
                 ),    
                 widget.Clock(
                     format= '%d %b, %H:%M %p',
                     font='Mononoki Nerd Font Bold',
                     fontsize=16,
-                    foreground=colors['orange'],
+                    foreground=colors['white'],
+                    **decoration_group,
                 ),
                 widget.Spacer(
                 ),
-                extrawidgets.StatusNotifier(
-                    icon_size=20,
-                ),
-                widget.TextBox(
+                     widget.TextBox(
                     text='󰌌',
                     fontsize=20,
                     padding=5,
@@ -64,19 +75,26 @@ primary_widgets = [
                 configured_keyboards=['us','es'],
                 foreground=colors['orange']
                 ),
-                extrawidgets.ALSAWidget(
-                    mode='both',
-                    theme_path='/usr/share/icons/Yaru-dark',
+                    widget.StatusNotifier(
+                    icon_theme='/usr/share/icons/Yaru/scalable',
+                    icon_size=20,
+                    **decoration_group,
+                    ),
+                widget.Volume(
+                    #mode='icon',
+                    #theme_path='/usr/share/icons/Yaru-dark',
+                    channel='Master',
+                    fontsize=18,
+                    emoji=True,
+                    emoji_list=['🔇', '🔈', '🔉', '🔊'],
+                    volume_down_command='XF86AudioLowerVolume',
+                    volume_up_command='XF86AudioRaiseVolume',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
-                    margin=13,
-                ),
-                 extrawidgets.CurrentLayoutIcon(
-                    scale=0.7,
-                    use_mask=True,
-                    foreground=colors['white'], 
+                    #**decoration_group,
+                    #margin=13,
                 ),
                 widget.TextBox(
-                    text='',
+                    text='',
                     fontsize=18,
                     padding=9,
                     #margin=13,
