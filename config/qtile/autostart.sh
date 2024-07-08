@@ -1,10 +1,12 @@
 #!/bin/sh
 
+#volumeicon &
+
 #scale in X11
-xrandr --output DisplayPort-2 --scale 0.60 &
+xrandr --output DisplayPort-3 --scale 0.60 &
 
 #scale in wayland
-wlr-randr --output DP-4 --scale 1.75 
+wlr-randr --output DP-4 --scale 1.70 &
 
 # Share screen with pipewire hack
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots &
@@ -12,5 +14,10 @@ systemctl --user stop  xdg-desktop-portal xdg-desktop-portal-wlr &
 
 exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &
 
+#feh --bg-scale ~/Imágenes/Wallpapers/city.jpeg &
 mpvpaper -vfs -o "loop" DP-4 /home/cr1ogen/.local/share/backgrounds/live/Ninja.mp4 &
+#mpvpaper -f -o "loop" DP-2 /home/cr1ogen/Imágenes/Videowall/video.mp4 &
+#/usr/bin/emacs --daemon &
 dunst &
+nm-applet &
+#conky-startup &
