@@ -1,9 +1,8 @@
 import os
 import subprocess
 from libqtile import qtile
-#from libqtile import widget
 from qtile_extras import widget #as extrawidgets #Extras
-from qtile_extras.widget.decorations import RectDecoration
+from qtile_extras.widget.decorations import BorderDecoration, RectDecoration, PowerLineDecoration
 
 from modules.colors import colors
 
@@ -14,24 +13,30 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
-decoration_group = {
-    "decorations": [
-        RectDecoration(colour=colors['orange'], radius=6, filled=True, padding_y=4, group=True)
-    ],
-    "padding": 10,
-}
-
 primary_widgets = [
+                widget.Image(
+                    filename='/home/cr1ogen/.config/qtile/icons/qtile.png',
+                    scale='True',
+                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("rofi -show drun")},
+
+                    ),
                 widget.GroupBox(
                     font="Mononoki Nerd Font",
-                    fontsize=16,
-                    #margin=-2,
+                    fontsize=12,
+                    padding=9,
                     center_aligned=True,
                     highlight_method='text',
+                    #block_highlight_text_color=colors['dark'],
                     highlight_color=colors['orange'],
-                    this_current_screen_border=colors['white'],
                     inactive=colors['white'],
-                    **decoration_group,
+                    active=colors['orange'],
+                    this_current_screen_border=colors['orange'],
+                    this_screen_border=colors['orange'],
+                    other_current_screen_border=colors['orange'],
+                    other_screen_border=colors['orange'],
+                    urgent_border=colors['orange'],
+                    rounded=True,
+                    disable_drag=True,
                 ),
                     widget.CurrentLayoutIcon(
                     scale=0.7,
@@ -40,7 +45,7 @@ primary_widgets = [
                 ),
                 widget.TaskList(
                     font="Mononoki Nerd Font",
-                    fontsize=14,
+                    fontsize=16,
                     icon_size=20,
                     margin=3,
                     highlight_method='text',
@@ -48,54 +53,52 @@ primary_widgets = [
                     border=colors['orange'],
                     max_title_width=200,
                     theme_mode='preferred',
-                    theme_path='/usr/share/icons/Yaru-dark', 
+                    #theme_path='/usr/share/icons/candy-icons', 
                 ),
                 widget.TextBox(
                     text='󰥔',
                     #foreground=colors['white'],
                     fontsize=18,
-                    **decoration_group,
-                ),    
+                ),
                 widget.Clock(
                     format= '%d %b, %H:%M %p',
                     font='Mononoki Nerd Font Bold',
                     fontsize=16,
                     foreground=colors['white'],
-                    **decoration_group,
                 ),
                 widget.Spacer(
                 ),
-                     widget.TextBox(
+                widget.TextBox(
                     text='󰌌',
                     fontsize=20,
                     padding=5,
                     foreground=colors['white'],
                 ),
                 widget.KeyboardLayout(
-                configured_keyboards=['us','es'],
-                foreground=colors['orange']
+                    configured_keyboards=['us','es'],
+                    foreground=colors['white'],
                 ),
                     widget.StatusNotifier(
-                    icon_theme='/usr/share/icons/Yaru/scalable',
+                        icon_theme='/usr/share/Papirus',
                     icon_size=20,
-                    **decoration_group,
+                    highlight_colour=colors['orange'],
+                        show_menu_icons=True,
                     ),
-                widget.Volume(
-                    #mode='icon',
-                    #theme_path='/usr/share/icons/Yaru-dark',
+                widget.PulseVolumeExtra(
+                    mode='both',
+                    theme_path='/home/cr1ogen/.local/share/icons/Gently-Color-Dark-Icons/',
+                    bar_width=50,
+                    bar_height=75,
                     channel='Master',
-                    fontsize=18,
-                    emoji=True,
-                    emoji_list=['🔇', '🔈', '🔉', '🔊'],
+                    icon_size=22,
                     volume_down_command='XF86AudioLowerVolume',
                     volume_up_command='XF86AudioRaiseVolume',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
-                    #**decoration_group,
-                    #margin=13,
+
                 ),
                 widget.TextBox(
                     text='',
-                    fontsize=18,
+                    fontsize=24,
                     padding=9,
                     #margin=13,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("wlogout")},
