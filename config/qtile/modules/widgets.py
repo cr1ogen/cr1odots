@@ -79,7 +79,7 @@ primary_widgets = [
                     foreground=colors['white'],
                 ),
                     widget.StatusNotifier(
-                        icon_theme='/usr/share/Papirus',
+                        icon_theme='/usr/share/icons/TokioNight-SE',
                     icon_size=20,
                     highlight_colour=colors['orange'],
                         show_menu_icons=True,
