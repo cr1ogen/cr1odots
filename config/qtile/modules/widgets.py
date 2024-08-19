@@ -13,17 +13,26 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
-primary_widgets = [
-                widget.Image(
-                    filename='/home/cr1ogen/.config/qtile/icons/qtile.png',
-                    scale='True',
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("rofi -show drun")},
+decoration_group = {
+    "decorations": [
+        RectDecoration(colour=colors['dark'], radius=15, filled=True, group=True, clip=True)
+    ],
+    #"padding": 10,
+}
 
+primary_widgets = [
+                widget.TextBox(
+                    text='',
+                    fontsize=25,
+                    padding=6,
+                    foreground=colors['white'],
+                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("tofi-drun")},
+                    **decoration_group,
                     ),
                 widget.GroupBox(
                     font="Mononoki Nerd Font",
                     fontsize=12,
-                    padding=9,
+                    padding_x=9,
                     center_aligned=True,
                     highlight_method='text',
                     #block_highlight_text_color=colors['dark'],
@@ -37,11 +46,15 @@ primary_widgets = [
                     urgent_border=colors['orange'],
                     rounded=True,
                     disable_drag=True,
+                    **decoration_group,
                 ),
                     widget.CurrentLayoutIcon(
                     scale=0.7,
                     use_mask=True,
-                    foreground=colors['white'], 
+                    foreground=colors['white'],
+                    **decoration_group,
+                    ),
+                widget.Spacer(
                 ),
                 widget.TaskList(
                     font="Mononoki Nerd Font",
@@ -53,36 +66,30 @@ primary_widgets = [
                     border=colors['orange'],
                     max_title_width=200,
                     theme_mode='preferred',
-                    #theme_path='/usr/share/icons/candy-icons', 
-                ),
-                widget.TextBox(
-                    text='󰥔',
-                    #foreground=colors['white'],
-                    fontsize=18,
-                ),
-                widget.Clock(
-                    format= '%d %b, %H:%M %p',
-                    font='Mononoki Nerd Font Bold',
-                    fontsize=16,
-                    foreground=colors['white'],
+                    #theme_path='/usr/share/icons/candy-icons',
                 ),
                 widget.Spacer(
                 ),
                 widget.TextBox(
                     text='󰌌',
                     fontsize=20,
-                    padding=5,
+                    #padding_x=15,
                     foreground=colors['white'],
+                    **decoration_group,
                 ),
                 widget.KeyboardLayout(
                     configured_keyboards=['us','es'],
                     foreground=colors['white'],
+                    **decoration_group,
                 ),
                     widget.StatusNotifier(
                         icon_theme='/usr/share/icons/TokioNight-SE',
                     icon_size=20,
                     highlight_colour=colors['orange'],
-                        show_menu_icons=True,
+                        padding=4,
+                    show_menu_icons=True,
+                    **decoration_group,
+                        
                     ),
                 widget.PulseVolumeExtra(
                     mode='both',
@@ -94,14 +101,22 @@ primary_widgets = [
                     volume_down_command='XF86AudioLowerVolume',
                     volume_up_command='XF86AudioRaiseVolume',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
-
-                ),
+                    **decoration_group,
+                    ),
+                widget.Clock(
+                    format= '%H:%M %p',
+                    font='Mononoki Nerd Font Bold',
+                    fontsize=16,
+                    padding=1,
+                    foreground=colors['white'],
+                    **decoration_group,
+                    ),
                 widget.TextBox(
                     text='',
                     fontsize=24,
-                    padding=9,
                     #margin=13,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("wlogout")},
+                    **decoration_group,
                 )
 
 ]
