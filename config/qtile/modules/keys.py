@@ -48,11 +48,11 @@ keys = [
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
 
-    #Accesos Directos
+    #Accesos Directo
     Key([mod], "b", lazy.spawn("rofi -show drun"), desc="Launch apps"),
     Key([mod, "shift"], "b", lazy.spawn("rofi -show run"), desc="Laucnh commands"),
-    Key([mod], "backslash", lazy.spawn("firefox")),
-    Key([mod, "shift"], "backslash", lazy.spawn("nemo")),
+    Key([mod], "backslash", lazy.spawn("vivaldi")),
+    Key([mod, "shift"], "backslash", lazy.spawn("thunar")),
 
     #Captura de  Pantalla
     Key([], "Print", lazy.spawn("/home/cr1ogen/.local/bin/screenshot")),

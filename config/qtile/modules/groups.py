@@ -3,15 +3,15 @@ from libqtile.lazy import lazy
 from .keys import mod, keys
 
 groups = [
-    Group(name='1', label="", matches=[
+    Group(name='1', label="󰲠", matches=[
         Match(wm_class='firefox')], layout="monadtall"),
-    Group(name='2', label="", layout="monadtall"),
-    Group(name='3', label="", layout="monadtall"),
-    Group(name='4', label="", matches=[
+    Group(name='2', label="󰲢", layout="monadtall"),
+    Group(name='3', label="󰲤", layout="monadtall"),
+    Group(name='4', label="󰲦", matches=[
           Match(wm_class='Telegram'), Match(wm_class='discord')], layout='Plasma'),
-    Group(name='5', label="", matches=[
+    Group(name='5', label="󰲨", matches=[
         Match(wm_class='pw-jack ardour')], layout='max'),
-    Group(name='6', label="", matches=[
+    Group(name='6', label="󰲪", matches=[
         Match(wm_class='iniciar sesión en steam'), Match(wm_class='steam'), Match(wm_class='r2modman'), Match(wm_class='heroic')], layout='monadtall'),
 
 ]

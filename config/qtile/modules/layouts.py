@@ -5,19 +5,20 @@ from modules.colors import colors
 layouts = [
     layout.MonadTall(
         border_focus=colors['orange'],
-        border_width=1,
+        border_width=6,
         margin=14,
                    ),
     layout.Floating(
         border_focus=colors['orange'],
         border_normal=colors['orange'],
+        border_width=6,
+        max_border_width=6,
                    ),
     layout.Max(),
     layout.Spiral(
         border_focus=colors['orange'],
         main_pane='bottom',
-        border_width=1,
-        margin=14,
+        border_width=6,
                    ),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
