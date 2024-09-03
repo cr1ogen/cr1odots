@@ -10,7 +10,7 @@ screens = [
         top=bar.Bar(primary_widgets,
         size=34,
         opacity=1,
-        background=colors['cyan'],
+        background=colors['transparency'],
         margin=[8, 13, 0, 13], 
         ),
     ),
