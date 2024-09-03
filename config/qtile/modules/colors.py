@@ -8,6 +8,6 @@ colors = {
     "green": ["#98C379","#98C379"],
     "yellow": ["#E5C07B","#E5C07B"],
     "magenta": ["#C678DD","#C678DD"],
-    "cyan": ["#56B6C2","#56B6C2"]
+    "transparency": ["#00FFFFFF","#00FFFFFF"]
         }
 
