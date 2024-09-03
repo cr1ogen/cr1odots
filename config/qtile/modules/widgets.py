@@ -115,7 +115,7 @@ primary_widgets = [
                 ),
                 widget.Sep(
                     padding=14,
-                    foreground=colors['cyan']
+                    foreground=colors['transparency']
                 ),
                 widget.PulseVolumeExtra(
                     mode='icon',
@@ -137,7 +137,7 @@ primary_widgets = [
                         ),
                     widget.Sep(
                         padding=14,
-                        foreground=colors['cyan']
+                        foreground=colors['transparency']
                         ),
                         
                     widget.TextBox(
