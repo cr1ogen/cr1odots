@@ -7,8 +7,8 @@ from modules.colors import colors
 layout_theme = {
      "border_width":6,
      "margin":14,
-     "border_focus":colors['orange'],
-     "border_normal":colors['dark'],
+     "border_focus":colors[1], #['orange'],
+     "border_normal":colors[0], #['dark'],
      "single_border_width": 3,
  }
 
@@ -31,7 +31,7 @@ floating_layout = layout.Floating(
         Match(wm_class="confirmreset"),  # gitk
         Match(wm_class="makebranch"),  # gitk
         Match(wm_class="maketag"),  # gitk
-      #  Match(wm_class="kitty"),  # ssh-askpass
+        Match(wm_class="waypaper"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
         ],

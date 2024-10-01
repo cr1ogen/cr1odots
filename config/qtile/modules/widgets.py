@@ -5,6 +5,7 @@ from qtile_extras import widget #as extrawidgets #Extras
 from qtile_extras.widget.decorations import BorderDecoration, RectDecoration, PowerLineDecoration
 
 from modules.colors import colors
+#from modules.qtilecolors import colors
 
 widget_defaults = dict(
     font="Mononoki Nerd Font",
@@ -15,7 +16,7 @@ extension_defaults = widget_defaults.copy()
 
 decoration_group = {
     "decorations": [
-        RectDecoration(colour=colors['dark'], radius=15, filled=True, group=True, clip=True, extrawidth=0)
+        RectDecoration(colour=colors[0], radius=15, filled=True, group=True, clip=True , ignore_extrawidth=True)
     ],
     #"padding": 10,
 }
@@ -68,18 +69,28 @@ primary_widgets = [
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("steam")},
                     #**decoration_group,
                     ),
-                 widget.WindowName(
+                 widget.CurrentLayout(
+                     font="Mononoki Nerd Font",
+                     fontsize=16,
+                     padding=14,
+                     **decoration_group,
+                    ), 
+                 widget.TaskList(
                     font="Mononoki Nerd Font",
                     fontsize=16,
                     icon_size=20,
-                    padding=16,
-                     max_chars=8,
-                    scroll=False,
-                    width=120,
-                    scroll_fixed_width=True,
-                    **decoration_group, 
+                    padding=6,
+                    highlight_method='text',
+                    border=colors[8], #['orange'],
+                    title_width_method='uniform',
+                    theme_mode='preferred',
+                    spacing=-2,
+                    borderwidth=1,
+                    max_title_width=100,
+                    #**decoration_group, 
                 ),
-                widget.Spacer(),
+                widget.Spacer(
+                ),
                 widget.GroupBox(
                     font="Mononoki Nerd Font",
                     fontsize=24,
@@ -87,14 +98,14 @@ primary_widgets = [
                     center_aligned=True,
                     highlight_method='text',
                     #block_highlight_text_color=colors['dark'],
-                    highlight_color=colors['orange'],
-                    inactive=colors['white'],
-                    active=colors['orange'],
-                    this_current_screen_border=colors['orange'],
-                    this_screen_border=colors['orange'],
-                    other_current_screen_border=colors['orange'],
-                    other_screen_border=colors['orange'],
-                    urgent_border=colors['orange'],
+                    highlight_color=colors[4], #['orange'],
+                    inactive=colors[3], #['white'],
+                    active=colors[5], #['orange'],
+                    this_current_screen_border=colors[2], #['orange'],
+                    this_screen_border=colors[4], #['orange'],
+                    other_current_screen_border=colors[0], #['orange'],
+                    other_screen_border=colors[6], #['orange'],
+                    urgent_border=colors[4], #['orange'],
                     rounded=True,
                     disable_drag=True,
                     **decoration_group,
@@ -115,7 +126,7 @@ primary_widgets = [
                 ),
                 widget.Sep(
                     padding=14,
-                    foreground=colors['transparency']
+                    foreground='#00000000', #['transparency']
                 ),
                 widget.PulseVolumeExtra(
                     mode='icon',
@@ -132,12 +143,12 @@ primary_widgets = [
                     ),
                     widget.Sep(
                         padding=14,
-                        foreground=colors['dark'],
+                        foreground=colors[0], #['dark'],
                         **decoration_group
                         ),
                     widget.Sep(
                         padding=14,
-                        foreground=colors['transparency']
+                        foreground='#00000000', #['transparency']
                         ),
                         
                     widget.TextBox(
@@ -156,11 +167,19 @@ primary_widgets = [
                     widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
                     icon_size=24,
-                    highlight_colour=colors['dark'],
+                    highlight_colour=colors[0], #['dark'],
                     #padding=4,
                     show_menu_icons=True,
                     #**decoration_group,
                         
+                    ),
+               widget.TextBox(
+                    text='',
+                    fontsize=20,
+                    #margin=13,
+                    #padding=,
+                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("/home/cr1ogen/.local/bin/waypaper")},
+                    #**decoration_group,
                     ),
                 widget.TextBox(
                     text='',
@@ -179,5 +198,5 @@ primary_widgets = [
                     **decoration_group,
                     ),
     ]
-    
+
              
