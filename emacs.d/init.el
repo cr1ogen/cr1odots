@@ -109,6 +109,8 @@
 (add-to-list 'default-frame-alist '(alpha-background . 90))
 
 
+;; Need to install ewal and ewal-spacemacs-themes for pywal
+
 (use-package ewal
   :init (setq ewal-use-built-in-always-p nil
               ewal-use-built-in-on-failure-p t
