@@ -1,6 +1,0 @@
-configuration {
-    modes: [ combi, drun, run ];
-    combi-modes: [ window, drun, run ];
-}
-
-@theme "erebus"
