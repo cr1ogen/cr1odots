@@ -16,27 +16,23 @@ extension_defaults = widget_defaults.copy()
 
 decoration_group = {
     "decorations": [
-        RectDecoration(colour=colors[0], radius=15, filled=True, group=True, clip=True , ignore_extrawidth=True)
+        RectDecoration (colour='#00000000', use_widget_background=True, radius=15, filled=True, group=True, clip=True , ignore_extrawidth=True)
     ],
     #"padding": 10,
 }
 
-powerline = {
-    "decorations": [
-        RectDecoration(use_widget_background=True, padding_y=5, filled=True, radius=0),
-        PowerLineDecoration(path="arrow_right", padding_y=5)
-    ]
-}
 
 primary_widgets = [
                 widget.TextBox(
                     #text='',
                     text='Apps',
                     fontsize=15,
+                    #foreground=colors[9],
                     font='Mononoki Nerd Fonts Bold',
                     padding=14,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("rofi -show drun")},
                     **decoration_group,
+                    background=colors[3],
                     ),
                  widget.TextBox(
                     #text='',
@@ -74,6 +70,7 @@ primary_widgets = [
                      fontsize=16,
                      padding=14,
                      **decoration_group,
+                     background=colors[6],
                     ), 
                  widget.TaskList(
                     font="Mononoki Nerd Font",
@@ -99,8 +96,8 @@ primary_widgets = [
                     highlight_method='text',
                     #block_highlight_text_color=colors['dark'],
                     highlight_color=colors[4], #['orange'],
-                    inactive=colors[3], #['white'],
-                    active=colors[5], #['orange'],
+                    inactive=colors[7], #['white'],
+                    active=colors[9], #['orange'],
                     this_current_screen_border=colors[2], #['orange'],
                     this_screen_border=colors[4], #['orange'],
                     other_current_screen_border=colors[0], #['orange'],
@@ -109,7 +106,7 @@ primary_widgets = [
                     rounded=True,
                     disable_drag=True,
                     **decoration_group,
-                    #**powerline,
+                    background=colors[3],
                 ),    
                 widget.Spacer(
                 ),
@@ -118,11 +115,13 @@ primary_widgets = [
                     fontsize=20,
                     padding=8,
                     **decoration_group,
+                    background=colors[6],
                 ),
                 widget.KeyboardLayout(
                     configured_keyboards=['us','es'],
                     padding=14,
                     **decoration_group,
+                    background=colors[6],
                 ),
                 widget.Sep(
                     padding=14,
@@ -139,30 +138,34 @@ primary_widgets = [
                     volume_down_command='XF86AudioLowerVolume',
                     volume_up_command='XF86AudioRaiseVolume',
                     mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
-                    **decoration_group
+                    **decoration_group,
+                    background=colors[6],
                     ),
                     widget.Sep(
                         padding=14,
-                        foreground=colors[0], #['dark'],
+                        background=colors[6], #['dark'],
                         **decoration_group
                         ),
                     widget.Sep(
                         padding=14,
-                        foreground='#00000000', #['transparency']
+                        foreground='#00000000', #['transparency'] 
+                        
                         ),
                         
                     widget.TextBox(
                         text='',
                         fontsize=16,
                         padding=8,
-                        **decoration_group
+                        **decoration_group,
+                        background=colors[6],
                     ),
                     widget.Net(
                         format='{interface}',
                         interface='enp5s0',
                         fontsize=16,
                         padding=14,
-                        **decoration_group
+                        **decoration_group,
+                        background=colors[6],
                     ),    
                     widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
@@ -184,6 +187,7 @@ primary_widgets = [
                 widget.TextBox(
                     text='',
                     fontsize=20,
+                    foreground='#ffffff',
                     #margin=13,
                     padding=14,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("wlogout")},
@@ -196,6 +200,7 @@ primary_widgets = [
                     padding=14,
                     #foreground=colors['white'],
                     **decoration_group,
+                    background=colors[3],
                     ),
     ]
 

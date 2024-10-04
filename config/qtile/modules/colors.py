@@ -5,7 +5,7 @@ colors = []
 cache='/home/cr1ogen/.cache/wal/colors'
 def load_colors(cache):
     with open(cache, 'r') as file:
-        for i in range(8):
+        for i in range(16):
             colors.append(file.readline().strip())
     colors.append('#ffffff')
     lazy.reload()

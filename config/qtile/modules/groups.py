@@ -5,7 +5,7 @@ from .keys import mod, keys
 groups = [
     Group(name='1', label="󰲠", matches=[
         Match(wm_class='firefox')], layout="monadtall"),
-    Group(name='2', label="󰲢", layout="monadtall"),
+    Group(name='2', label="󰲢", layout="floating"),
     Group(name='3', label="󰲤", layout="monadtall"),
     Group(name='4', label="󰲦", matches=[
           Match(wm_class='Telegram'), Match(wm_class='discord')], layout='Plasma'),
