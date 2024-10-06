@@ -20,5 +20,7 @@ dunst &
 
 # Setup Wallpaper and update colors
 
-swww-daemon &
-~/.config/qtile/scripts/wallpaper.sh init
+#waypaper --restore &
+swww --no-daemon &
+
+/home/cr1ogen/.config/qtile/scripts/wallpaper.sh init &
