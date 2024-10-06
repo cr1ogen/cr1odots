@@ -18,7 +18,6 @@ decoration_group = {
     "decorations": [
         RectDecoration (colour='#00000000', use_widget_background=True, radius=15, filled=True, group=True, clip=True , ignore_extrawidth=True)
     ],
-    #"padding": 10,
 }
 
 
@@ -35,35 +34,28 @@ primary_widgets = [
                     background=colors[3],
                     ),
                  widget.TextBox(
-                    #text='',
                     text='',
-                    fontsize=20,
+                    fontsize=21,
                     padding=9,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("kitty")},
-                    #**decoration_group,
                     ),
                  widget.TextBox(
-                    #text='󰈹',
                     text='󰈹',
-                    fontsize=22,
+                    fontsize=24,
                     padding=9,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("firefox")},
-                    #**decoration_group,
                     ),
                  widget.TextBox(
-                    #text='',
-                    text='',
+                    text='󰓓',
+                    fontsize=24,
+                    padding=9,
+                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("steam")},
+                    ),
+                 widget.TextBox(
+                     text='',
                     fontsize=20,
                     padding=9,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("thunar")},
-                    #**decoration_group,
-                    ),
-                 widget.TextBox(
-                    text='',
-                    fontsize=20,
-                    padding=14,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("steam")},
-                    #**decoration_group,
                     ),
                  widget.CurrentLayout(
                      font="Mononoki Nerd Font",
@@ -78,13 +70,12 @@ primary_widgets = [
                     icon_size=20,
                     padding=6,
                     highlight_method='text',
-                    border=colors[8], #['orange'],
+                    border=colors[8],
                     title_width_method='uniform',
                     theme_mode='preferred',
                     spacing=-2,
                     borderwidth=1,
                     max_title_width=100,
-                    #**decoration_group, 
                 ),
                 widget.Spacer(
                 ),
@@ -125,10 +116,10 @@ primary_widgets = [
                 ),
                 widget.Sep(
                     padding=14,
-                    foreground='#00000000', #['transparency']
+                    foreground='#00000000', #transparency
                 ),
                 widget.PulseVolumeExtra(
-                    mode='icon',
+                    mode='both',
                     theme_path='/usr/share/icons/BeautyLine/',
                     bar_width=50,
                     bar_height=75,
@@ -143,13 +134,13 @@ primary_widgets = [
                     ),
                     widget.Sep(
                         padding=14,
-                        background=colors[6], #['dark'],
+                        background=colors[6], 
+                        foreground='#00000000', #transparency
                         **decoration_group
                         ),
                     widget.Sep(
                         padding=14,
-                        foreground='#00000000', #['transparency'] 
-                        
+                        foreground='#00000000', #transparency
                         ),
                         
                     widget.TextBox(
@@ -170,7 +161,7 @@ primary_widgets = [
                     widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
                     icon_size=24,
-                    highlight_colour=colors[0], #['dark'],
+                    highlight_colour=colors[0], 
                     #padding=4,
                     show_menu_icons=True,
                     #**decoration_group,
@@ -198,7 +189,6 @@ primary_widgets = [
                     font='Mononoki Nerd Font Bold',
                     fontsize=16,
                     padding=14,
-                    #foreground=colors['white'],
                     **decoration_group,
                     background=colors[3],
                     ),
