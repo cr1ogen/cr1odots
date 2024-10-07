@@ -1,0 +1,32 @@
+
+/* Dark theme. */
+@import "~/.cache/wal/colors-rofi-dark"
+
+configuration {
+  font: "Mononoki Nerd Fonts 14";
+  show-icons:         true;
+}
+
+window {
+    location:   center;
+    width:      480;
+    border-radius:  18px;
+}
+
+listview {
+    padding:    4px 0;
+    lines:      8;
+    columns:    1;
+
+    fixed-height:   false;
+    border:         1px 0 0;
+}
+
+element-icon {
+    size:   1em;
+}
+
+
+entry {
+    placeholder:        "Buscar";
+}
