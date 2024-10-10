@@ -39,11 +39,10 @@ square_wallpaper="$HOME/.cache/square_wallpaper.png"
 blur="50x30"
 blur=$(cat $blur_file)
 
+# Ensures that the script only run once if wallpaper effect enabled
 if [ -f $waypaper_running ] ;then 
     rm $waypaper_running
     exit
-else
-    touch $waypaper_running
 fi
 
 # Create folder with generated versions of wallpaper if not exists
