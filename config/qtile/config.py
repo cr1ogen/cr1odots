@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Aldo Cortesi
+#from qtilecolors import colors # noqa
 # Copyright (c) 2010, 2014 dequis
 # Copyright (c) 2012 Randall Ma
 # Copyright (c) 2012-2014 Tycho Andersen
@@ -21,22 +22,11 @@ from modules import hooks
 from modules import widgets
 from modules.groups import groups
 from modules.keys import mod, keys, terminal
-from modules.layouts import layouts
+from modules.layouts import layouts, floating_layout
 from modules.mouse import mouse
 from modules.screens import screens
+from modules.colors import colors
 
-
-
-## Colors from Pywal
-
-#cache='/home/cr1ogen/.cache/wal/colors'
-#def load_colors(cache):
-#    with open(cache, 'r') as file:
-#        for i in range(8):
-#            colors.append(file.readline().strip())
-#    colors.append('#ffffff')
-#    lazy.reload()
-#load_colors(cache)
 
 
 
@@ -44,7 +34,7 @@ from modules.screens import screens
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: list
 follow_mouse_focus = True
-bring_front_click = False
+bring_front_click = True
 cursor_warp = False
 auto_fullscreen = True
 focus_on_window_activation = "smart"
