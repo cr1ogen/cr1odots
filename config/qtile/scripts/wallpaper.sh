@@ -29,7 +29,7 @@ force_generate=0
 generated_versions="$HOME/.cache/wallpaper-generated"
 waypaper_running=$HOME/.cache/waypaper-running
 cache_file="$HOME/.cache/current_wallpaper"
-default_wallpaper="$HOME/.local/share/backgrounds/default.jpg"
+default_wallpaper="$HOME/Imágenes/wallpapers/default.jpg"
 wallpaper_effect="$HOME/.local/bin/wallpaper-effect.sh"
 rasi_file="$HOME/.cache/current_wallpaper.rasi"
 blur_file="$HOME/.local/bin/blur.sh"
@@ -98,6 +98,15 @@ source "$HOME/.cache/wal/colors.sh"
 # -----------------------------------------------------
 qtile cmd-obj -o cmd -f reload_config
 
+
+# ----------------------------------------------------- 
+# Pywalfox
+# -----------------------------------------------------
+
+if type pywalfox > /dev/null 2>&1; then
+    pywalfox update
+fi
+
 # ----------------------------------------------------- 
 # Created blurred wallpaper
 # -----------------------------------------------------
@@ -128,3 +137,5 @@ echo "* { current-image: url(\"$blurred_wallpaper\", height); }" > "$rasi_file"
 echo ":: Generate new cached wallpaper square-$wallpaper_filename"
 convert $tmp_wallpaper -gravity Center -extent 1:1 $square_wallpaper
 cp $square_wallpaper $generated_versions/square-$wallpaper_filename.png
+
+
