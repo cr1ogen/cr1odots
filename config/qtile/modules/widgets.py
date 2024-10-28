@@ -19,18 +19,26 @@ decoration_group = {
         RectDecoration (colour='#00000000', use_widget_background=True, radius=15, filled=True, group=True, clip=True , ignore_extrawidth=True)
     ],
 }
+        
+decoration_border = {
+    "decorations": [
+        RectDecoration (colour='#00000000',line_colour='#ffffff', line_width=3,use_widget_background=True, radius=15, filled=True, group=True, clip=True , ignore_extrawidth=True)        
+    ],
+}
 
 
 primary_widgets = [
                 widget.TextBox(
                     #text='',
-                    text='Apps',
+                    text='Debian',
                     fontsize=15,
                     #foreground=colors[9],
                     font='Mononoki Nerd Fonts Bold',
                     padding=14,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("rofi -show drun")},
-                    **decoration_group,
+                    **decoration_border,
+                    line_colour='#ffffff',
+                    line_width=4,
                     background=colors[3],
                     ),
                  widget.TextBox(
@@ -54,8 +62,12 @@ primary_widgets = [
                  widget.TextBox(
                      text='',
                     fontsize=20,
-                    padding=9,
+                    padding=10,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("thunar")},
+                    ),
+                 widget.Sep(
+                    padding=12,
+                    foreground='#00000000',#transparency
                     ),
                  widget.CurrentLayout(
                      font="Mononoki Nerd Font",
@@ -119,7 +131,7 @@ primary_widgets = [
                     foreground='#00000000', #transparency
                 ),
                 widget.PulseVolumeExtra(
-                    mode='both',
+                    mode='icon',
                     theme_path='/usr/share/icons/BeautyLine/',
                     bar_width=50,
                     bar_height=75,
@@ -171,7 +183,7 @@ primary_widgets = [
                     text='',
                     fontsize=20,
                     #margin=13,
-                    #padding=,
+                    padding=14,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("/home/cr1ogen/.local/bin/waypaper")},
                     #**decoration_group,
                     ),
@@ -189,7 +201,7 @@ primary_widgets = [
                     font='Mononoki Nerd Font Bold',
                     fontsize=16,
                     padding=14,
-                    **decoration_group,
+                    **decoration_border,
                     background=colors[3],
                     ),
     ]
