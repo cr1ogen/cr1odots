@@ -1,2 +1,2 @@
 #!/bin/sh
-wlr-randr --output DP-3 --scale 1.75
+wlr-randr --output DP-3 --scale 1.35
