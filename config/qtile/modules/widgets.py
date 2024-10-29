@@ -8,7 +8,7 @@ from modules.colors import colors
 #from modules.qtilecolors import colors
 
 widget_defaults = dict(
-    font="Mononoki Nerd Font",
+    font="Poppins",
     fontsize=12,
     padding=3,
 )
@@ -33,7 +33,7 @@ primary_widgets = [
                     text='Debian',
                     fontsize=15,
                     #foreground=colors[9],
-                    font='Mononoki Nerd Fonts Bold',
+                    font='Poppins Bold',
                     padding=14,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("rofi -show drun")},
                     **decoration_border,
@@ -70,14 +70,14 @@ primary_widgets = [
                     foreground='#00000000',#transparency
                     ),
                  widget.CurrentLayout(
-                     font="Mononoki Nerd Font",
+                     font="Poppins",
                      fontsize=16,
                      padding=14,
                      **decoration_group,
                      background=colors[6],
                     ), 
                  widget.TaskList(
-                    font="Mononoki Nerd Font",
+                    font="Poppins",
                     fontsize=16,
                     icon_size=20,
                     padding=6,
@@ -92,7 +92,7 @@ primary_widgets = [
                 widget.Spacer(
                 ),
                 widget.GroupBox(
-                    font="Mononoki Nerd Font",
+                    font="Poppins",
                     fontsize=24,
                     padding=10,
                     center_aligned=True,
@@ -198,7 +198,7 @@ primary_widgets = [
                     ),
                 widget.Clock(
                     format= '%H:%M %a',
-                    font='Mononoki Nerd Font Bold',
+                    font='Poppins',
                     fontsize=16,
                     padding=14,
                     **decoration_border,
