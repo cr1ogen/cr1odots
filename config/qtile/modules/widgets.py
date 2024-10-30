@@ -31,7 +31,7 @@ primary_widgets = [
                 widget.TextBox(
                     #text='',
                     text='Debian',
-                    fontsize=15,
+                    fontsize=18,
                     #foreground=colors[9],
                     font='Poppins Bold',
                     padding=14,
@@ -122,6 +122,8 @@ primary_widgets = [
                 ),
                 widget.KeyboardLayout(
                     configured_keyboards=['us','es'],
+                    font='Poppins',
+                    fontsize=16,
                     padding=14,
                     **decoration_group,
                     background=colors[6],
@@ -165,6 +167,7 @@ primary_widgets = [
                     widget.Net(
                         format='{interface}',
                         interface='enp5s0',
+                        font='Poppins',
                         fontsize=16,
                         padding=14,
                         **decoration_group,
@@ -198,8 +201,8 @@ primary_widgets = [
                     ),
                 widget.Clock(
                     format= '%H:%M %a',
-                    font='Poppins',
-                    fontsize=16,
+                    font='Poppins Bold',
+                    fontsize=18,
                     padding=14,
                     **decoration_border,
                     background=colors[3],
