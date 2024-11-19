@@ -3,9 +3,7 @@ import subprocess
 from libqtile import qtile
 from qtile_extras import widget #as extrawidgets #Extras
 from qtile_extras.widget.decorations import BorderDecoration, RectDecoration, PowerLineDecoration
-
 from modules.colors import colors
-#from modules.qtilecolors import colors
 
 widget_defaults = dict(
     font="Poppins",
@@ -43,25 +41,25 @@ primary_widgets = [
                     ),
                  widget.TextBox(
                     text='',
-                    fontsize=21,
+                    fontsize=22,
                     padding=9,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("kitty")},
                     ),
                  widget.TextBox(
                     text='󰈹',
-                    fontsize=24,
+                    fontsize=25,
                     padding=9,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("firefox")},
                     ),
                  widget.TextBox(
                     text='󰓓',
-                    fontsize=24,
+                    fontsize=25,
                     padding=9,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("steam")},
                     ),
                  widget.TextBox(
                      text='',
-                    fontsize=20,
+                    fontsize=21,
                     padding=10,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("thunar")},
                     ),
@@ -115,7 +113,7 @@ primary_widgets = [
                 ),
                 widget.TextBox(
                     text='󰌌',
-                    fontsize=20,
+                    fontsize=22,
                     padding=8,
                     **decoration_group,
                     background=colors[6],
@@ -159,7 +157,7 @@ primary_widgets = [
                         
                     widget.TextBox(
                         text='',
-                        fontsize=16,
+                        fontsize=18,
                         padding=8,
                         **decoration_group,
                         background=colors[6],
@@ -180,19 +178,26 @@ primary_widgets = [
                     #padding=4,
                     show_menu_icons=True,
                     #**decoration_group,
-                        
                     ),
+               widget.GithubNotifications(
+                   icon_size=22,
+                   active_colour='#ff6532',
+                   inactive_colour='#ffffff',
+                   token_file='/home/cr1ogen/.config/qtile/scripts/github.token',
+                   update_interval=150,
+                   padding=8,
+                   ),
                widget.TextBox(
                     text='',
-                    fontsize=20,
+                    fontsize=22,
                     #margin=13,
-                    padding=14,
+                    padding=9,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("/home/cr1ogen/.local/bin/waypaper")},
                     #**decoration_group,
                     ),
                 widget.TextBox(
                     text='',
-                    fontsize=20,
+                    fontsize=22,
                     foreground='#ffffff',
                     #margin=13,
                     padding=14,
