@@ -1,5 +1,5 @@
+####     QTILE-WAYLAND     ######
 # Copyright (c) 2010 Aldo Cortesi
-#from qtilecolors import colors # noqa
 # Copyright (c) 2010, 2014 dequis
 # Copyright (c) 2012 Randall Ma
 # Copyright (c) 2012-2014 Tycho Andersen
@@ -39,6 +39,10 @@ cursor_warp = False
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 reconfigure_screens = True
+
+# xcursor theme (string or None) and size (integer) for Wayland backend
+wl_xcursor_theme = "Bibata-Modern-Ice"
+wl_xcursor_size = 30
 
 # If things like steam games want to auto-minimize themselves when losing
 # focus, should we respect this or not?
