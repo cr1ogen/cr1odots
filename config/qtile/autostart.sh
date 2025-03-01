@@ -3,17 +3,16 @@
 #volumeicon &
 
 #scale in X11
-xrandr --output DisplayPort-3 --scale 0.60 &
+xrandr --output DisplayPort-2 --scale 0.60 &
 
 #scale in wayland
-wlr-randr --output DP-4 --scale 1.35 &
+wlr-randr --output DP-3 --scale 1.50 &
 
 # Share screen with pipewire hack
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots &
 systemctl --user stop  xdg-desktop-portal xdg-desktop-portal-wlr &
 
-exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &
-
+exec /usr/lib/x86_64-linux-gnu/ukui-polkit/polkit-ukui-authentication-agent-1 &
 
 dunst &
 /usr/bin/easyeffects --gapplication-service
@@ -21,6 +20,8 @@ dunst &
 # Setup Wallpaper and update colors
 
 #waypaper --restore &
-swww --no-daemon &
+#swww --no-daemon &
 
 /home/cr1ogen/.config/qtile/scripts/wallpaper.sh init &
+
+openrgb --startminimized &
