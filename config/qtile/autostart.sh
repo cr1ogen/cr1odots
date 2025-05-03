@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#volumeicon &
-
 #scale in X11
 xrandr --output DisplayPort-2 --scale 0.60 &
 
@@ -15,13 +13,10 @@ systemctl --user stop  xdg-desktop-portal xdg-desktop-portal-wlr &
 exec /usr/lib/x86_64-linux-gnu/ukui-polkit/polkit-ukui-authentication-agent-1 &
 
 dunst &
-/usr/bin/easyeffects --gapplication-service
+#/usr/bin/easyeffects --gapplication-service
 
 # Setup Wallpaper and update colors
 
-#waypaper --restore &
-#swww --no-daemon &
-
-/home/cr1ogen/.config/qtile/scripts/wallpaper.sh init &
+waypaper --restore &
 
 openrgb --startminimized &
