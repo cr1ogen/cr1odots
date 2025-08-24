@@ -3,6 +3,11 @@ c = c  # noqa: F821 pylint: disable=E0602,C0103
 config = config  # noqa: F821 pylint: disable=E0602,C0103
 # pylint settings included to disable linting errors
 
+config.source('qutemacs/qutemacs.py')
+
+
+# --- Pywal Colors ---
+
 import pywalQute.draw
 
 config.load_autoconfig()
@@ -49,22 +54,6 @@ config.load_autoconfig() # load settings done via the gui
 c.qt.args = ["stylesheet /home/babkock/.local/share/qutebrowser/fix-tooltips.qss", "enable-gpu-rasterization", "ignore-gpu-blocklist", "use-gl=egl", "enable-accelerated-video-decode"]
 c.auto_save.session = False # save tabs on quit/restart
 
-# keybinding changes
-config.bind('=', 'cmd-set-text -s :open')
-config.bind('h', 'history')
-config.bind('cs', 'cmd-set-text -s :config-source')
-config.bind('tH', 'config-cycle tabs.show multiple never')
-config.bind('sH', 'config-cycle statusbar.show always never')
-config.bind('T', 'hint links tab')
-config.bind('pP', 'open -- {primary}')
-config.bind('pp', 'open -- {clipboard}')
-config.bind('pt', 'open -t -- {clipboard}')
-config.bind('qm', 'macro-record')
-config.bind('<ctrl-y>', 'spawn --userscript ytdl.sh')
-config.bind('tT', 'config-cycle tabs.position top left')
-config.bind('gJ', 'tab-move +')
-config.bind('gK', 'tab-move -')
-config.bind('gm', 'tab-move')
 
 # dark mode setup
 c.colors.webpage.darkmode.enabled = True
@@ -87,9 +76,16 @@ c.fonts.web.family.sans_serif = 'poppins'
 c.fonts.web.family.serif = 'poppins'
 c.fonts.web.family.standard = 'poppins'
 
+c.content.notifications.presenter = 'auto'
+
 # Language
 
 c.content.headers.accept_language = 'es-Ar,es;q=0.9'
+
+# User-Agent
+c.content.headers.user_agent = 'Mozilla/5.0 ({os_info}) AppleWebKit/{webkit_version} (KHTML, like Gecko) {qt_key}/{qt_version} {upstream_browser_key}/{upstream_browser_version} Safari/{webkit_version}'
+
+c.new_instance_open_target = 'private-window'
 
 # privacy - adjust these settings based on your preference
 # config.set("completion.cmd_history_max_items", 0)
@@ -103,8 +99,7 @@ config.set("content.cookies.store", True)
 # config.set("content.javascript.enabled", False) # tsh keybind to toggle
 
 # Adblocking info -->
-# For yt ads: place the greasemonkey script yt-ads.js in your greasemonkey folder (~/.config/qutebrowser/greasemonkey).
-# The script skips through the entire ad, so all you have to do is click the skip button.
+# For yt ads: place the greasemonkey script yt-ads.js in your greasemonkey folder (~/.config/qutebrowser/greasemonkey).# The script skips through the entire ad, so all you have to do is click the skip button.
 # Yeah it's not ublock origin, but if you want a minimal browser, this is a solution for the tradeoff.
 # You can also watch yt vids directly in mpv, see qutebrowser FAQ for how to do that.
 # If you want additional blocklists, you can get the python-adblock package, or you can uncomment the ublock lists here.
