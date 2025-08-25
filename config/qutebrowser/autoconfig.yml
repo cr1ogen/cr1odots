@@ -6,7 +6,5 @@
 
 config_version: 2
 settings:
-  content.headers.accept_language:
-    global: en-US,en;q=0.9
-  content.javascript.clipboard:
-    https://github.com: access-paste
+  content.register_protocol_handler:
+    https://mail.proton.me#mailto=%25s: true
