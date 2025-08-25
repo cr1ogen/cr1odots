@@ -95,8 +95,8 @@ c.bindings.commands['normal'] = {
 	'9': 'fake-key 9',
 	'0': 'fake-key 0',
 
-	# escape hatch
-	'<ctrl-h>': 'set-cmd-text -s :help',
+	# escape home
+	'<ctrl-h>': 'home',
 	'<Esc>': ESC_BIND,
 }
 
