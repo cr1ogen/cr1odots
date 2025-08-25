@@ -97,7 +97,7 @@ c.bindings.commands['normal'] = {
 
 	# escape hatch
 	'<ctrl-h>': 'set-cmd-text -s :help',
-	'<ctrl-g>': ESC_BIND,
+	'<Esc>': ESC_BIND,
 }
 
 c.bindings.commands['command'] = {
@@ -111,18 +111,18 @@ c.bindings.commands['command'] = {
 	'<alt-n>': 'command-history-next',
         
 	# escape hatch
-	'<ctrl-g>': 'leave-mode',
+	'<Esc>': 'leave-mode',
 }
 
 c.bindings.commands['hint'] = {
 	# escape hatch
-	'<ctrl-g>': 'leave-mode',
+	'<Esc>': 'leave-mode',
 }
 
 
 c.bindings.commands['caret'] = {
 	# escape hatch
-	'<ctrl-g>': 'leave-mode',
+	'<Esc>': 'leave-mode',
 }
 
 # Search engins
