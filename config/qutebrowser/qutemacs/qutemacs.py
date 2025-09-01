@@ -66,6 +66,8 @@ c.bindings.commands['normal'] = {
 	'<ctrl-o>': 'set-cmd-text -s :open',
 	'<ctrl-shift-o>': 'set-cmd-text -s :open -t',
         '<ctrl-shift-p>': 'set-cmd-text -s :open --private',
+	# Open Bookmarks
+	'<ctrl-shift-b>': 'bookmark-list',
 
 	# editing
 	'<ctrl-f>': 'fake-key <Right>',
