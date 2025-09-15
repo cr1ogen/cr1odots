@@ -1,0 +1,150 @@
+@font-face {
+  font-family: 'Iosevka';
+  src: url('assets/Iosevka.ttf');
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Iosevka';
+  font-size: 20px;
+  background-color: #111111;
+  overflow: hidden;
+}
+
+h1 {
+  color: #FEFFFA;
+  font-weight: normal;
+  text-align: center;
+  padding-top: 20px;
+  padding-bottom: 10px;
+  margin-top: -40px;
+}
+
+nav {
+  display: inline-block;
+  color: #999999;
+  font-size: 20px;
+  margin: 0 auto;
+}
+
+ul {
+  display: table-cell;
+  text-align: center;
+  padding: 10px 25px;
+  list-style: none;
+  border-right: 1px solid #232328;
+  transition: 0.8s;
+  cursor: default;
+}
+
+ul:last-of-type {
+  border-right: none;
+}
+
+li {
+  margin: 10px 0;
+}
+
+ul>li:first-of-type {
+  padding-top: 5px;
+}
+
+ul>li>a {
+  text-decoration: none;
+  color: #858585;
+  transition: color 0.8s;
+}
+
+ul>li>a:hover {
+  color: white;
+}
+
+ul.green:hover {
+  color: #4FAE0F;
+}
+
+ul.blue:hover {
+  color: #0972D6;
+}
+
+ul.red:hover {
+  color: #ed3434;
+}
+
+ul.yellow:hover {
+  color: #edd934;
+}
+
+ul.purple:hover {
+  color: #a374ff;
+}
+
+.nav-title {
+  font-size: 22px;
+  font-weight: bold;
+  cursor: default;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  text-align: center;
+  font-family: 'Iosevka';
+  background-color: #1b1b1b;
+  border: 5px solid #1b1b1b;
+  border-radius: 10px;
+}
+
+.mySlides {
+  position: absolute;
+  opacity: 0;
+}
+
+#flair {
+  color: #0972D6;
+}
+
+#data-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 910px;
+  height: 600px;
+}
+
+#slideshow {
+  width: 300px;
+  height: 600px;
+  background: #1b1b1b center / cover no-repeat;
+}
+
+#slideshow img {
+  width: 100%;
+  height: 600px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+#codes {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 8px;
+  color: white;
+}
+
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
