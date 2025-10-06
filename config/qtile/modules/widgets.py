@@ -132,7 +132,7 @@ primary_widgets = [
                 ),
                 widget.PulseVolumeExtra(
                     mode='icon',
-                    theme_path='/usr/share/icons/BeautyLine/',
+                    theme_path='/usr/share/icons/BeautyLine',
                     bar_width=50,
                     bar_height=75,
                     channel='Master',
@@ -164,7 +164,7 @@ primary_widgets = [
                     ),
                     widget.Net(
                         format='{interface}',
-                        interface='enp5s0',
+                        interface='wlp15s0',
                         font='Poppins',
                         fontsize=16,
                         padding=14,
@@ -192,7 +192,7 @@ primary_widgets = [
                     fontsize=22,
                     #margin=13,
                     padding=9,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("/home/cr1ogen/.local/bin/waypaper")},
+                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("/usr/local/bin/waypaper")},
                     #**decoration_group,
                     ),
                 widget.TextBox(
