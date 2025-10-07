@@ -133,6 +133,7 @@ primary_widgets = [
                 widget.PulseVolumeExtra(
                     mode='icon',
                     theme_path='/usr/share/icons/BeautyLine',
+                    icon_theme='BeautyLine',
                     bar_width=50,
                     bar_height=75,
                     channel='Master',
@@ -155,19 +156,21 @@ primary_widgets = [
                         foreground='#00000000', #transparency
                         ),
                         
-                    widget.TextBox(
-                        text='',
-                        fontsize=18,
-                        padding=8,
-                        **decoration_group,
-                        background=colors[6],
-                    ),
-                    widget.Net(
+                    #widget.TextBox(
+                     #   text='',
+                     #   fontsize=18,
+                     #   padding=8,
+                     #   **decoration_group,
+                     #   background=colors[6],
+                     #),
+                    widget.WiFiIcon(
                         format='{interface}',
                         interface='wlp15s0',
                         font='Poppins',
                         fontsize=16,
-                        padding=14,
+                        padding=6,
+                        wifi_shape='arc',
+                        wifi_arc=75,
                         **decoration_group,
                         background=colors[6],
                     ),    
