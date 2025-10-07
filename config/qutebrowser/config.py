@@ -31,8 +31,8 @@ c.colors.contextmenu.selected.bg = '#252727'
 c.colors.contextmenu.selected.fg = 'white'
 
 
-c.url.start_pages = "file:///home/cr1ogen/.config/qutebrowser/Startpages/sijan/index.html"
-c.url.default_page = "file:///home/cr1ogen/.config/qutebrowser/Startpages/sijan/index.html"
+c.url.start_pages = "file:///home/cr1ogen/.config/qutebrowser/Startpages/onice/index.html"
+c.url.default_page = "file:///home/cr1ogen/.config/qutebrowser/Startpages/onice/index.html"
 
 c.tabs.title.format = "{audio}{current_title}"
 c.fonts.web.size.default = 20
@@ -51,7 +51,7 @@ c.completion.open_categories = ['searchengines', 'quickmarks', 'bookmarks', 'his
 config.load_autoconfig() # load settings done via the gui
 
 
-c.qt.args = ["stylesheet /home/babkock/.local/share/qutebrowser/fix-tooltips.qss", "enable-gpu-rasterization", "ignore-gpu-blocklist", "use-gl=egl", "enable-accelerated-video-decode"]
+c.qt.args = ["stylesheet /home/babkock/.local/share/qutebrowser/fix-tooltips.qss", "enable-gpu-rasterization", "ignore-gpu-blocklist", "enable-accelerated-video-decode"]
 c.auto_save.session = False # save tabs on quit/restart
 
 
@@ -77,6 +77,9 @@ c.fonts.web.family.serif = 'poppins'
 c.fonts.web.family.standard = 'poppins'
 
 c.content.notifications.presenter = 'auto'
+
+# Zoom modes
+c.zoom.default = '100%'
 
 # Language
 
