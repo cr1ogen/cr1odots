@@ -171,9 +171,9 @@ primary_widgets = [
                         padding=6,
                         wifi_shape='arc',
                         wifi_arc=75,
-                        **decoration_group,
-                        background=colors[6],
-                    ),    
+                        #**decoration_group,
+                        #background=colors[6],
+                    ),
                     widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
                     icon_size=24,
