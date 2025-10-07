@@ -33,7 +33,10 @@ c.bindings.commands['normal'] = {
 	'<alt-v>': 'scroll-page 0 -0.5',
 	'<ctrl-shift-v>': 'scroll-page 0 1',
 	'<alt-shift-v>': 'scroll-page 0 -1',
-	# FIXME come up with logical bindings for scrolling left/right
+        '<ctrl-shift-+>': 'zoom-in',
+        '<ctrl-shift-_>': 'zoom-out',
+        '<ctrl-shift-Backspace>': 'zoom',
+# FIXME come up with logical bindings for scrolling left/right
         
 	# Commands
         '<shift-:>':'set-cmd-text -s :',
