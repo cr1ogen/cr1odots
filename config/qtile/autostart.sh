@@ -4,7 +4,7 @@
 xrandr --output DisplayPort-2 --scale 0.60 &
 
 #scale in wayland
-wlr-randr --output DP-3 --scale 1.50 &
+wlr-randr --output DP-3 --scale 1.70 &
 
 # Share screen with pipewire hack
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots &
