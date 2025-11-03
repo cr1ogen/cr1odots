@@ -132,7 +132,7 @@ primary_widgets = [
                 ),
                 widget.PulseVolumeExtra(
                     mode='icon',
-                    theme_path='/usr/share/icons/BeautyLine',
+                    theme_path='/home/cr1ogen/.local/share/icons/BeautyLine',
                     icon_theme='BeautyLine',
                     bar_width=50,
                     bar_height=75,

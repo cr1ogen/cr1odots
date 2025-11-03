@@ -56,7 +56,7 @@ keys = [
     #Accesos Directo
     Key([mod], "b", lazy.spawn("rofi -show drun"), desc="Launch apps"),
     Key([mod, "shift"], "b", lazy.spawn("rofi -show run"), desc="Laucnh commands"),
-    Key([mod], "backslash", lazy.spawn("firefox")),
+    Key([mod], "backslash", lazy.spawn("qutebrowser")),
     Key([mod, "shift"], "backslash", lazy.spawn("thunar")),
 
     #Captura de  Pantalla
@@ -69,8 +69,8 @@ keys = [
     Key([mod, "shift"], "KP_Add", lazy.spawn("/home/cr1ogen/.local/bin/4kscaled"), desc="Scale to 175%"),
 
     #Control de Volumen
-    Key([], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")),
-    Key([], "XF86AudioRaiseVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")),
-    Key([], "XF86AudioMute", lazy.spawn("pactl set-sink-mute  @DEFAULT_SINK@ toggle")),
+    Key([], "XF86AudioLowerVolume", lazy.spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-")),
+    Key([], "XF86AudioRaiseVolume", lazy.spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+")),
+    Key([], "XF86AudioMute", lazy.spawn("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")),
 
 ]
