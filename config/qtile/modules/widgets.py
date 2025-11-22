@@ -141,20 +141,20 @@ primary_widgets = [
                     padding=14,
                     volume_down_command='XF86AudioLowerVolume',
                     volume_up_command='XF86AudioRaiseVolume',
-                    mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
+                    mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("flatpak run com.saivert.pwvucontrol")},
                     **decoration_group,
                     background=colors[6],
                     ),
-                    widget.Sep(
-                        padding=14,
-                        background=colors[6], 
-                        foreground='#00000000', #transparency
-                        **decoration_group
-                        ),
-                    widget.Sep(
-                        padding=14,
-                        foreground='#00000000', #transparency
-                        ),
+                widget.Sep(
+                    padding=14,
+                    background=colors[6], 
+                    foreground='#00000000', #transparency
+                    **decoration_group
+                ),
+                widget.Sep(
+                    padding=14,
+                    foreground='#00000000', #transparency
+                ),
                         
                     #widget.TextBox(
                      #   text='',
@@ -163,23 +163,24 @@ primary_widgets = [
                      #   **decoration_group,
                      #   background=colors[6],
                      #),
-                    widget.WiFiIcon(
-                        format='{interface}',
-                        interface='wlp15s0',
-                        font='Poppins',
-                        fontsize=16,
-                        padding=6,
-                        wifi_shape='arc',
-                        wifi_arc=75,
+                widget.WiFiIcon(
+                    format='{interface}',
+                    interface='wlp15s0',
+                    font='Poppins',
+                    fontsize=16,
+                    padding=6,
+                    wifi_shape='arc',
+                    wifi_arc=75,
                         #**decoration_group,
                         #background=colors[6],
-                    ),
-                    widget.StatusNotifier(
+                ),
+                widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
-                    icon_size=24,
+                    icon_size=16,
                     highlight_colour=colors[0], 
                     #padding=4,
                     show_menu_icons=True,
+                    padding=10,
                     #**decoration_group,
                     ),
                widget.GithubNotifications(
@@ -189,7 +190,7 @@ primary_widgets = [
                    token_file='/home/cr1ogen/.config/qtile/scripts/github.token',
                    update_interval=150,
                    padding=8,
-                   ),
+               ),
                widget.TextBox(
                     text='',
                     fontsize=22,
@@ -197,7 +198,7 @@ primary_widgets = [
                     padding=9,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("/usr/local/bin/waypaper")},
                     #**decoration_group,
-                    ),
+               ),
                 widget.TextBox(
                     text='',
                     fontsize=22,
@@ -206,7 +207,7 @@ primary_widgets = [
                     padding=14,
                     mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("wlogout")},
                     #**decoration_group,
-                    ),
+                ),
                 widget.Clock(
                     format= '%H:%M %a',
                     font='Poppins Bold',
@@ -214,7 +215,7 @@ primary_widgets = [
                     padding=14,
                     **decoration_border,
                     background=colors[3],
-                    ),
+                ),
     ]
 
              
