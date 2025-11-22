@@ -176,11 +176,11 @@ primary_widgets = [
                 ),
                 widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
-                    icon_size=16,
+                    icon_size=26,
                     highlight_colour=colors[0], 
-                    #padding=4,
+                    #padding_y=2,
                     show_menu_icons=True,
-                    padding=10,
+                    padding=8,
                     #**decoration_group,
                     ),
                widget.GithubNotifications(
