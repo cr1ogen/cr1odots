@@ -56,7 +56,7 @@ keys = [
     #Accesos Directo
     Key([mod], "b", lazy.spawn("rofi -show drun"), desc="Launch apps"),
     Key([mod, "shift"], "b", lazy.spawn("rofi -show run"), desc="Laucnh commands"),
-    Key([mod], "backslash", lazy.spawn("qutebrowser")),
+    Key([mod], "backslash", lazy.spawn("firefox")),
     Key([mod, "shift"], "backslash", lazy.spawn("thunar")),
 
     #Captura de  Pantalla

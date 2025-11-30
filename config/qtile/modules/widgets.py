@@ -141,7 +141,7 @@ primary_widgets = [
                     padding=14,
                     volume_down_command='XF86AudioLowerVolume',
                     volume_up_command='XF86AudioRaiseVolume',
-                    mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("flatpak run com.saivert.pwvucontrol")},
+                    mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pwvucontrol")},
                     **decoration_group,
                     background=colors[6],
                     ),
