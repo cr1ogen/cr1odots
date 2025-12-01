@@ -1,0 +1,48 @@
+Para firmar un kernel con
+mokutil, primero debes crear un par de claves (privada y pública) y luego usar mokutil para importar la clave pública al sistema, lo que requiere reiniciar y confirmar la inscripción en la herramienta MOKManager. Finalmente, usa la clave privada para firmar el kernel con sbsign y asegúrate de firmar también el initramfs asociado. 
+1. Generar el par de claves
+
+    Genera un par de claves RSA (privada y pública) usando openssl. Reemplaza /ruta/a/MOK.priv y /ruta/a/MOK.der con las ubicaciones deseadas y CN=Tu Clave con un nombre apropiado.
+    bash
+
+openssl req -new -x509 -newkey rsa:2048 -keyout /ruta/a/MOK.priv -outform DER -out /ruta/a/MOK.der -nodes -days 36500 -subj "/CN=Tu Clave"
+
+Nota: Esta clave se utilizará tanto para firmar el kernel como para inscribir el certificado en MOK. 
+
+2. Importar la clave pública en MOK
+
+    Importa la clave pública al sistema usando mokutil. Se te pedirá una contraseña que usarás más adelante en el proceso de inscripción.
+    bash
+
+sudo mokutil --import /ruta/a/MOK.der
+
+Reinicia tu sistema. Aparecerá una pantalla azul de la herramienta MOKManager.
+Selecciona Registrar MOK y luego Continuar.
+Confirma la inscripción de la clave seleccionando Sí y reingresa la contraseña que estableciste en el paso anterior.
+Reinicia el sistema nuevamente para que los cambios surtan efecto.
+
+3. Firmar el kernel y el initramfs
+
+    Primero, firmar el archivo del kernel. Se necesita el archivo de certificado en formato PEM para sbsign, por lo que primero se convertirá el archivo .der a .pem.
+    bash
+
+openssl x509 -in /ruta/a/MOK.der -inform DER -outform PEM -out /ruta/a/MOK.pem
+
+Ahora firma el kernel usando la clave privada y el certificado. Reemplaza [KERNEL-VERSION] con la versión correcta del kernel.
+bash
+
+sudo sbsign --key /ruta/a/MOK.priv --cert /ruta/a/MOK.pem /boot/vmlinuz-[KERNEL-VERSION]-generic --output /boot/vmlinuz-[KERNEL-VERSION]-generic.signed
+
+Crea también una copia del initramfs con la firma.
+bash
+
+sudo cp /boot/initrd.img-[KERNEL-VERSION]-generic /boot/initrd.img-[KERNEL-VERSION]-generic.signed
+
+ 
+
+4. Actualizar el gestor de arranque (GRUB)
+
+    Actualiza el cargador de arranque para que use los archivos recién firmados.
+    bash
+
+sudo update-grub
