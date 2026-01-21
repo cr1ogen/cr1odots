@@ -114,7 +114,7 @@ primary_widgets = [
                 widget.TextBox(
                     text='󰌌',
                     fontsize=22,
-                    padding=8,
+                    padding=6,
                     **decoration_group,
                     background=colors[6],
                 ),
@@ -122,12 +122,12 @@ primary_widgets = [
                     configured_keyboards=['us','es'],
                     font='Poppins',
                     fontsize=16,
-                    padding=14,
+                    padding=6,
                     **decoration_group,
                     background=colors[6],
                 ),
                 widget.Sep(
-                    padding=14,
+                    padding=12,
                     foreground='#00000000', #transparency
                 ),
                 widget.PulseVolumeExtra(
@@ -146,13 +146,13 @@ primary_widgets = [
                     background=colors[6],
                     ),
                 widget.Sep(
-                    padding=14,
+                    padding=12,
                     background=colors[6], 
                     foreground='#00000000', #transparency
                     **decoration_group
                 ),
                 widget.Sep(
-                    padding=14,
+                    padding=6,
                     foreground='#00000000', #transparency
                 ),
                         
@@ -163,6 +163,13 @@ primary_widgets = [
                      #   **decoration_group,
                      #   background=colors[6],
                      #),
+                widget.Bluetooth(
+                    default_text='{connected_devices}',
+                    font='Poppins',
+                    fontsize=26,
+                    padding=6,
+                    icon_theme='/usr/share/icons/BeautyLine',
+                    ),    
                 widget.WiFiIcon(
                     format='{interface}',
                     interface='wlp15s0',
@@ -180,7 +187,7 @@ primary_widgets = [
                     highlight_colour=colors[0], 
                     #padding_y=2,
                     show_menu_icons=True,
-                    padding=8,
+                    padding=6,
                     #**decoration_group,
                     ),
                widget.GithubNotifications(
