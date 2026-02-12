@@ -1,6 +1,7 @@
 import os
 import subprocess
 from libqtile import qtile
+from libqtile.lazy import lazy
 from qtile_extras import widget #as extrawidgets #Extras
 from qtile_extras.widget.decorations import BorderDecoration, RectDecoration, PowerLineDecoration
 from modules.colors import colors
@@ -32,35 +33,35 @@ primary_widgets = [
                     fontsize=18,
                     font='Poppins Bold',
                     padding=14,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("rofi -show drun")},
+                    mouse_callbacks={'Button1': lazy.spawn("rofi -show drun")},
                     line_colour='#ffffff',
                     line_width=4,
                     background=colors[3],
                     **decoration_border,
                     ),
                  widget.TextBox(
-                    text='',
-                    fontsize=22,
+                    text='󰆍',
+                    fontsize=21,
                     padding=9,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("kitty")},
+                    mouse_callbacks={'Button1': lazy.spawn("kitty")},
                     ),
                  widget.TextBox(
                     text='󰈹',
-                    fontsize=25,
+                    fontsize=21,
                     padding=9,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("firefox")},
+                    mouse_callbacks={'Button1': lazy.spawn("firefox")},
                     ),
                  widget.TextBox(
-                    text='󰓓',
-                    fontsize=25,
+                    text='',
+                    fontsize=21,
                     padding=9,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("steam")},
+                    mouse_callbacks={'Button1': lazy.spawn("steam")},
                     ),
                  widget.TextBox(
-                     text='',
+                     text='',
                     fontsize=21,
                     padding=10,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("nemo")},
+                    mouse_callbacks={'Button1': lazy.spawn("nemo")},
                     ),
                  widget.Sep(
                     padding=12,
@@ -72,7 +73,7 @@ primary_widgets = [
                     padding=14,
                     background=colors[6],
                     **decoration_group,
-                    ), 
+                    ),
                  widget.TaskList(
                     font="Poppins",
                     fontsize=16,
@@ -89,7 +90,7 @@ primary_widgets = [
                 widget.Spacer(
                     ),
                 widget.GroupBox(
-                    font="Poppins",
+                    #font="Poppins",
                     fontsize=24,
                     padding=10,
                     center_aligned=True,
@@ -119,7 +120,7 @@ primary_widgets = [
                 widget.TextBox(
                     text='󰌌',
                     fontsize=22,
-                    padding=5,
+                    padding=8,
                     background=colors[6],
                     **decoration_group,
                     ),
@@ -146,7 +147,7 @@ primary_widgets = [
                     padding=14,
                     volume_down_command='XF86AudioLowerVolume',
                     volume_up_command='XF86AudioRaiseVolume',
-                    mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pwvucontrol")},
+                    mouse_callbacks={'Button3': lazy.spawn("pwvucontrol")},
                     background=colors[6],
                     **decoration_group
                     ),
@@ -169,8 +170,8 @@ primary_widgets = [
                      #),
                 widget.Bluetooth(
                     default_text='{connected_devices}',
-                    font='Poppins',
-                    fontsize=26,
+                    #font='Poppins',
+                    fontsize=24,
                     padding=6,
                     icon_theme='/usr/share/icons/BeautyLine',
                     ),    
@@ -182,7 +183,7 @@ primary_widgets = [
                     padding=6,
                     wifi_shape='arc',
                     wifi_arc=75,
-                    mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("kitty -e nmtui")},
+                    mouse_callbacks={'Button3': lazy.spawn("kitty -e nmtui")},
                     ),
                 widget.GithubNotifications(
                     icon_size=22,
@@ -194,17 +195,17 @@ primary_widgets = [
                     ),
                widget.TextBox(
                     text='',
-                    fontsize=22,
+                    fontsize=20,
                     #margin=13,
                     padding=6,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("/usr/local/bin/waypaper")},
+                    mouse_callbacks={'Button1': lazy.spawn("/usr/local/bin/waypaper")},
                     ),
                 widget.TextBox(
                     text='',
                     fontsize=22,
                     foreground='#ffffff',
                     padding=14,
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn("wlogout")},
+                    mouse_callbacks={'Button1': lazy.spawn("wlogout")},
                     ),
                 widget.Clock(
                     format= '%H:%M %a',
