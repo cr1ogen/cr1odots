@@ -192,6 +192,7 @@ primary_widgets = [
                     token_file='/home/cr1ogen/.config/qtile/scripts/github.token',
                     update_interval=150,
                     padding=6,
+                    mouse_callbacks={'Button1': lazy.spawn("firefox www.github.com/notifications")},
                     ),
                widget.TextBox(
                     text='',
