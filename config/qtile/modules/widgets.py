@@ -21,7 +21,7 @@ decoration_group = {
         
 decoration_border = {
     "decorations": [
-        RectDecoration (colour='#00000000',line_colour='#ffffff', line_width=3,use_widget_background=True, radius=15, filled=True, group=True, clip=True , ignore_extrawidth=True)        
+        RectDecoration (colour='#00000000',line_colour='#ffffff', line_width=3,use_widget_background=True, radius=11, filled=True, group=True, clip=True , ignore_extrawidth=True)        
     ],
 }
 
@@ -32,7 +32,7 @@ primary_widgets = [
                     text='Debian',
                     fontsize=18,
                     font='Poppins Bold',
-                    padding=14,
+                    padding=16,
                     mouse_callbacks={'Button1': lazy.spawn("rofi -show drun")},
                     line_colour='#ffffff',
                     line_width=4,
