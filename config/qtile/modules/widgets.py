@@ -147,7 +147,7 @@ primary_widgets = [
                     padding=14,
                     volume_down_command='XF86AudioLowerVolume',
                     volume_up_command='XF86AudioRaiseVolume',
-                    mouse_callbacks={'Button3': lazy.spawn("pwvucontrol")},
+                    mouse_callbacks={'Button3': lazy.spawn("kitty -e wiremix")},
                     background=colors[6],
                     **decoration_group
                     ),
@@ -174,16 +174,17 @@ primary_widgets = [
                     fontsize=24,
                     padding=6,
                     icon_theme='/usr/share/icons/BeautyLine',
+                    mouse_callbacks={'Button1': lazy.spawn("kitty -e bluetui")},
                     ),    
                 widget.WiFiIcon(
                     format='{interface}',
-                    interface='wlp15s0',
+                    interface='wlan0',
                     font='Poppins',
                     fontsize=16,
                     padding=6,
                     wifi_shape='arc',
                     wifi_arc=75,
-                    mouse_callbacks={'Button3': lazy.spawn("kitty -e nmtui")},
+                    mouse_callbacks={'Button3': lazy.spawn("kitty -e impala")},
                     ),
                 widget.GithubNotifications(
                     icon_size=22,
