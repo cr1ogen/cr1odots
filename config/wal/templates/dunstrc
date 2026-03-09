@@ -1,0 +1,4 @@
+[urgency_normal]
+background = "{color0}"
+foreground = "{color7}"
+frame_color = "{color4}"
