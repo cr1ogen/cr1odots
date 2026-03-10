@@ -18,9 +18,15 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("7e377879cbd60c66b88e51fad480b3ab18d60847f31c435f15f5df18bdb18184" "da75eceab6bea9298e04ce5b4b07349f8c02da305734f7c0c8c6af7b5eaa9738" "88f7ee5594021c60a4a6a1c275614103de8c1435d6d08cc58882f920e0cec65e" default))
+   '("7e377879cbd60c66b88e51fad480b3ab18d60847f31c435f15f5df18bdb18184"
+     "da75eceab6bea9298e04ce5b4b07349f8c02da305734f7c0c8c6af7b5eaa9738"
+     "88f7ee5594021c60a4a6a1c275614103de8c1435d6d08cc58882f920e0cec65e"
+     default))
  '(package-selected-packages
-   '(ewal-spacemacs-themes ewal-evil-cursors ewal neotree treemacs-projectile treemacs tremacs dashboard helm-projectile projectile helm all-the-icons doom-modeline which-key)))
+   '(all-the-icons dashboard doom-modeline ewal ewal-evil-cursors
+		   ewal-spacemacs-themes helm helm-projectile neotree
+		   projectile theme-magic treemacs treemacs-projectile
+		   tremacs which-key)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -108,35 +114,8 @@
 ;; opacity
 (add-to-list 'default-frame-alist '(alpha-background . 90))
 
+(require 'theme-magic)
+(theme-magic-export-theme-mode)
 
-;; Need to install ewal and ewal-spacemacs-themes for pywal
-
-(use-package ewal
-  :init (setq ewal-use-built-in-always-p nil
-              ewal-use-built-in-on-failure-p t
-              ewal-built-in-palette "sexy-material"))
-(use-package ewal-spacemacs-themes
-  :init (progn
-          (setq spacemacs-theme-underline-parens t
-                my:rice:font (font-spec
-                              :family "Mononoki Nerd Font"
-                              :weight 'semi-bold
-                              :size 14.0))
-          (show-paren-mode +1)
-          (global-hl-line-mode)
-          (set-frame-font my:rice:font nil t)
-          (add-to-list  'default-frame-alist
-                        `(font . ,(font-xlfd-name my:rice:font))))
-  :config (progn
-            (load-theme 'ewal-spacemacs-modern t)
-            (enable-theme 'ewal-spacemacs-modern)))
-(use-package ewal-evil-cursors
-  :after (ewal-spacemacs-themes)
-  :config (ewal-evil-cursors-get-colors
-           :apply t :spaceline t))
-(use-package spaceline
-  :after (ewal-evil-cursors winum)
-  :init (setq powerline-default-separator nil)
-  :config (spaceline-spacemacs-theme))
-
-
+(when (file-exists-p "~/.cache/wal/colors-wal.el")
+  (load-file "~/.cache/wal/colors-wal.el"))
