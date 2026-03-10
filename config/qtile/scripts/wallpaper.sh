@@ -93,6 +93,16 @@ echo ":: Execute pywal with $used_wallpaper"
 wal -q -i $used_wallpaper
 source "$HOME/.cache/wal/colors.sh"
 
+#------------------------------------------------------                                                                       
+# Dunst
+#------------------------------------------------------
+
+echo ":: Updating Dunst configuration with pywal colors"
+sleep 0.5
+ln -sf ~/.cache/wal/dunstrc ~/.config/dunst/dunstrc
+pkill dunst
+dunst &
+
 # ----------------------------------------------------- 
 # Reload Qtile
 # -----------------------------------------------------
@@ -107,14 +117,9 @@ if type pywalfox > /dev/null 2>&1; then
     pywalfox update
 fi
 
-#------------------------------------------------------
-# Dunst
-#------------------------------------------------------
-
-pkill dunst && dunst
 
 # ----------------------------------------------------- 
-# Created blurred wallpaper
+ # Created blurred wallpaper
 # -----------------------------------------------------
 
 echo ":: Generate new cached wallpaper blur-$blur-$wallpaper_filename with blur $blur"
