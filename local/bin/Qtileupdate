@@ -3,3 +3,7 @@
 cd /home/cr1ogen/Git/qtile
 git pull
 sudo pip install --config-setting backend=wayland . --break-system-packages
+
+qtile cmd-obj -o cmd -f reload_config
+
+echo "Qtile is updated"
