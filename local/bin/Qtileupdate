@@ -11,7 +11,7 @@ case $respuesta in
 	echo "Actualizando Qtile..."
         sudo pip install --config-setting backend=wayland . --break-system-packages
         qtile cmd-obj -o cmd -f reload_config
-	echo "Qtile is updated"
+	echo "Qtile ha sido actualizado"
 	;;
 
     [Nn]* ) 
