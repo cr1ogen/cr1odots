@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "¿Quieres actualizar el sistema? (s/n)"
+read respuesta
+
+case $respuesta in
+    [Ss]* ) 
+        echo "Actualizando el sistema..."
+        sudo apt update && sudo apt upgrade 
+        ;;
+    [Nn]* ) 
+        echo "Operación cancelada por el usuario."
+        ;;
+    * ) 
+        echo "Respuesta no válida. Por favor, escribe s o n."
+        ;;
+esac
