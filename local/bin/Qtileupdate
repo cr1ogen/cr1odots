@@ -2,8 +2,22 @@
 
 cd /home/cr1ogen/Git/qtile
 git pull
-sudo pip install --config-setting backend=wayland . --break-system-packages
 
-qtile cmd-obj -o cmd -f reload_config
+echo "¿Quieres actualizar Qtile? (s/n)"
+read respuesta
 
-echo "Qtile is updated"
+case $respuesta in
+    [Ss]* )
+	echo "Actualizando Qtile..."
+        sudo pip install --config-setting backend=wayland . --break-system-packages
+        qtile cmd-obj -o cmd -f reload_config
+	echo "Qtile is updated"
+	;;
+
+    [Nn]* ) 
+        echo "Operación cancelada por el usuario."
+        ;;
+    * ) 
+        echo "Respuesta no válida. Por favor, escribe s o n."
+        ;;
+esac
