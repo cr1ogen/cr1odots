@@ -9,9 +9,10 @@ read respuesta
 case $respuesta in
     [Ss]* )
 	echo "Actualizando Qtile..."
+	echo "Ingrese contraseña:"
         sudo pip install --config-setting backend=wayland . --break-system-packages
         qtile cmd-obj -o cmd -f reload_config
-	echo "Qtile ha sido actualizado"
+	echo "Qtile esta actualizado"
 	;;
 
     [Nn]* ) 
