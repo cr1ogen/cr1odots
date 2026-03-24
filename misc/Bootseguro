@@ -1,0 +1,43 @@
+
+¿ Que es el boot seguro ?
+
+Es un arranque firmado por certificados X509, justo como los certificados que hacen el HTTPS, estos certificados se usan para firmar los binarios de arranque como el GRUB y el Kernel Linux. Esto garantiza que no ha sido modificado o se ha instalado un kernel para suplantar nuestro kernel actual con posibles backdoor así como virus de boot que cargan antes de que cargue el código del kernel
+
+Verificando si estamos en modo boot seguro o sin seguridad
+
+mokutil --sb-state
+
+Crear los certificados
+
+el certificado de plataforma y el certificado base de datos de kernel o binarios que arrancan
+
+Certificado de plataforma, para activar el modo Secure BOOT
+
+
+openssl req -new -x509 -newkey rsa:4096 -keyout MOK.key -out MOK.crt -nodes -days 36500 -subj "/CN=Cr1ogen SecureBoot/"
+
+Certificado de base de datos ( DB ) para firmar los binarios de arranque
+
+
+Convertir los archivos CRT a formato DER para instalarlo en el EFI BIOS del PC
+    
+openssl x509 -outform DER -in MOK.crt -out MOK.der
+
+Los archivos DER pueden ser almacenados temporalmente en la partición EFI del disco duro para que el BIOS EFI tenga acceso a estos archivos, también podría ser guardados en una memoria USB para el mismo propósito
+
+mkdir /boot/efi/EFI/der  
+cp *.der /boot/efi/EFI/der  
+
+sbsign --key /home/cr1ogen/MOK.key --cert /home/cr1ogen/MOK.crt --output vmlinuz-6.19.9-tkg-bore vmlinuz-6.19.9-tkg-bore-orig 
+
+# Extras
+
+Firmando e GRUB
+
+sbsign --key db.key --cert db.crt --output /boot/efi/EFI/debian/grubx64.efi /boot/efi/EFI/debian/grubx64.efi
+sbsign --key db.key --cert db.crt --output /boot/efi/EFI/debian/shimx64.efi /boot/efi/EFI/debian/shimx64.efi
+
+Firma de Kernel
+Debian 11 viene con kernel firmados para funcionar con su GRUB por lo que muy probablemente no sea necesario firmar el kernel que incluye Debian, sin embargo cualquier kernel extranjero o compilado desde su fuentes de www.kernel.org deberá ser firmado o no podrá cargar
+
+sbsign –key db.key –cert db.crt –output /boot/vmlinuz-kernel-a-firmar /boot/vmlinuz-kernel-a-filmar
