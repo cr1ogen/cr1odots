@@ -1,0 +1,116 @@
+#!/bin/bash
+set -e
+
+# --- 0. Configuración de Identidad y Entorno ---
+export DEBFULLNAME="Cristian (cr1ogen)"
+export DEBEMAIL="cristian@local"
+export DEB_BUILD_OPTIONS="nocheck"
+export PYBUILD_DISABLE="test"
+
+echo "--- 1. Instalando dependencias de sistema ---"
+sudo apt update
+sudo apt install -y \
+    build-essential python3-dev python3-setuptools python3-pip \
+    python3-stdeb dh-python python3-all python3-six \
+    libwayland-dev libwlroots-0.19-dev libinput-dev libxkbcommon-dev \
+    libpangocairo-1.0-0 python3-cffi python3-xcffib python3-cairocffi \
+    python3-dbus-fast python3-dbus-next python3-pyxdg python3-requests \
+    libdbusmenu-glib4 libdbusmenu-gtk3-4 git
+
+# --- 2. Función para Core (Con chequeo de carpeta) ---
+build_core() {
+    echo ">>> Preparando Qtile Core..."
+    if [ ! -d "$HOME/qtile" ]; then
+        git clone https://github.com/qtile/qtile.git "$HOME/qtile"
+        cd "$HOME/qtile"
+    else
+        cd "$HOME/qtile"
+        git fetch --all
+        git reset --hard origin/main || git reset --hard origin/master
+    fi
+    
+    rm -rf deb_dist dist python3_qtile.egg-info
+    [ -f "pyproject.toml" ] && mv pyproject.toml pyproject.toml.bak || true
+    echo "Qtile Core Victoria Edition" > README.rst
+
+    cat <<EOF > setup.py
+from setuptools import setup, find_packages
+import os
+
+so_files = []
+for root, dirs, files in os.walk('libqtile'):
+    for file in files:
+        if file.endswith('.so'):
+            rel_path = os.path.join(root, file).replace('libqtile/', '')
+            so_files.append(rel_path)
+
+setup(
+    name='python3-qtile',
+    version='0.34.0+victoria.final',
+    packages=find_packages(),
+    package_data={'libqtile': so_files},
+    include_package_data=True,
+    author='Cristian',
+    description='Qtile Core con StatusNotifier y Wayland',
+    long_description='Compilado saltando tests para compatibilidad con Python 3.13.',
+    long_description_content_type='text/x-rst',
+    entry_points={'console_scripts': ['qtile = libqtile.scripts.main:main']},
+    zip_safe=False,
+)
+EOF
+
+    echo "recursive-include libqtile/widget/helpers/status_notifier *.py" > MANIFEST.in
+    echo "recursive-include libqtile *.py" >> MANIFEST.in
+    echo "recursive-include libqtile *.so" >> MANIFEST.in
+
+    echo ">>> Compilando backend Wayland..."
+    find . -name "build.py" | grep wayland | xargs python3
+
+    python3 setup.py --command-packages=stdeb.command sdist_dsc
+    cd deb_dist/python3-qtile-*/
+    DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -rfakeroot -uc -us -b
+    sudo dpkg -i --force-overwrite ../*.deb
+    cd ../../../
+}
+
+# --- 3. Función para Extras (Con chequeo de carpeta) ---
+build_extras() {
+    echo ">>> Preparando Qtile Extras..."
+    if [ ! -d "$HOME/qtile-extras" ]; then
+        git clone https://github.com/elParaguayo/qtile-extras.git "$HOME/qtile-extras"
+        cd "$HOME/qtile-extras"
+    else
+        cd "$HOME/qtile-extras"
+        git fetch --all
+        git reset --hard origin/main
+    fi
+    
+    rm -rf deb_dist dist python3_qtile_extras.egg-info
+    [ -f "pyproject.toml" ] && mv pyproject.toml pyproject.toml.bak || true
+
+    cat <<EOF > stdeb.cfg
+[DEFAULT]
+Package3: python3-qtile-extras
+Depends3: python3-qtile, python3-requests, python3-dbus-fast, python3-dbus-next, python3-pyxdg
+Maintainer: Cristian <cristian@local>
+Section: x11
+EOF
+
+    python3 setup.py --command-packages=stdeb.command sdist_dsc
+    cd deb_dist/python3-qtile-extras-*/
+    dpkg-buildpackage -rfakeroot -uc -us -b
+    sudo dpkg -i --force-overwrite ../*.deb
+    cd ../../../
+}
+
+# --- 4. Ejecución ---
+build_core
+build_extras
+
+# --- 5. Post-Instalación ---
+sudo mkdir -p /usr/share/qtile/icons
+sudo apt-mark hold python3-qtile python3-qtile-extras
+
+echo "--------------------------------------------------------"
+echo " ¡Victoria total, Cristian! Todo instalado y blindado. "
+echo "--------------------------------------------------------"
