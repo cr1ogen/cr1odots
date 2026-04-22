@@ -6,7 +6,7 @@
 (setq use-short-answers t)
 
 ;; Asegurarse de que agregue parentesis cerrando
-(add-hook 'prog-mode-hook 'electric-pair-local-mode)
+(electric-pair-mode 1) ()
 
 ;; Llenar texto hasta 80 caracteres
 (setq fill-column 80)
@@ -20,10 +20,11 @@
 (delete-selection-mode t)
 
 ;; Permite ver numero de columna en modeline
+(global-display-line-numbers-mode 1)
 (setq column-number-mode t)
 
 ;; Resalta parentesis pareja
-(show-paren-mode 1)
+;; (show-paren-mode 1)
 
 ;; Como mostrar parentesis pareja cuando esta fuera de pantalla
 (setq show-paren-context-when-offscreen 'overlay)
@@ -47,9 +48,9 @@
   :init (progn
           (setq spacemacs-theme-underline-parens t
                 my:rice:font (font-spec
-                              :family "Hasklug Nerd Font"
-                              :weight 'semi-bold
-                              :size 13.0))
+                              :family "Space Mono Nerd Font"
+                              :weight 'regular
+                              :size 14.0))
           (show-paren-mode +1)
           (global-hl-line-mode)
           (set-frame-font my:rice:font nil t)
@@ -72,10 +73,15 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(ewal ewal-doom-themes ewal-evil-cursors ewal-spacemacs-themes)))
+   '(ewal-doom-themes ewal-evil-cursors ewal-spacemacs-themes treemacs)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; Transparencia
+(add-to-list 'default-frame-alist '(alpha-background . 90)) ; 90% opaco
+
+
