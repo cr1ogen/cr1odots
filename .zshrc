@@ -41,3 +41,8 @@ eval "$(starship init zsh)"
 fpath+=~/.zfunc; autoload -Uz compinit; compinit
 
 zstyle ':completion:*' menu select
+
+#eval "$(uv generate-shell-completion zsh)"
+#eval "$(uvx --generate-shell-completion zsh)"
+
+richfetch 
