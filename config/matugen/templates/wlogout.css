@@ -1,0 +1,22 @@
+/* ~/.config/matugen/wlogout.css */
+window {
+    background-color: {{colors.surface.default.hex_alpha | set_alpha: 0.5}};
+}
+
+button {
+    color: {{colors.on_surface.default.hex}};
+    background-color: {{colors.surface_container.default.hex}};
+    border-style: solid;
+    border-width: 2px;
+    border-color: {{colors.outline.default.hex}};
+    border-radius: 20px;
+    margin: 10px;
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:focus, button:hover {
+    background-color: {{colors.primary.default.hex}};
+    color: {{colors.on_primary.default.hex}};
+    border-color: {{colors.primary_container.default.hex}};
+}
+

@@ -1,0 +1,35 @@
+# Archivo de plantilla Matugen para Qtile (Sintaxis con .default)
+colors = {
+    # --- COLORES DE FONDO Y SUPERFICIES ---
+    "bg": "{{colors.surface.default.hex}}",
+    "bg_dim": "{{colors.surface_dim.default.hex}}",
+    "bg_bright": "{{colors.surface_bright.default.hex}}",
+    "surface": "{{colors.surface_container.default.hex}}",
+    "surface_low": "{{colors.surface_container_low.default.hex}}",
+    "surface_high": "{{colors.surface_container_high.default.hex}}",
+    "surface_highest": "{{colors.surface_container_highest.default.hex}}",
+    
+    # --- COLORES DE TEXTO Y CONTENIDO ---
+    "fg": "{{colors.on_surface.default.hex}}",
+    "fg_variant": "{{colors.on_surface_variant.default.hex}}",
+    "on_primary": "{{colors.on_primary.default.hex}}",
+    "on_secondary": "{{colors.on_secondary.default.hex}}",
+    "on_tertiary": "{{colors.on_tertiary.default.hex}}",
+
+    # --- PALETA PRINCIPAL ---
+    "primary": "{{colors.primary.default.hex}}",
+    "primary_container": "{{colors.primary_container.default.hex}}",
+    "on_primary_container": "{{colors.on_primary_container.default.hex}}",
+
+    "secondary": "{{colors.secondary.default.hex}}",
+    "secondary_container": "{{colors.secondary_container.default.hex}}",
+    
+    "tertiary": "{{colors.tertiary.default.hex}}",
+    "tertiary_container": "{{colors.tertiary_container.default.hex}}",
+
+    # --- COLORES DE ERROR / ALERTAS ---
+    "error": "{{colors.error.default.hex}}",
+    "on_error": "{{colors.on_error.default.hex}}",
+    "error_container": "{{colors.error_container.default.hex}}",
+
+}

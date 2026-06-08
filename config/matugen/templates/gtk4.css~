@@ -1,0 +1,17 @@
+:root, window, .background, :backdrop, .background:backdrop {
+    --window-bg-color: {{colors.surface_dim.default.hex}};
+    --window-fg-color: {{colors.on_surface.default.hex}};
+    --view-bg-color: {{colors.surface.default.hex}};
+    --view-fg-color: {{colors.on_surface.default.hex}};
+    --headerbar-bg-color: {{colors.surface_dim.default.hex}};
+    --headerbar-fg-color: {{colors.on_surface.default.hex}};
+    --sidebar-bg-color: {{colors.surface_dim.default.hex}};
+    --sidebar-fg-color: {{colors.on_surface.default.hex}};
+    --window-bg-color-backdrop: {{colors.surface_dim.default.hex}};
+    --view-bg-color-backdrop: {{colors.surface.default.hex}};
+    --sidebar-bg-color-backdrop: {{colors.surface_dim.default.hex}};
+    --headerbar-bg-color-backdrop: {{colors.surface_dim.default.hex}};
+}
+.nautilus-window, .nautilus-window:backdrop, .view, .view:backdrop, adwviewstack, adwviewstack:backdrop, scrolledwindow, scrolledwindow:backdrop {
+    background-color: {{colors.surface.default.hex}} !important;
+}
