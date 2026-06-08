@@ -10,7 +10,7 @@ screens = [
        # wallpaper_mode = 'fill',
         top=bar.Bar(primary_widgets,
         size=33,
-        opacity=1,
+        opacity=1, 
         background='#00000000', #['transparency'],
         margin=[8, 13, 0, 13], 
         ),

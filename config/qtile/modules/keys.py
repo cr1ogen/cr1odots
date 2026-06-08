@@ -57,11 +57,11 @@ keys = [
     Key([mod], "b", lazy.spawn("rofi -show drun"), desc="Launch apps"),
     Key([mod, "shift"], "b", lazy.spawn("rofi -show run"), desc="Laucnh commands"),
     Key([mod], "backslash", lazy.spawn("firefox")),
-    Key([mod, "shift"], "backslash", lazy.spawn("nemo")),
+    Key([mod, "shift"], "backslash", lazy.spawn("nautilus")),
 
     #Captura de  Pantalla
-    Key([], "Print", lazy.spawn("/home/cr1ogen/.local/bin/screenshot")),
-    Key([mod], "Print", lazy.spawn("/home/cr1ogen/.local/bin/selectshot")),
+    Key([mod], "s", lazy.spawn("/home/cr1ogen/.local/bin/screenshot")),
+    Key([mod, "shift"], "s", lazy.spawn("/home/cr1ogen/.local/bin/selectshot")),
     
 
     #Escalar Resolucion de Monitor

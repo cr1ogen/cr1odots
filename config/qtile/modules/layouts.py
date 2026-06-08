@@ -7,8 +7,8 @@ from modules.colors import colors
 layout_theme = {
      "border_width":6,
      "margin":16,
-     "border_focus":colors[1], #['orange'],
-     "border_normal":colors[0], #['dark'],
+     "border_focus":colors["primary"], #['orange'],
+     "border_normal":colors["surface_highest"], #['dark'],
      "single_border_width": 8,
  }
 
