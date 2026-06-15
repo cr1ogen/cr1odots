@@ -76,7 +76,7 @@ info "Configuración de Qtile recargada en caliente"
 # --- RECARGA DE APLICACIONES ---
 killall -q nautilus nemo pavucontrol
 
- --- FORZAR EL MOTOR HÍBRIDO COMPATIBLE ---
+# --- FORZAR EL MOTOR HÍBRIDO COMPATIBLE ---
 # Esto obliga a Nemo (GTK3) y Nautilus (GTK4) a usar el mismo motor de renderizado
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
