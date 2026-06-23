@@ -12,11 +12,11 @@ post_hook = 'pkill -SIGUSR1 kitty'
 
 
 [templates.gtk3]
-input_path = '~/.config/matugen/templates/gtk.css'
+input_path = '~/.config/matugen/templates/gtk-3.0/gtk.css'
 output_path = '~/.config/gtk-3.0/gtk.css'
 
 [templates.gtk4]
-input_path = '/home/cr1ogen/.config/matugen/templates/gtk.css'
+input_path = '/home/cr1ogen/.config/matugen/templates/gtk-4.0/gtk.css'
 output_path = '/home/cr1ogen/.config/gtk-4.0/gtk.css'
 # post_hook = '~/.config/matugen/post-hook-scripts/gtk-themes-reload.sh'
 
