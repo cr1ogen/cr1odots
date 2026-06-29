@@ -33,7 +33,43 @@ input_path = '~/.config/matugen/templates/pywalfox.json'
 output_path = '~/.cache/wal/colors.json'
 post_hook = 'pywalfox update'
 
+[templates.btop]
+input_path = '~/.config/matugen/templates/btop.theme'
+output_path = '~/.config/btop/themes/matugen.theme'
+post_hook = 'pkill -USR2 btop || true'
+
 
 [templates.wlogout]
 input_path = '~/.config/matugen/templates/wlogout.css'
 output_path = '~/.config/wlogout/colors.css'
+
+[templates.papirus-folders]
+input_path = '~/.config/matugen/templates/papirus-color'
+colors_to_compare = [
+    { name = "black",      color = "#4f4f4f" },
+    { name = "blue",       color = "#5294e2" },
+    { name = "bluegrey",   color = "#607d8b" },
+    { name = "brown",      color = "#ae8e6c" },
+    { name = "carmine",    color = "#a30002" },
+    { name = "cyan",       color = "#00bcd4" },
+    { name = "darkcyan",   color = "#45abb7" },
+    { name = "deeporange", color = "#eb6637" },
+    { name = "green",      color = "#87b158" },
+    { name = "grey",       color = "#8e8e8e" },
+    { name = "indigo",     color = "#5c6bc0" },
+    { name = "magenta",    color = "#ca71df" },
+    { name = "nordic",     color = "#81a1c1" },
+    { name = "orange",     color = "#ee923a" },
+    { name = "palebrown",  color = "#d1bfae" },
+    { name = "paleorange", color = "#eeca8f" },
+    { name = "pink",       color = "#f06292" },
+    { name = "red",        color = "#e25252" },
+    { name = "teal",       color = "#16a085" },
+    { name = "violet",     color = "#7e57c2" },
+    { name = "white",      color = "#e4e4e4" },
+    { name = "yaru",       color = "#676767" },
+    { name = "yellow",     color = "#f9bd30" },
+]
+compare_to = "{{ colors.primary.default.hex }}"
+post_hook = 'env -i HOME="$HOME" USER="$USER" sudo -n papirus-folders -C {{ closest_color }} -u'
+index = 1
