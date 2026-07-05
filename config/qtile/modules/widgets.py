@@ -223,6 +223,7 @@ primary_widgets = [
                     padding=14,
                     background=colors["primary_container"],
                     **decoration_border,
+                     mouse_callbacks={ 'Button1': lazy.spawn("/home/cr1ogen/.config/qtile/scripts/calendar.sh")},
                     ),
     ]
 
