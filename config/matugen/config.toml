@@ -73,3 +73,7 @@ colors_to_compare = [
 compare_to = "{{ colors.primary.default.hex }}"
 post_hook = 'env -i HOME="$HOME" USER="$USER" sudo -n papirus-folders -C {{ closest_color }} -u'
 index = 1
+
+[templates.quickshell_calendar]
+input_path = "~/.config/matugen/templates/calendar-colors.qml"
+output_path = "~/.config/quickshell/Appearance.colors.qml"
