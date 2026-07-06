@@ -74,13 +74,11 @@ A continuación se listan las combinaciones de teclas por defecto configuradas e
 
 ## 📥 Instalación
 
-Puedes clonar este repositorio directamente en tu carpeta de configuraciones:
+Puedes clonar este repositorio directamente a tu computadora:
 
 ```bash
-git clone https://github.com ~/.config/qtile
+git clone https://github.com/cr1ogen/cr1odots 
 ```
-
-*Nota: Se recomienda respaldar tu configuración previa antes de sustituir los archivos.*
 
 ---
 
