@@ -89,7 +89,7 @@ git clone https://github.com ~/.config/qtile
 Este proyecto no sería posible sin el increíble trabajo de la comunidad de Linux y código abierto. Quiero dar una mención especial y agradecer a:
 
 *   **Stephan Raabe ([ML4W](https://mylinuxforwork.com)):** Por servir de base e inspiración con su excelente script `wallpaper.sh` para la gestión y cambio dinámico de fondos de pantalla.
-*   **end-4 ([dots-hyprland](https://github.com)):** Por la excelente plantilla de generación de colores de Matugen, la cual utilizo para tematizar automáticamente las interfaces **GTK-3** y **GTK-4**.
+*   **end-4 ([dots-hyprland](https://github.com/end-4)):** Por la excelente plantilla de generación de colores de Matugen, la cual utilizo para tematizar automáticamente las interfaces **GTK-3** y **GTK-4**.
 *   **Mi Asistente de IA:** Por la colaboración continua en la estructura, lógica y depuración de los nuevos scripts de Quickshell.
 
 ---
