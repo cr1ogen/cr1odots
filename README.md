@@ -24,9 +24,9 @@ Aquí puedes ver cómo luce el entorno actualmente:
 ## 🎨 Características Principales
 
 *   **Window Manager:** [Qtile](https://qtile.org) (personalizado con Python).
-*   **Esquema de Colores Dinámico:** Generación automática de paletas mediante [Matugen](https://github.com) a partir del fondo de pantalla actual.
+*   **Esquema de Colores Dinámico:** Generación automática de paletas mediante [Matugen](https://github.com/InioX/matugen) a partir del fondo de pantalla actual.
 *   **Integración GTK Extendida:** Compatibilidad total de colores automáticos para aplicaciones **GTK-3** y **GTK-4**.
-*   **Pruebas Activas:** Implementación experimental de widgets y componentes visuales usando [Quickshell](https://hyprland.org).
+*   **Pruebas Activas:** Implementación experimental de widgets y componentes visuales usando [Quickshell](https://quickshell.org).
 
 ---
 
