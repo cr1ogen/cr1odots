@@ -1,4 +1,4 @@
-# 🌌 cr1odots - Qtile Desktop Environment
+# 🌌 cr1odots - Qtile Window Manager
 
 Bienvenido a **cr1odots**, mi repositorio personal de archivos de configuración (dotfiles). Este espacio contiene mi entorno de escritorio personalizado basado en el gestor de ventanas **Qtile**, diseñado para ser estético, funcional y altamente dinámico.
 
