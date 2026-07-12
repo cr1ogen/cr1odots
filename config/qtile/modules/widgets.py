@@ -21,7 +21,7 @@ decoration_group = {
         
 decoration_border = {
     "decorations": [
-        RectDecoration (colour='#00000000',line_colour='#ffffff', line_width=3,use_widget_background=True, radius=11, filled=True, group=True, clip=True , ignore_extrawidth=True)        
+        RectDecoration (colour='#00000000',line_colour='#ffffff', line_width=4,use_widget_background=True, radius=11, filled=True, group=True, clip=True , ignore_extrawidth=True)        
     ],
 }
 
@@ -223,7 +223,7 @@ primary_widgets = [
                     padding=14,
                     background=colors["primary_container"],
                     **decoration_border,
-                     mouse_callbacks={ 'Button1': lazy.spawn("/home/cr1ogen/.config/qtile/scripts/calendar.sh")},
+                     mouse_callbacks={ 'Button1': lazy.spawn("python3 /home/cr1ogen/.config/qtile/scripts/calendar.py")},
                     ),
     ]
 
