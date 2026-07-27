@@ -1,6 +1,6 @@
 #Comandos que utilice para instalar debian desde cero
 #!/bin/bash
-apt install gpm xdg-utils xwayland wayland-protocols wayland-utils libwayland-bin  pkg-config python3-pip libwayland-bin amd64-microcode python3-cffi python3-cairocffi libpangocairo-1.0-0 python3-xcffib python3-setuptools libwlroots-0.19 libwlroots-0.19-dev imagemagick wlr-randr wlogout rofi nwg-look cmake meson libmpv-dev libgirepository-2.0-dev socat libiw-dev pipewire pulseaudio-utils zsh  zsh-autosuggestions zsh-syntax-highlighting starship   eza grim slurp
+apt install gpm xdg-utils xwayland wayland-protocols wayland-utils libwayland-bin  pkg-config python3-pip libwayland-bin amd64-microcode python3-cffi python3-cairocffi libpangocairo-1.0-0 python3-xcffib python3-setuptools libwlroots-0.19 libwlroots-0.19-dev imagemagick wlr-randr wlogout rofi nwg-look cmake meson libmpv-dev libgirepository-2.0-dev socat libiw-dev pipewire pulseaudio-utils zsh  starship   eza grim slurp
 
 
 #apt install --no-install-recommends sddm
@@ -31,4 +31,6 @@ apt install gpm xdg-utils xwayland wayland-protocols wayland-utils libwayland-bi
 
 oh-my-posh config export --config craver --format toml --output ~/.config/ohmyposh/craver.omp.toml
 
+# Hack para que funcione Davinci Resolve con grafica amd
 
+RUSTICL_ENABLE=radeonsi /opt/resolve/bin/resolve
