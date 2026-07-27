@@ -30,12 +30,6 @@ Aquí puedes ver cómo luce el entorno actualmente:
 
 ---
 
-## 🛠️ En Desarrollo (Área de Pruebas)
-
-Actualmente me encuentro desarrollando y testeando nuevos scripts interactivos basados en **Quickshell** con la ayuda de Inteligencia Artificial (AI). El objetivo es reemplazar componentes tradicionales de la barra y notificaciones con interfaces de usuario nativas y fluidas basadas en QML.
-
----
-
 ## 📦 Dependencias Requeridas (Debian Based)
 
 Para que todas las funciones de este entorno corran correctamente en **Debian**, asegúrate de instalar las siguientes herramientas:
