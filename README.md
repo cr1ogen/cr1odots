@@ -58,8 +58,8 @@ A continuación se listan las combinaciones de teclas por defecto configuradas e
 | `Mod + Enter` | Abrir la terminal por defecto |
 | `Mod + R` | Lanzar el menú de aplicaciones (Rofi) |
 | `Mod + W` | Cerrar la ventana enfocada actualmente |
-| `Mod + Shift + R` | Reiniciar Qtile por completo (Recargar configs) |
-| `Mod + Shift + Q` | Salir de la sesión de Qtile |
+| `Mod + Ctrl + R` | Reiniciar Qtile por completo (Recargar configs) |
+| `Mod + Ctrl + Q` | Salir de la sesión de Qtile |
 | `Mod + Espacio` | Cambiar entre los diferentes layouts de ventanas |
 | `Mod + [Flechas / HJKL]` | Cambiar el foco entre ventanas abiertas |
 | `Mod + Shift + [Flechas]` | Desplazar o mover ventanas de posición |
