@@ -1,24 +1,26 @@
 #!/bin/zsh
 
-cd /home/cr1ogen/Git/qtile
+cd /home/cr1ogen/Git/qtile || exit 1
 git pull
 
-echo "¿Quieres actualizar Qtile? (s/n)"
-read respuesta
+# En Zsh puedes poner el mensaje directamente dentro del prompt de read
+read "respuesta?¿Quieres actualizar Qtile? [S/n] "
 
 case $respuesta in
-    [Ss]* )
-	echo "Actualizando Qtile..."
-	echo "Ingrese contraseña:"
+    [Ss]* | "" )  # Captura S, s, o Enter (cadena vacía)
+        echo "Actualizando Qtile..."
         sudo pip install --config-setting backend=wayland . --break-system-packages
         qtile cmd-obj -o cmd -f reload_config
-	echo "Qtile esta actualizado"
-	;;
+        echo "Qtile está actualizado."
+        ;;
 
     [Nn]* ) 
         echo "Operación cancelada por el usuario."
+        exit 0
         ;;
+
     * ) 
         echo "Respuesta no válida. Por favor, escribe s o n."
+        exit 1
         ;;
 esac

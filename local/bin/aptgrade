@@ -1,19 +1,21 @@
 #!/bin/bash
 
-echo "¿Quieres actualizar el sistema? (s/n)"
+echo -n "¿Quieres actualizar el sistema? [S/n]: "
 read respuesta
 
 case $respuesta in
-    [Ss]* )
-	echo "Actualizando el sistema..."
-        sudo apt update && sudo apt upgrade
+    [Ss]* | "" )  # Agregamos | "" para capturar la tecla Enter (cadena vacía)
+        echo "Actualizando el sistema..."
+        sudo apt update && sudo apt upgrade -y
         ;;
     [Nn]* ) 
         echo "Operación cancelada por el usuario."
+        exit 0
         ;;
     * ) 
         echo "Respuesta no válida. Por favor, escribe s o n."
+        exit 1
         ;;
 esac
 
-echo "Su sistema esta actualizado"
+echo "Su sistema está actualizado."
