@@ -77,6 +77,7 @@ APT_PACKAGES=(
   python3-pyqt6.qtwebengine
   xdg-desktop-portal-gtk
   xdg-desktop-portal-wlr
+  xfce-polkit
 )
 
 apt install -y "${APT_PACKAGES[@]}"
