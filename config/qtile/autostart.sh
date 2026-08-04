@@ -10,7 +10,7 @@ wlr-randr --output DP-3 --scale 1.70 &
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots &
 systemctl --user stop  xdg-desktop-portal xdg-desktop-portal-wlr &
 
-exec /usr/lib/x86_64-linux-gnu/ukui-polkit/polkit-ukui-authentication-agent-1 &
+exec  /usr/libexec/xfce-polkit &
 
 dunst &
 #/usr/bin/easyeffects --gapplication-service
