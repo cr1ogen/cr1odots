@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+Xwayland -geometry 3840x2160 -hidpi & env  GDK_SCALE=1.5 steam
