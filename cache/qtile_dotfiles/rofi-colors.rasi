@@ -1,0 +1,8 @@
+/* Colores dinámicos generados por Matugen para Rofi */
+* {
+    bg-color:      #131315F2; /* Tu fondo oscuro dinámico con 95% opacidad */
+    bg-selected:   #bec6dd;       /* Tu acento dinámico estrella */
+    text-normal:   #e4e2e3;    /* Texto claro dinámico */
+    text-selected: #283042;    /* Texto de alto contraste sobre selección */
+    border-accent: #bec6dd;       /* Borde del color de tus cápsulas */
+}
