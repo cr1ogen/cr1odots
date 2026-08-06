@@ -26,7 +26,6 @@ Aquí puedes ver cómo luce el entorno actualmente:
 *   **Window Manager:** [Qtile](https://qtile.org) (personalizado con Python).
 *   **Esquema de Colores Dinámico:** Generación automática de paletas mediante [Matugen](https://github.com/InioX/matugen) a partir del fondo de pantalla actual.
 *   **Integración GTK Extendida:** Compatibilidad total de colores automáticos para aplicaciones **GTK-3** y **GTK-4**.
-*   **Pruebas Activas:** Implementación experimental de widgets y componentes visuales usando [Quickshell](https://quickshell.org).
 
 ---
 
@@ -43,7 +42,6 @@ Para que todas las funciones de este entorno corran correctamente en **Debian**,
 *   `mpvpaper` - Motor backend utilizado por Waypaper para reproducir e inyectar videos como fondos de pantalla animados.
 
 ### Componentes de Interfaz e Innovación
-*   `quickshell` - Entorno de ejecución para los nuevos scripts y widgets QML interactivos (compilado desde fuente o mediante binarios oficiales).
 *   `rofi` - Lanzador de aplicaciones.
 *   `kitty` - Emulador de terminal por defecto.
 
@@ -68,10 +66,20 @@ A continuación se listan las combinaciones de teclas por defecto configuradas e
 
 ## 📥 Instalación
 
-Puedes clonar este repositorio directamente a tu computadora:
+Puedes clonar este repositorio directamente a tu computadora.
 
 ```bash
-git clone https://github.com/cr1ogen/cr1odots 
+git clone https://github.com/cr1ogen/cr1odots
+```
+
+## 🚀 Despliegue de Configuraciones (Opcional)
+
+Para aplicar las configuraciones en tu sistema, ejecuta el script de instalación incluido:
+
+```bash
+cd cr1odots
+chmod +x installdots.sh
+./installdots.sh
 ```
 
 ---
@@ -85,4 +93,4 @@ Este proyecto no sería posible sin el increíble trabajo de la comunidad de Lin
 *   **Mi Asistente de IA:** Por la colaboración continua en la estructura, lógica y depuración de los nuevos scripts de Quickshell.
 
 ---
-Mantenido con 💻 por [cr1ogen](https://github.com).
+Mantenido con 💻 por [cr1ogen](https://github.com/cr1ogen).
