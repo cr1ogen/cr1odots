@@ -145,7 +145,7 @@ primary_widgets = [
                     ),
                 widget.PulseVolumeExtra(
                     mode='icon',
-                    theme_path='/home/cr1ogen/.local/share/icons/BeautyLine',
+                    theme_path='/usr/share/icons/Papirus-Dark',
                     icon_theme='BeautyLine',
                     bar_width=50,
                     bar_height=75,
@@ -180,7 +180,7 @@ primary_widgets = [
                     #font='Poppins',
                     fontsize=24,
                     padding=6,
-                    icon_theme='/usr/share/icons/BeautyLine',
+                    icon_theme='/usr/share/icons/Papirus-Dark',
                     mouse_callbacks={'Button1': lazy.spawn("kitty -e bluetui")},
                     ),    
                 widget.WiFiIcon(
