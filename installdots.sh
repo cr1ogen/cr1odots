@@ -9,24 +9,24 @@ YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Obtener la ruta absoluta del repositorio independientemente de desde dónde se ejecute el script
+# Obtener la ruta absoluta del repositorio
 DOTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 
 clear
 echo -e "${CYAN}====================================================================${NC}"
-echo -e "${BLUE}                 DESPLEGADOR DE DOTFILES - cr1odots                  ${NC}"
+echo -e "${BLUE}                 COPIADOR DE DOTFILES - cr1odots                    ${NC}"
 echo -e "${CYAN}====================================================================${NC}"
 echo -e " Repositorio local: ${GREEN}${DOTS_DIR}${NC}"
-echo -e " Este script creará symlinks en tu directorio de usuario (~/)."
-echo -e " Las configuraciones existentes serán respaldadas automáticamente."
+echo -e " Este script COPIARÁ las configuraciones a tu directorio personal (~/)."
+echo -e " Preservará permisos y respaldará archivos existentes."
 echo -e "${CYAN}====================================================================${NC}\n"
 
-read -p "¿Deseas vincular estos dotfiles a tu sistema? [s/N]: " CHOICE
+read -p "¿Deseas copiar estos dotfiles a tu sistema? [s/N]: " CHOICE
 
 case "$CHOICE" in
   [sS]|[sS][iI])
-    echo -e "\n${GREEN}[+] Iniciando el despliegue de dotfiles...${NC}\n"
+    echo -e "\n${GREEN}[+] Iniciando la copia de dotfiles...${NC}\n"
     ;;
   *)
     echo -e "\n${YELLOW}[!] Operación cancelada por el usuario.${NC}"
@@ -34,8 +34,8 @@ case "$CHOICE" in
     ;;
 esac
 
-# Función para enlazar elementos de forma segura creando backup
-link_item() {
+# Función para copiar elementos de forma segura creando backup
+copy_item() {
   local src="$1"
   local target="$2"
 
@@ -48,64 +48,85 @@ link_item() {
     mv "$target" "${target}.bak.${TIMESTAMP}"
   fi
 
-  ln -sfn "$src" "$target"
-  echo -e " ${GREEN}[✔] Enlazado:${NC} ${target} -> ${src}"
+  # Preserva atributos originales con cp -rp
+  cp -rp "$src" "$target"
+  echo -e " ${GREEN}[✔] Copiado:${NC} ${src} -> ${target}"
 }
 
-# 1. Enlazar contenido de config/ hacia ~/.config/
+# 1. Copiar contenido de config/ hacia ~/.config/
 if [ -d "${DOTS_DIR}/config" ]; then
-  echo -e "${BLUE}=== Aplicando configuraciones de ~/.config ===${NC}"
+  echo -e "${BLUE}=== Copiando configuraciones a ~/.config ===${NC}"
   for item in "${DOTS_DIR}/config"/*; do
     [ -e "$item" ] || continue
     name="$(basename "$item")"
-    link_item "$item" "${HOME}/.config/${name}"
+    copy_item "$item" "${HOME}/.config/${name}"
   done
   echo ""
 fi
 
-# 2. Enlazar contenido de local/ hacia ~/.local/
+# 2. Copiar contenido de local/ hacia ~/.local/
 if [ -d "${DOTS_DIR}/local" ]; then
-  echo -e "${BLUE}=== Aplicando archivos de ~/.local ===${NC}"
+  echo -e "${BLUE}=== Copiando archivos a ~/.local ===${NC}"
   for item in "${DOTS_DIR}/local"/*; do
     [ -e "$item" ] || continue
     name="$(basename "$item")"
-    link_item "$item" "${HOME}/.local/${name}"
+    copy_item "$item" "${HOME}/.local/${name}"
   done
   echo ""
 fi
 
-# 3. Enlazar .emacs.d
+# 3. Copiar .emacs.d
 if [ -d "${DOTS_DIR}/emacs.d" ]; then
-  echo -e "${BLUE}=== Aplicando configuración de Emacs ===${NC}"
-  link_item "${DOTS_DIR}/emacs.d" "${HOME}/.emacs.d"
+  echo -e "${BLUE}=== Copiando configuración de Emacs ===${NC}"
+  copy_item "${DOTS_DIR}/emacs.d" "${HOME}/.emacs.d"
   echo ""
 fi
 
-# 4. Enlazar .zshenv
+# 4. Copiar .zshenv
 if [ -f "${DOTS_DIR}/.zshenv" ]; then
-  echo -e "${BLUE}=== Aplicando .zshenv ===${NC}"
-  link_item "${DOTS_DIR}/.zshenv" "${HOME}/.zshenv"
+  echo -e "${BLUE}=== Copiando .zshenv ===${NC}"
+  copy_item "${DOTS_DIR}/.zshenv" "${HOME}/.zshenv"
   echo ""
 fi
 
-# 5. Enlazar rtorrent.rc
+# 5. Copiar rtorrent.rc
 if [ -f "${DOTS_DIR}/rtorrent.rc" ]; then
-  echo -e "${BLUE}=== Aplicando configuración de rtorrent ===${NC}"
-  link_item "${DOTS_DIR}/rtorrent.rc" "${HOME}/.rtorrent.rc"
+  echo -e "${BLUE}=== Copiando configuración de rtorrent ===${NC}"
+  copy_item "${DOTS_DIR}/rtorrent.rc" "${HOME}/.rtorrent.rc"
   echo ""
 fi
 
-# 6. Enlazar misc/ o cache/ opcionales si se desean incluir en ~/.cache
+# 6. Copiar cache/ opcional
 if [ -d "${DOTS_DIR}/cache" ]; then
-  echo -e "${BLUE}=== Aplicando directorio cache ===${NC}"
+  echo -e "${BLUE}=== Copiando directorio cache ===${NC}"
   for item in "${DOTS_DIR}/cache"/*; do
     [ -e "$item" ] || continue
     name="$(basename "$item")"
-    link_item "$item" "${HOME}/.cache/${name}"
+    copy_item "$item" "${HOME}/.cache/${name}"
   done
   echo ""
 fi
 
-echo -e "${GREEN}====================================================================${NC}"
-echo -e "${GREEN}      ¡Dotfiles vinculados con éxito en tu entorno de usuario!     ${NC}"
+# =====================================================================
+# Ajuste global de permisos de ejecución
+# =====================================================================
+echo -e "${BLUE}=== Ajustando permisos de ejecución ===${NC}"
+
+# 1. Todo lo que esté en ~/.local/bin pasa a ser ejecutable
+if [ -d "${HOME}/.local/bin" ]; then
+  find "${HOME}/.local/bin" -type f -exec chmod +x {} +
+  echo -e " ${GREEN}[✔] Permisos +x aplicados a todo en ~/.local/bin${NC}"
+fi
+
+# 2. Todos los scripts .sh o .py en ~/.config pasan a ser ejecutables
+if [ -d "${HOME}/.config" ]; then
+  find "${HOME}/.config" -type f \( -name "*.sh" -o -name "*.py" \) -exec chmod +x {} +
+  echo -e " ${GREEN}[✔] Permisos +x aplicados a scripts (.sh, .py) en ~/.config${NC}"
+fi
+
+# 3. Cualquier carpeta llamada 'scripts' o 'bin' dentro de ~/.config
+find "${HOME}/.config" -type d \( -name "scripts" -o -name "bin" \) -exec find {} -type f -exec chmod +x {} + 2>/dev/null || true
+
+echo -e "\n${GREEN}====================================================================${NC}"
+echo -e "${GREEN}    ¡Dotfiles copiados y permisos asignados correctamente! ${NC}"
 echo -e "${GREEN}====================================================================${NC}"
