@@ -15,7 +15,7 @@ TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 
 clear
 echo -e "${CYAN}====================================================================${NC}"
-echo -e "${BLUE}                 COPIADOR DE DOTFILES - cr1odots                    ${NC}"
+echo -e "${BLUE}                   COPIADOR DE DOTFILES - cr1odots                    ${NC}"
 echo -e "${CYAN}====================================================================${NC}"
 echo -e " Repositorio local: ${GREEN}${DOTS_DIR}${NC}"
 echo -e " Este script COPIARÁ las configuraciones a tu directorio personal (~/)."
@@ -34,7 +34,7 @@ case "$CHOICE" in
     ;;
 esac
 
-# Función para copiar elementos de forma segura creando backup
+# Función para copiar elementos de forma segura creando backup o fusionando directorios
 copy_item() {
   local src="$1"
   local target="$2"
@@ -42,15 +42,23 @@ copy_item() {
   # Crear el directorio padre del destino si no existe
   mkdir -p "$(dirname "$target")"
 
-  if [ -e "$target" ] || [ -L "$target" ]; then
-    echo -e " ${YELLOW}[!] Se detectó un archivo/directorio existente en: ${target}${NC}"
-    echo -e "     Creando backup en: ${target}.bak.${TIMESTAMP}"
-    mv "$target" "${target}.bak.${TIMESTAMP}"
-  fi
+  # Si el destino es un directorio y el origen también, se fusionan (evita borrar carpetas como ~/.local/share/fonts)
+  if [ -d "$src" ] && [ -d "$target" ]; then
+    echo -e " ${BLUE}[i] Fusionando directorio existente:${NC} ${target}"
+    cp -rp "$src"/* "$target"/ 2>/dev/null || true
+    echo -e " ${GREEN}[✔] Contenido fusionado exitosamente en:${NC} ${target}"
+  else
+    # Si existe un archivo individual o enlace, se hace backup
+    if [ -e "$target" ] || [ -L "$target" ]; then
+      echo -e " ${YELLOW}[!] Se detectó un archivo existente en: ${target}${NC}"
+      echo -e "     Creando backup en: ${target}.bak.${TIMESTAMP}"
+      mv "$target" "${target}.bak.${TIMESTAMP}"
+    fi
 
-  # Preserva atributos originales con cp -rp
-  cp -rp "$src" "$target"
-  echo -e " ${GREEN}[✔] Copiado:${NC} ${src} -> ${target}"
+    # Preserva atributos originales con cp -rp
+    cp -rp "$src" "$target"
+    echo -e " ${GREEN}[✔] Copiado:${NC} ${src} -> ${target}"
+  fi
 }
 
 # 1. Copiar contenido de config/ hacia ~/.config/
@@ -126,6 +134,9 @@ fi
 
 # 3. Cualquier carpeta llamada 'scripts' o 'bin' dentro de ~/.config
 find "${HOME}/.config" -type d \( -name "scripts" -o -name "bin" \) -exec find {} -type f -exec chmod +x {} + 2>/dev/null || true
+
+# Regenerar la caché de fuentes por si se agregó algo nuevo
+fc-cache -fv &>/dev/null || true
 
 echo -e "\n${GREEN}====================================================================${NC}"
 echo -e "${GREEN}    ¡Dotfiles copiados y permisos asignados correctamente! ${NC}"
