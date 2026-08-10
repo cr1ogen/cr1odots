@@ -48,7 +48,7 @@
   :init (progn
           (setq spacemacs-theme-underline-parens t
                 my:rice:font (font-spec
-                              :family "Space Mono Nerd Font"
+                              :family "JetBrains Mono Nerd Font"
                               :weight 'regular
                               :size 14.0))
           (show-paren-mode +1)
