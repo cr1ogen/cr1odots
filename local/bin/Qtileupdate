@@ -9,7 +9,7 @@ read "respuesta?¿Quieres actualizar Qtile? [S/n] "
 case $respuesta in
     [Ss]* | "" )  # Captura S, s, o Enter (cadena vacía)
         echo "Actualizando Qtile..."
-        sudo pip install --config-setting backend=wayland . --break-system-packages
+        su -c "pip install --config-setting backend=wayland . --break-system-packages"
         qtile cmd-obj -o cmd -f reload_config
         echo "Qtile está actualizado."
         ;;
