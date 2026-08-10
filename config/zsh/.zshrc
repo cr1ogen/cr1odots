@@ -1,5 +1,5 @@
 # Habilitar zplug 
-source ~/usr/share/zplug/init.zsh
+source /usr/share/zplug/init.zsh
 
 # Prompt
 
