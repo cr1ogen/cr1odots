@@ -6,7 +6,7 @@ read respuesta
 case $respuesta in
     [Ss]* | "" )  # Agregamos | "" para capturar la tecla Enter (cadena vacía)
         echo "Actualizando el sistema..."
-        sudo apt update && sudo apt upgrade -y
+        su -c "apt update && sudo apt upgrade -y"
         ;;
     [Nn]* ) 
         echo "Operación cancelada por el usuario."
