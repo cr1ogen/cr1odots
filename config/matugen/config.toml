@@ -71,7 +71,7 @@ colors_to_compare = [
     { name = "yellow",     color = "#f9bd30" },
 ]
 compare_to = "{{ colors.primary.default.hex }}"
-post_hook = 'env -i HOME="$HOME" USER="$USER" sudo -n papirus-folders -C {{ closest_color }} -u'
+post_hook = 'exec  papirus-folders -C {{ closest_color }} -u'
 index = 1
 
 [templates.quickshell_calendar]
