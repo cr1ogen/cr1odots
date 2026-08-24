@@ -1,8 +1,12 @@
-# Set up the prompt
 
-autoload -Uz promptinit
-promptinit
-prompt adam1
+# Set up the prompt
+eval "$(starship init zsh)"
+
+export STARSHIP_CONFIG=~/.config/zsh/starship/starship.toml
+
+
+## autosuggstions
+source ~/.config/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 setopt histignorealldups sharehistory
 
@@ -10,9 +14,11 @@ setopt histignorealldups sharehistory
 bindkey -e
 
 # Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=5000
+SAVEHIST=5000
 HISTFILE=~/.zsh_history
+
+
 
 # aliases
 
@@ -23,5 +29,3 @@ alias CrealityPrint='CrealityPrint.AppImage'
 # Personal binaries/scripts
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
-
-
