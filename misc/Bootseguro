@@ -7,6 +7,8 @@ openssl x509 -outform DER -in MOK.crt -out MOK.der
 # mv vmlinuz-7.0.0 vmlinuz-7.0.0-no-sign
 sbsign --key /home/cr1ogen/MOK.key --cert /home/cr1ogen/MOK.crt --output vmlinuz-7.0.0  vmlinuz-7.0.0-no-sign
 
+rm no-sign entry
+
 ## Extra
 
 
