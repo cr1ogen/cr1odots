@@ -1,0 +1,19 @@
+@import url("/home/cr1ogen/.cache/qtile_dotfiles/matugen_colors.css");
+
+#notification {
+    background-color: @bg-surface;
+    border: 2px solid @color-primary;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.summary {
+    color: @color-primary;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.body {
+    color: @fg-on-surface;
+    font-size: 13px;
+}
