@@ -59,13 +59,28 @@ else
     MATUGEN_BIN="matugen"
 fi
 
-# --- EJECUTAR MATUGEN CORREGIDO ---
-# Reemplazamos '--scheme' por '-t' para evitar el fallo 'unexpected argument'
-if [ "$THEME_PREF" -eq 1 ] || [ -z "$THEME_PREF" ]; then
-    $MATUGEN_BIN image "$IMAGE_PATH" -t scheme-content -m "dark" --source-color-index 0
+# --- EJECUTAR MATUGEN CON EXTRACTION DE FOTOGRAMA PARA VIDEOS ---
+EXT="${IMAGE_PATH##*.}"
+EXT_LOWER=$(echo "$EXT" | tr '[:upper:]' '[:lower:]')
+
+# Archivo temporal para el fotograma del video
+TMP_FRAME="/tmp/matugen_preview.png"
+
+# Si el archivo es un video, se extrae el primer fotograma antes de llamar a Matugen
+if [[ "$EXT_LOWER" == "mp4" || "$EXT_LOWER" == "mkv" || "$EXT_LOWER" == "webm" ]]; then
+    ffmpeg -y -i "$IMAGE_PATH" -vframes 1 -vf "scale=480:-1" "$TMP_FRAME" >/dev/null 2>&1
+    TARGET_IMAGE="$TMP_FRAME"
 else
-    $MATUGEN_BIN image "$IMAGE_PATH" -t scheme-content -m "light" --source-color-index 0
+    TARGET_IMAGE="$IMAGE_PATH"
 fi
+
+# Generar colores con Matugen
+if [ "$THEME_PREF" -eq 1 ] || [ -z "$THEME_PREF" ]; then
+    $MATUGEN_BIN image "$TARGET_IMAGE" -t scheme-content -m "dark" --source-color-index 0
+else
+    $MATUGEN_BIN image "$TARGET_IMAGE" -t scheme-content -m "light" --source-color-index 0
+fi
+
 info "Matugen actualizó tu plantilla de colores con éxito"
 
 # --- RECARGA COMPATIBLE CON WAYLAND ---
