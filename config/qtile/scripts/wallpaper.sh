@@ -65,11 +65,13 @@ EXT_LOWER=$(echo "$EXT" | tr '[:upper:]' '[:lower:]')
 
 # Archivo temporal para el fotograma del video
 TMP_FRAME="/tmp/matugen_preview.png"
+IS_VIDEO=0
 
 # Si el archivo es un video, se extrae el primer fotograma antes de llamar a Matugen
 if [[ "$EXT_LOWER" == "mp4" || "$EXT_LOWER" == "mkv" || "$EXT_LOWER" == "webm" ]]; then
     ffmpeg -y -i "$IMAGE_PATH" -vframes 1 -vf "scale=480:-1" "$TMP_FRAME" >/dev/null 2>&1
     TARGET_IMAGE="$TMP_FRAME"
+    IS_VIDEO=1
 else
     TARGET_IMAGE="$IMAGE_PATH"
 fi
@@ -83,6 +85,7 @@ fi
 
 info "Matugen actualizó tu plantilla de colores con éxito"
 
+
 # --- RECARGA COMPATIBLE CON WAYLAND ---
 # Cambiado de 'restart' (que se rompe en Wayland) a 'reload_config'
 qtile cmd-obj -o cmd -f reload_config
@@ -90,18 +93,12 @@ info "Configuración de Qtile recargada en caliente"
 
 # --- RECARGA DE APLICACIONES ---
 killall -q nautilus nemo pavucontrol
+info "Entorno de Nautilus y Nemo refrescado"
 
 # --- FORZAR EL MOTOR HÍBRIDO COMPATIBLE ---
 # Esto obliga a Nemo (GTK3) y Nautilus (GTK4) a usar el mismo motor de renderizado
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
-
-# --- RECARGA DE APLICACIONES ---
-killall -q nautilus nemo pavucontrol
-
-
-killall -q nautilus nemo
-info "Entorno de Nautilus refrescado"
 
 # --- RECARGAR COMPLEMENTOS DE NAVEGADOR ---
 if type pywalfox >/dev/null 2>&1; then
@@ -111,18 +108,29 @@ fi
 
 # --- CACHÉ DE RENDERIZADO (Para Rofi o menús de ML4W) ---
 if type magick >/dev/null 2>&1; then
-    magick "$IMAGE_PATH" -resize 75% "$BLURRED_WALLPAPER"
+    # Si es un video, usamos el fotograma para generar el fondo borroso de Rofi
+    magick "$TARGET_IMAGE" -resize 75% "$BLURRED_WALLPAPER"
     if [ ! "$BLUR" == "0x0" ]; then
         magick "$BLURRED_WALLPAPER" -blur "$BLUR" "$BLURRED_WALLPAPER"
     fi
-    magick "$IMAGE_PATH" -gravity Center -extent 1:1 "$SQUARE_WALLPAPER"
+    magick "$TARGET_IMAGE" -gravity Center -extent 1:1 "$SQUARE_WALLPAPER"
     
     echo "* { current-image: url(\"$BLURRED_WALLPAPER\", height); }" > "$RASI_FILE"
     info "Caché de Rofi (.rasi) escrita correctamente"
 fi
 
-
-
-
 info "¡Proceso de sincronización de colores finalizado!"
+
+# --- ENVIAR NOTIFICACIÓN VISUAL INTELIGENTE AL ESCRITORIO ---
+if [ "$IS_VIDEO" -eq 1 ]; then
+    # Extraemos solo el nombre del archivo de video para ponerlo en el cuerpo del texto
+    VIDEO_NAME=$(basename "$IMAGE_PATH")
+    
+    # Mandamos la ruta del .png temporal como icono para que Fabric lo pueda renderizar sin romperse
+    notify-send -i "$TMP_FRAME" "Fondo Animado Activo" "$VIDEO_NAME"
+else
+    # Notificación clásica con miniatura para imágenes estáticas normales
+    notify-send -i "$IMAGE_PATH" "Fondo de pantalla cambiado" "El entorno y los colores se sincronizaron con éxito."
+fi
+
 exit 0
