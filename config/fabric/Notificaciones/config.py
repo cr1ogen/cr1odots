@@ -30,28 +30,31 @@ class NotificationWidget(Box):
         self._notification = notification
         body_container = Box(spacing=8, orientation="h")
 
-        # --- SOPORTE DE IMÁGENES / MINIATURAS ---
-        if image_pixbuf := self._notification.image_pixbuf:
+        # --- SOPORTE DE IMÁGENES / MINIATURAS (SINTAXIS FABRIC ACTUALIZADA) ---
+        # 1. Intentamos leer si viene la imagen procesada en búfer (Pixbuf)
+        if hasattr(self._notification, "image_pixbuf") and self._notification.image_pixbuf:
             body_container.add(
                 Image(
-                    pixbuf=image_pixbuf.scale_simple(
+                    pixbuf=self._notification.image_pixbuf.scale_simple(
                         NOTIFICATION_IMAGE_SIZE,
                         NOTIFICATION_IMAGE_SIZE,
                         GdkPixbuf.InterpType.BILINEAR,
                     )
                 )
             )
-        elif self._notification.icon and os.path.exists(self._notification.icon):
+        # 2. Si viene una ruta de archivo directa (como la de Matugen) usando .icon_path
+        elif hasattr(self._notification, "icon_path") and self._notification.icon_path and os.path.exists(self._notification.icon_path):
             body_container.add(
                 Image(
-                    file_path=self._notification.icon,
+                    file_path=self._notification.icon_path,
                     size=NOTIFICATION_IMAGE_SIZE,
                 )
             )
-        elif self._notification.icon:
+        # 3. Si es un ícono genérico o del sistema de Linux
+        elif hasattr(self._notification, "icon_path") and self._notification.icon_path:
             body_container.add(
                 Image(
-                    icon_name=self._notification.icon,
+                    icon_name=self._notification.icon_path,
                     icon_size=NOTIFICATION_IMAGE_SIZE,
                 )
             )
@@ -138,6 +141,7 @@ class NotificationWidget(Box):
             initial_call=False,
         )
 
+
 # --- CLASE VENTANA DE NOTIFICACIONES CORREGIDA (AUTO-EXPANDIBLE) ---
 class NotificationWindow(Window):
     def __init__(self, notifs_service: Notifications, **kwargs):
@@ -192,7 +196,7 @@ class NotificationWindow(Window):
             GLib.timeout_add(100, self.hide)
 
 if __name__ == "__main__":
-    app = Application("notifications")
+    app = Application("Notifications")
 
     notifs_service = Notifications()
 

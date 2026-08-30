@@ -5,8 +5,11 @@
     border: 6px solid @color-primary;
     border-radius: 0px;
     padding: 16px;
-}
-
+    min-width: 360px; /* Forzamos un ancho mínimo de seguridad */
+    min-height: 80px; /* Forzamos un alto mínimo de seguridad */
+}    
+    
+    
 .summary {
     color: @color-primary;
     font-weight: bold;
