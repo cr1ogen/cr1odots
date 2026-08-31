@@ -10,6 +10,8 @@ FABRIC_DIR="$HOME/.config/fabric"
 
 # 3. Encender tus widgets en paralelo (con el '&' al final)
 python3 "$FABRIC_DIR/Notificaciones/config.py" &
+python3 "$FABRIC_DIR/Calendario/config.py" &
+python3 "$FABRIC_DIR/Multimedia/config.py" &
 
 # --- Tus futuros widgets ---
 # python3 "$FABRIC_DIR/barra_estado/config.py" &

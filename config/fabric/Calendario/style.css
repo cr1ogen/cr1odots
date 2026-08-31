@@ -36,16 +36,16 @@ window {
     border-radius: 8px;
 }
 
-/* --- ESTILO DEL BOTÓN DE CIERRE --- */
+/* --- ESTILO DEL BOTÓN DE CIERRE ---
 #calendar-close-btn {
     background-color: transparent;
     border: none;
     border-radius: 50%;
     padding: 4px;
     color: @fg-on-surface;
-}
+}*/
 
-#calendar-close-btn:hover {
+/*#calendar-close-btn:hover {
     background-color: rgba(255, 255, 255, 0.08);
     color: @color-primary;
-}
+}*/
