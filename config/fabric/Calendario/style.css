@@ -1,0 +1,51 @@
+@import url("/home/cr1ogen/.cache/qtile_dotfiles/matugen_colors.css");
+
+window {
+    background-color: transparent;
+}
+
+#calendar-card {
+    background-color: @bg-surface;
+    border: 6px solid @color-primary;
+    border-radius: 20px;
+    margin: 12px 4px 10px 0px;
+    padding: 12px 14px 14px 10px;
+    min-width: 380px;    /* !!! ESTA ES LA MEDIDA DEL ANCHO !!! */
+    min-height: 280px;
+}
+
+#gtk-calendar {
+    background-color: transparent;
+    border: none;
+    color: @fg-on-surface;
+    font-size: 18px;
+}
+
+#gtk-calendar header {
+    color: @color-primary;
+    font-weight: bold;
+}
+
+#gtk-calendar .highlight {
+    color: @color-accent;
+}
+
+#gtk-calendar:selected {
+    background-color: @color-primary;
+    color: @bg-surface;
+    border-radius: 8px;
+}
+
+/* --- ESTILO DEL BOTÓN DE CIERRE --- */
+#calendar-close-btn {
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    padding: 4px;
+    color: @fg-on-surface;
+}
+
+#calendar-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: @color-primary;
+}
