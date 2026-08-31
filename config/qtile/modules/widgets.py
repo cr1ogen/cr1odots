@@ -3,6 +3,7 @@ import subprocess
 from libqtile import qtile
 from libqtile.lazy import lazy
 from qtile_extras import widget #as extrawidgets #Extras
+from qtile_extras.popup.templates.mpris2 import COMPACT_LAYOUT, DEFAULT_LAYOUT
 from qtile_extras.widget.decorations import BorderDecoration, RectDecoration, PowerLineDecoration
 from modules.colors import colors
 
@@ -117,6 +118,19 @@ primary_widgets = [
                     ),    
                 widget.Spacer(
                     ),
+                widget.Mpris2(
+                    font='Poppins',
+                    fontsize=16,
+                    #paused_text='',   # Muestra Play cuando está en pausa
+                    #playing_text='',  # Muestra Pausa cuando se está reproduciendo
+                    #stopped_text='',  # Muestra Stop cuando está detenido
+                    playing_text='{track}',
+                    format='{qtile:player}',
+                    mouse_callbacks={
+                        'Button1': lazy.widget['mpris2'].play_pause(), # Clic izquierdo: Play / Pausa
+                        'Button3': lazy.widget['mpris2'].stop(),
+                        'Button2': lazy.spawn("python3 /home/cr1ogen/.config/fabric/Multimedia/config.py toggle")},
+                    ),
                 widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
                     icon_size=26,
@@ -191,7 +205,7 @@ primary_widgets = [
                     padding=6,
                     wifi_shape='arc',
                     wifi_arc=75,
-                    mouse_callbacks={'Button3': lazy.spawn("kitty -e impala")},
+                    mouse_callbacks={'Button3': lazy.spawn("kitty -e wlctl")},
                     ),
                 widget.GithubNotifications(
                     icon_size=22,
