@@ -23,22 +23,6 @@ class CalendarWidget(Box):
             **kwargs
         )
 
-        # --- BARRA SUPERIOR DE LA TARJETA (Para la Cruz de Cierre) ---
-        self.header_box = Box(orientation="h", h_expand=True)
-        
-        # Botón de cierre elegante con icono nativo
-        self.close_button = Button(
-            image=Image(icon_name="window-close-symbolic", icon_size=16),
-            v_align="center",
-            h_align="end",
-            name="calendar-close-btn",
-            on_clicked=lambda *_: window_parent.set_visible(False) # Cierra al hacer clic
-        )
-        
-        # Empujamos el botón a la extrema derecha
-        self.header_box.pack_end(self.close_button, False, False, 0)
-        self.add(self.header_box)
-
         # --- COMPONENTE DE CALENDARIO NATIVO ---
         self.calendar = Gtk.Calendar()
         self.calendar.set_name("gtk-calendar")
