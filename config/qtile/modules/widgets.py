@@ -205,7 +205,7 @@ primary_widgets = [
                     padding=6,
                     wifi_shape='arc',
                     wifi_arc=75,
-                    mouse_callbacks={'Button3': lazy.spawn("kitty -e wlctl")},
+                    mouse_callbacks={'Button3': lazy.spawn("python3 /home/cr1ogen/.config/fabric/Redes/config.py toggle")},
                     ),
                 widget.GithubNotifications(
                     icon_size=22,
@@ -228,7 +228,9 @@ primary_widgets = [
                     fontsize=24,
                     foreground='#ffffff',
                     padding=14,
-                    mouse_callbacks={'Button1': lazy.spawn("wlogout")},
+                        'Button1': lazy.spawn("wlogout"),
+                        'Button3': lazy.spawn("python3 /home/cr1ogen/.config/fabric/SidePanel/config.py toggle"),
+                    } 
                     ),
                 widget.Clock(
                     format= '%H:%M %a',
