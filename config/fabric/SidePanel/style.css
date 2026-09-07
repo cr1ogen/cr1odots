@@ -1,25 +1,37 @@
 @import url("/home/cr1ogen/.cache/qtile_dotfiles/matugen_colors.css");
 
+:vars {
+    --background: @bg-surface;
+    --foreground: @fg-on-surface;
+    --border-color: @color-primary;
+    --window-bg: alpha(@bg-surface, 0.85);
+    --module-bg: alpha(@bg-surface, 0.4);
+}
+
 * {
     all: unset;
-    font-family: "Jost*";
+    font-family: "Jost*", "Noto Sans", sans-serif;
     font-weight: 500;
     font-size: 18px;
     color: var(--foreground);
 }
 
-#window-inner {
-    border: solid 2px;
-    border-color: var(--color11);
-    background-color: var(--window-bg);
-    border-radius: 100px;
-    border-radius: 12px;
-    padding: 10px;
+window {
+    background-color: transparent;
 }
 
-#date-time>label {
+#window-inner {
+    border: solid 2px;
+    border-color: var(--border-color);
+    background-color: var(--window-bg);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+#date-time label {
     font-weight: 900;
     font-size: 28px;
+    color: @color-primary;
 }
 
 #header {
@@ -27,19 +39,20 @@
     border-radius: 8px;
     box-shadow: 0px 18px 23px -6px rgba(0, 0, 0, 0.75);
     background: linear-gradient(90deg,
-            alpha(var(--color11), 0.2),
+            alpha(var(--border-color), 0.2),
             alpha(var(--background), 0.2),
             var(--module-bg));
 }
 
 #profile-pic {
-    background-color: alpha(var(--color11), 0.2);
+    background-color: alpha(var(--border-color), 0.2);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 6px;
     padding: 32px;
     margin: 4px;
+    border: 1px solid @color-accent;
 }
 
 #progress-bar {
@@ -47,11 +60,19 @@
     border: solid 10px var(--border-color);
 }
 
+/* !!! LIMPIO Y CORREGIDO !!! */
+.progress-icon {
+    font-family: "Noto Sans Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 22px;
+    color: @color-accent;
+}
+
 #progress-bar-sep {
     padding: 4px;
-    margin: 16px 0px;
+    margin: 0px 4px;
     border-radius: 100px;
     background-color: var(--module-bg);
+    min-width: 1px;
 }
 
 #progress-bar-container {
