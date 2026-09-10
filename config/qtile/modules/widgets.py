@@ -228,6 +228,7 @@ primary_widgets = [
                     fontsize=24,
                     foreground='#ffffff',
                     padding=14,
+                    mouse_callbacks={
                         'Button1': lazy.spawn("wlogout"),
                         'Button3': lazy.spawn("python3 /home/cr1ogen/.config/fabric/SidePanel/config.py toggle"),
                     } 
