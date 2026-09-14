@@ -1,89 +1,95 @@
-# =========================================================
+# Created by newuser for 5.9.2
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+if [[ -f "/opt/homebrew/bin/brew" ]] then
+  # If you're using macOS, you'll want this enabled
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# Set the directory we want to store zinit and plugins
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+
+# Download Zinit, if it's not there yet
+if [ ! -d "$ZINIT_HOME" ]; then
+   mkdir -p "$(dirname $ZINIT_HOME)"
+   git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+
+# Source/Load zinit
+source "${ZINIT_HOME}/zinit.zsh"
+
+# Add in Powerlevel10k
+zinit ice depth=1; zinit light romkatv/powerlevel10k
+
+# Add in zsh plugins
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-completions
+zinit light zsh-users/zsh-autosuggestions
+zinit light Aloxaf/fzf-tab
+
+# Add in snippets
+zinit snippet OMZL::git.zsh
+zinit snippet OMZP::git
+zinit snippet OMZP::sudo
+zinit snippet OMZP::archlinux
+zinit snippet OMZP::aws
+zinit snippet OMZP::kubectl
+zinit snippet OMZP::kubectx
+zinit snippet OMZP::command-not-found
+
+# Load completions
+autoload -Uz compinit && compinit
+
+zinit cdreplay -q
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Keybindings
+bindkey -e
+bindkey '^p' history-search-backward
+bindkey '^n' history-search-forward
+bindkey '^[w' kill-region
+
 # History
-# =========================================================
+HISTSIZE=10000
+HISTFILE=~/.zsh_history
+SAVEHIST=$HISTSIZE
+HISTDUP=erase
+setopt appendhistory
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt hist_find_no_dups
 
-HISTFILE="$XDG_STATE_HOME/zsh/history"
-HISTSIZE=100000
-SAVEHIST=100000
-
-setopt APPEND_HISTORY
-setopt SHARE_HISTORY
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_SPACE
-setopt HIST_EXPIRE_DUPS_FIRST
-setopt HIST_FIND_NO_DUPS
-
-# =========================================================
-# Shell behaviour
-# =========================================================
-
-setopt AUTOCD
-setopt NOBEEP
-setopt NUMERIC_GLOB_SORT  # sort file10 after file9, not after file1
-
-
-# =========================================================
-# Smart directory navigation & lf
-# =========================================================
-
-if [[ -f ~/.config/lf/icons ]]; then
-  LF_ICONS=$(cat ~/.config/lf/icons | tr '\n' ':')
-  export LF_ICONS
-fi
-
-# Initialize zoxide
-eval "$(zoxide init zsh)"
-
-
-# =========================================================
-# Completion
-# =========================================================
-
-# Load completion system
-autoload -Uz compinit
-
-# Initialize completion with cached metadata file
-compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
-
-# Enable interactive completion menu selection
-zstyle ':completion:*' menu select
-
-# Make completion case-insensitive
-# Example: "doc" can complete to "Documents"
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'  # lowercase input matches upper and lower
-
-# =========================================================
-# Fuzzy finder
-# =========================================================
-
-# Debian
-if [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
-  source /usr/share/doc/fzf/examples/key-bindings.zsh
-  source /usr/share/doc/fzf/examples/completion.zsh
-fi
-
-# Local Git-cloned fzf
-if [[ -f "$HOME/.fzf/shell/key-bindings.zsh" ]]; then
-  source "$HOME/.fzf/shell/key-bindings.zsh"
-  source "$HOME/.fzf/shell/completion.zsh"
-fi
-
-# =========================================================
-# Modular Config Files
-# =========================================================
-
-# fzf configuration
-source "$ZDOTDIR/fzf.zsh"
+# Completion styling
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # Aliases
-source "$ZDOTDIR/aliases.zsh"
+alias ls='eza --icons always'
+alias ll='eza -lh --icons --git'
+alias la='eza -lah --icons --git'
+alias tree='eza --tree --icons'
 
-# Custom keybindings
-source "$ZDOTDIR/bindings.zsh"
+compdef eza=ls
 
-# Plugins and plugin manager
-source "$ZDOTDIR/plugins.zsh"
+# Shell integrations
+eval "$(fzf --zsh)"
+eval "$(zoxide init --cmd cd zsh)"
 
-# Prompt/theme
-source "$ZDOTDIR/prompt.zsh"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 
+# To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
+[[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
