@@ -85,6 +85,20 @@ fi
 
 info "Matugen actualizó tu plantilla de colores con éxito"
 
+# --- REINICIAR WIDGETS GTK (toman el CSS nuevo de Matugen) ---
+# Si estaban corriendo, se cierran y reabren para recargar colores.
+# Si estaban cerrados, no se hace nada.
+for _w in syswidget musicwidget; do
+    _pidfile="${XDG_RUNTIME_DIR:-/tmp}/$_w.pid"
+    if [ -f "$_pidfile" ]; then
+        python3 "$HOME/.config/$_w/$_w.py" --quit 2>/dev/null || true
+        sleep 1
+        nohup python3 "$HOME/.config/$_w/$_w.py" >/dev/null 2>&1 &
+        disown 2>/dev/null || true
+        info "Widget $_w reiniciado con colores nuevos"
+    fi
+done
+
 
 # --- RECARGA COMPATIBLE CON WAYLAND ---
 # Cambiado de 'restart' (que se rompe en Wayland) a 'reload_config'
@@ -123,14 +137,22 @@ info "¡Proceso de sincronización de colores finalizado!"
 
 # --- ENVIAR NOTIFICACIÓN VISUAL INTELIGENTE AL ESCRITORIO ---
 if [ "$IS_VIDEO" -eq 1 ]; then
-    # Extraemos solo el nombre del archivo de video para ponerlo en el cuerpo del texto
+    # Extraemos solo el nombre del archivo de video
     VIDEO_NAME=$(basename "$IMAGE_PATH")
     
-    # Mandamos la ruta del .png temporal como icono para que Fabric lo pueda renderizar sin romperse
-    notify-send -i "$TMP_FRAME" "Fondo Animado Activo" "$VIDEO_NAME"
+    # Usamos el frame temporal ($TMP_FRAME) extraído del video como ícono de la notificación
+    if command -v dunstify &> /dev/null; then
+        dunstify -i "$TMP_FRAME" "Fondo Animado Activo" "$VIDEO_NAME" -h string:x-dunst-stack-tag:wallpaper
+    else
+        notify-send -i "$TMP_FRAME" "Fondo Animado Activo" "$VIDEO_NAME"
+    fi
 else
-    # Notificación clásica con miniatura para imágenes estáticas normales
-    notify-send -i "$IMAGE_PATH" "Fondo de pantalla cambiado" "El entorno y los colores se sincronizaron con éxito."
+    # Notificación con miniatura de la imagen estática
+    if command -v dunstify &> /dev/null; then
+        dunstify -i "$IMAGE_PATH" "Fondo de pantalla cambiado" "El entorno y los colores se sincronizaron con éxito." -h string:x-dunst-stack-tag:wallpaper
+    else
+        notify-send -i "$IMAGE_PATH" "Fondo de pantalla cambiado" "El entorno y los colores se sincronizaron con éxito."
+    fi
 fi
 
 exit 0
