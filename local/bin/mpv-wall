@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+# Cambiador simple de wallpapers para Wayland usando mpvpaper.
+# Uso: mpv-wall.sh [next|random|list|set <archivo>|daemon <segundos>] [-o <salida>]
+# Por defecto usa ~/Imágenes/wallpapers y la primera salida de `mpvpaper -d`.
+
+set -euo pipefail
+
+WALL_DIR="${WALL_DIR:-$HOME/Imágenes/wallpapers}"
+OUTPUT="${OUTPUT:-}"
+# Sync Qtile/GTK/Rofi/Notify integrado (ex-wallpaper.sh). 1 = sí, 0 = no.
+# También: --no-qtile --no-rofi --no-notify
+QTILE_SYNC="${QTILE_SYNC:-1}"
+ROFI_CACHE="${ROFI_CACHE:-1}"
+NOTIFY="${NOTIFY:-1}"
+# Matugen: 1 = sí, 0 = no. También: --no-matugen
+MATUGEN="${MATUGEN:-1}"
+MATUGEN_MODE="${MATUGEN_MODE:-dark}"
+# Evita el prompt interactivo de matugen cuando hay varios colores candidatos
+MATUGEN_PREFER="${MATUGEN_PREFER:-darkness}"
+
+detect_output() {
+    mpvpaper -d 2>/dev/null | grep -oE 'Output: [^ ]+' | awk '{print $2}' | head -n1
+}
+
+if [[ -z "$OUTPUT" ]]; then
+    OUTPUT="$(detect_output || true)"
+fi
+if [[ -z "$OUTPUT" ]]; then
+    echo "No se detectó salida. Usa: OUTPUT=DP-3 $0 ..." >&2
+    exit 1
+fi
+
+# Parsear flags opcionales en cualquier posición
+ARGS=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -o|--output) OUTPUT="$2"; shift 2 ;;
+        --no-matugen) MATUGEN=0; shift ;;
+        --no-qtile) QTILE_SYNC=0; shift ;;
+        --no-rofi) ROFI_CACHE=0; shift ;;
+        --no-notify) NOTIFY=0; shift ;;
+        --matugen-mode) MATUGEN_MODE="$2"; shift 2 ;;
+        *) ARGS+=("$1"); shift ;;
+    esac
+done
+set -- "${ARGS[@]:-}"
+
+mapfile -t FILES < <(find "$WALL_DIR" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' \) | sort)
+if [[ ${#FILES[@]} -eq 0 ]]; then
+    echo "Sin fondos en $WALL_DIR" >&2
+    exit 1
+fi
+
+STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/mpv-wall.index"
+mkdir -p "$(dirname "$STATE_FILE")"
+
+current_index() {
+    [[ -f "$STATE_FILE" ]] && cat "$STATE_FILE" || echo -1
+}
+
+apply() {
+    local file="$1"
+    pkill -x mpvpaper 2>/dev/null || true
+    # Esperar muerte real del anterior (evita 2 instancias peleando = parpadeo)
+    for _ in $(seq 1 30); do
+        pgrep -x mpvpaper >/dev/null || break
+        sleep 0.1
+    done
+    pkill -9 -x mpvpaper 2>/dev/null || true
+    # Sin -s/-a: en Qtile (tiling) el auto-stop se dispara con ventanas
+    # maximizadas y causa el parpadeo/reinicio. Mismos flags que autostart.
+    mpvpaper -f -o "no-audio loop panscan=1.0" "$OUTPUT" "$file" >/dev/null 2>&1
+    echo "[$OUTPUT] $file"
+    run_matugen "$file"
+}
+
+run_matugen() {
+    local file="$1"
+    [[ "$MATUGEN" == "1" ]] || { sync_qtile "$file" "$file"; return 0; }
+    local bin="matugen"
+    [[ -x "$HOME/.cargo/bin/matugen" ]] && bin="$HOME/.cargo/bin/matugen"
+    [[ -x "$HOME/.local/bin/matugen" ]] && bin="$HOME/.local/bin/matugen"
+    command -v "$bin" >/dev/null 2>&1 || command -v matugen >/dev/null 2>&1 || { echo "(matugen no instalado, salto colores)" >&2; sync_qtile "$file" "$file"; return 0; }
+    [[ "$bin" == "matugen" ]] && bin="$(command -v matugen)"
+
+    local img="$file" is_video=0
+    case "${file,,}" in
+        *.mp4|*.webm|*.mkv)
+            is_video=1
+            command -v ffmpeg >/dev/null || { echo "(sin ffmpeg, no puedo extraer thumb para matugen)" >&2; sync_qtile "$file" "$file"; return 0; }
+            img="/tmp/mpv-wall-matugen.jpg"
+            ffmpeg -y -loglevel error -ss 2 -i "$file" -vframes 1 -vf "scale=480:-1" "$img" 2>/dev/null || {
+                echo "(falló thumbnail para matugen)" >&2; sync_qtile "$file" "$file"; return 0;
+            }
+            ;;
+    esac
+    local out
+    # best-effort: matugen puede devolver !=0 por un post_hook roto
+    # (ej. pywalfox/steam) aunque los templates sí se exportaron.
+    if out=$("$bin" image "$img" -t scheme-content -m "$MATUGEN_MODE" --source-color-index 0 --prefer "$MATUGEN_PREFER" 2>&1); then
+        echo "(matugen: colores actualizados desde $(basename "$img"))"
+    else
+        echo "(matugen: templates exportados con advertencias: $(echo "$out" | grep -oE 'Failed[^$]*' | head -n1))" >&2
+    fi
+    sync_qtile "$file" "$img"
+    return 0
+}
+
+sync_qtile() {
+    local file="$1" img="$2"
+    [[ "$QTILE_SYNC" == "1" || "$ROFI_CACHE" == "1" || "$NOTIFY" == "1" ]] || return 0
+    local is_video=0
+    case "${file,,}" in *.mp4|*.webm|*.mkv) is_video=1 ;; esac
+
+    if [[ "$QTILE_SYNC" == "1" ]]; then
+        command -v gsettings >/dev/null 2>&1 && {
+            gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
+            gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark' 2>/dev/null || true
+        }
+        if command -v qtile >/dev/null 2>&1; then
+            qtile cmd-obj -o cmd -f reload_config >/dev/null 2>&1 || true
+            echo "(qtile: config recargada)"
+        fi
+        for _w in syswidget musicwidget; do
+            _pidfile="${XDG_RUNTIME_DIR:-/tmp}/$_w.pid"
+            if [[ -f "$_pidfile" ]]; then
+                python3 "$HOME/.config/$_w/$_w.py" --quit 2>/dev/null || true
+                sleep 1
+                nohup python3 "$HOME/.config/$_w/$_w.py" >/dev/null 2>&1 &
+                disown 2>/dev/null || true
+            fi
+        done
+        # historial ML4W
+        mkdir -p "$HOME/.cache/qtile_dotfiles" 2>/dev/null || true
+        echo "$file" > "$HOME/.cache/qtile_dotfiles/current_wallpaper" 2>/dev/null || true
+    fi
+
+    if [[ "$ROFI_CACHE" == "1" ]] && type magick >/dev/null 2>&1; then
+        local cf="$HOME/.cache/qtile_dotfiles" blur="50x30"
+        [[ -f "$HOME/.local/bin/blur.sh" ]] && blur="$(cat "$HOME/.local/bin/blur.sh")"
+        magick "$img" -resize 75% "$cf/blurred_wallpaper.png" 2>/dev/null || true
+        [[ "$blur" != "0x0" ]] && magick "$cf/blurred_wallpaper.png" -blur "$blur" "$cf/blurred_wallpaper.png" 2>/dev/null || true
+        magick "$img" -gravity Center -extent 1:1 "$cf/square_wallpaper.png" 2>/dev/null || true
+        echo "* { current-image: url(\"$cf/blurred_wallpaper.png\", height); }" > "$cf/current_wallpaper.rasi" 2>/dev/null || true
+    fi
+
+    if [[ "$NOTIFY" == "1" ]]; then
+        local title="Fondo de pantalla cambiado" body="El entorno y los colores se sincronizaron con éxito." icon="$img"
+        [[ "$is_video" == "1" ]] && { title="Fondo Animado Activo"; body="$(basename "$file")"; }
+        if command -v dunstify >/dev/null 2>&1; then
+            dunstify -i "$icon" "$title" "$body" -h string:x-dunst-stack-tag:wallpaper 2>/dev/null || true
+        elif command -v notify-send >/dev/null 2>&1; then
+            notify-send -i "$icon" "$title" "$body" 2>/dev/null || true
+        fi
+    fi
+}
+
+cmd="${1:-random}"
+
+case "$cmd" in
+    list)
+        printf '%s\n' "${FILES[@]}"
+        ;;
+    next)
+        idx=$(current_index)
+        idx=$(( (idx + 1) % ${#FILES[@]} ))
+        echo "$idx" > "$STATE_FILE"
+        apply "${FILES[$idx]}"
+        ;;
+    random)
+        idx=$(( RANDOM % ${#FILES[@]} ))
+        echo "$idx" > "$STATE_FILE"
+        apply "${FILES[$idx]}"
+        ;;
+    set)
+        file="${2:-}"
+        [[ -z "$file" ]] && { echo "Uso: $0 set <archivo>" >&2; exit 1; }
+        # permitir nombre base sin ruta
+        if [[ ! -f "$file" && -f "$WALL_DIR/$file" ]]; then
+            file="$WALL_DIR/$file"
+        fi
+        [[ -f "$file" ]] || { echo "No existe: $file" >&2; exit 1; }
+        # guardar índice si pertenece a la lista
+        for i in "${!FILES[@]}"; do
+            [[ "${FILES[$i]}" == "$file" ]] && echo "$i" > "$STATE_FILE"
+        done
+        apply "$file"
+        ;;
+    daemon)
+        secs="${2:-300}"
+        echo "Rotando cada ${secs}s en $OUTPUT (Ctrl+C para parar)..."
+        while true; do
+            idx=$(current_index)
+            idx=$(( (idx + 1) % ${#FILES[@]} ))
+            echo "$idx" > "$STATE_FILE"
+            apply "${FILES[$idx]}"
+            sleep "$secs"
+        done
+        ;;
+    -h|--help|help)
+        sed -n '2,5p' "$0"
+        echo "Comandos: next | random | list | set <archivo> | daemon <segundos>"
+        echo "Flags: -o <salida> | --no-matugen | --no-qtile | --no-rofi | --no-notify | --matugen-mode <dark|light>"
+        echo "Env: WALL_DIR MATUGEN=0/1 QTILE_SYNC=0/1 ROFI_CACHE=0/1 NOTIFY=0/1 MATUGEN_MODE=dark OUTPUT"
+        ;;
+    *)
+        echo "Comando desconocido: $cmd (usa: next, random, list, set, daemon)" >&2
+        exit 1
+        ;;
+esac
