@@ -43,12 +43,8 @@ fi
 # Guardamos la ruta en el historial de caché de ML4W
 echo "$IMAGE_PATH" > "$CACHE_FILE"
 
-# --- DETECTAR TEMA (MODO OSCURO / CLARO) ---
-SETTINGS_FILE="$HOME/.config/gtk-3.0/settings.ini"
-THEME_PREF=1
-if [ -f "$SETTINGS_FILE" ]; then
-    THEME_PREF=$(grep -E '^gtk-application-prefer-dark-theme=' "$SETTINGS_FILE" | awk -F'=' '{print $2}')
-fi
+# --- MODO OSCURO SIEMPRE ---
+# Se usa dark fijo por decisión del usuario (sin detección de tema claro).
 
 # Determinar la ruta real del binario de Matugen
 if [ -f "$HOME/.cargo/bin/matugen" ]; then
@@ -76,12 +72,8 @@ else
     TARGET_IMAGE="$IMAGE_PATH"
 fi
 
-# Generar colores con Matugen
-if [ "$THEME_PREF" -eq 1 ] || [ -z "$THEME_PREF" ]; then
-    $MATUGEN_BIN image "$TARGET_IMAGE" -t scheme-content -m "dark" --source-color-index 0
-else
-    $MATUGEN_BIN image "$TARGET_IMAGE" -t scheme-content -m "light" --source-color-index 0
-fi
+# Generar colores con Matugen (siempre dark)
+$MATUGEN_BIN image "$TARGET_IMAGE" -t scheme-content -m "dark" --source-color-index 0
 
 info "Matugen actualizó tu plantilla de colores con éxito"
 
@@ -105,20 +97,10 @@ done
 qtile cmd-obj -o cmd -f reload_config
 info "Configuración de Qtile recargada en caliente"
 
-# --- RECARGA DE APLICACIONES ---
-killall -q nautilus nemo pavucontrol
-info "Entorno de Nautilus y Nemo refrescado"
-
-# --- FORZAR EL MOTOR HÍBRIDO COMPATIBLE ---
+# --- FORZAR EL MOTOR HÍBRIDO COMPATIBLE (siempre oscuro) ---
 # Esto obliga a Nemo (GTK3) y Nautilus (GTK4) a usar el mismo motor de renderizado
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
-
-# --- RECARGAR COMPLEMENTOS DE NAVEGADOR ---
-if type pywalfox >/dev/null 2>&1; then
-    pywalfox update
-    info "Pywalfox actualizado"
-fi
 
 # --- CACHÉ DE RENDERIZADO (Para Rofi o menús de ML4W) ---
 if type magick >/dev/null 2>&1; then
