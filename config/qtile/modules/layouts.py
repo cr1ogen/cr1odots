@@ -1,4 +1,5 @@
 from libqtile import layout
+from qtile_extras.layout import Plasma
 from qtile_extras.layout.decorations import RoundedCorners
 from libqtile.config import Match
 from modules.colors import colors
@@ -27,7 +28,13 @@ layouts = [
     layout.MonadTall(**layout_theme),                   
     layout.Max(**layout_theme),
     layout.MonadWide(**layout_theme),
-    # layout.Floating(**layout_theme),
+    layout.Floating(**layout_theme),
+    Plasma(
+        border_width=6,
+        margin=16,
+        border_focus=colors["primary"],
+        border_normal=colors["surface_highest"],
+    ),
     # layout.RatioTile(),
     # layout.Tile(),
     # layout.TreeTab(),
