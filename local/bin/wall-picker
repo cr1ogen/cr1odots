@@ -13,7 +13,7 @@ PICKER_CMD="${PICKER_CMD:-}"
 if [[ -z "$PICKER_CMD" ]]; then
     if [[ -x "$SCRIPT_DIR/mpv-wall.sh" ]]; then PICKER_CMD="$SCRIPT_DIR/mpv-wall.sh"
     elif [[ -x "$SCRIPT_DIR/mpv-wall" ]]; then PICKER_CMD="$SCRIPT_DIR/mpv-wall"
-    else PICKER_CMD="mpv-wall.sh"
+    else PICKER_CMD="mpv-wall"
     fi
 fi
 OUTPUT="${OUTPUT:-}"
@@ -33,30 +33,51 @@ mapfile -t FILES < <(find "$WALL_DIR" -maxdepth 1 -type f \( -iname '*.jpg' -o -
 [[ ${#FILES[@]} -gt 0 ]] || { echo "Sin fondos en $WALL_DIR" >&2; exit 1; }
 mkdir -p "$THUMB_DIR"
 
-# Miniatura para rofi: imágenes directo, videos vía ffmpeg (cacheada por mtime)
+# Miniatura cuadrada 256x256 para rofi (evita estirado). Cacheada por mtime.
 thumb_for() {
-    local f="$1"
+    local f="$1" base t
+    base="$(basename "$f")"
+    t="$THUMB_DIR/$base.thumb.jpg"
+    if [[ -f "$t" && "$t" -nt "$f" ]]; then echo "$t"; return 0; fi
     case "${f,,}" in
         *.mp4|*.webm|*.mkv)
-            local t="$THUMB_DIR/$(basename "$f").jpg"
-            if [[ ! -f "$t" || "$f" -nt "$t" ]]; then
-                ffmpeg -y -loglevel error -ss 2 -i "$f" -vframes 1 -vf "scale=256:-1" "$t" 2>/dev/null || return 1
+            command -v ffmpeg >/dev/null || return 1
+            local frame="$THUMB_DIR/$base.frame.jpg"
+            ffmpeg -y -loglevel error -ss 2 -i "$f" -vframes 1 "$frame" 2>/dev/null || return 1
+            if command -v magick >/dev/null 2>&1; then
+                magick "$frame" -resize "256x256^" -gravity Center -extent 256x256 "$t" 2>/dev/null || return 1
+                rm -f "$frame"
+            else
+                ffmpeg -y -loglevel error -i "$frame" -vf "scale=256:256:force_original_aspect_ratio=increase,crop=256:256" "$t" 2>/dev/null || return 1
+                rm -f "$frame"
             fi
-            echo "$t"
             ;;
-        *) echo "$f" ;;
+        *)
+            if command -v magick >/dev/null 2>&1; then
+                magick "$f" -resize "256x256^" -gravity Center -extent 256x256 "$t" 2>/dev/null || { echo "$f"; return 0; }
+            else
+                echo "$f"; return 0
+            fi
+            ;;
     esac
+    echo "$t"
 }
 
 pick_rofi() {
     command -v rofi >/dev/null || return 1
-    local sel f t base
+    local sel f t base cols theme
+    theme="${WALLPAPER_THEME:-$HOME/.config/rofi/wallpaper-selector.rasi}"
+    [[ -f "$theme" ]] || theme="$SCRIPT_DIR/rofi-wallpaper-selector.rasi"
+    cols=${#FILES[@]}
+    (( cols > 6 )) && cols=6
+    (( cols < 1 )) && cols=1
     # NUL (\0) no puede vivir en variables bash: se genera con printf directo al pipe
+    # Estilo gh0stzk: grilla de miniaturas, sin inputbar (ver rofi-wallpaper-selector.rasi)
     sel=$(for f in "${FILES[@]}"; do
         t="$(thumb_for "$f" || echo "$f")"
         base="$(basename "$f")"
         printf '%s\0icon\x1f%s\n' "$base" "$t"
-    done | rofi -dmenu -i -p "Wallpaper" -show-icons || true)
+    done | rofi -dmenu -i -p "" -show-icons -theme "$theme" -theme-str "listview {columns: $cols; lines: 1;}" || true)
     [[ -n "$sel" ]] || exit 0  # Esc = cancelar
     # rofi devuelve solo el texto (basename); resolver a ruta completa
     for f in "${FILES[@]}"; do
