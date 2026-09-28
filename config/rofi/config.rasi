@@ -1,0 +1,2 @@
+/* Tema rofi por defecto: lanzador. wall-picker usa el suyo con -theme. */
+@import "~/.config/rofi/launcher.rasi"

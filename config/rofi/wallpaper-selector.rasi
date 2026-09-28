@@ -58,7 +58,14 @@ listview {
     spacing:          10px;
     padding:          2px;
     fixed-height:     true;
-    scrollbar:        false;
+    scrollbar:        true;
+    background-color: transparent;
+}
+
+scrollbar {
+    width:            8px;
+    handle-width:     8px;
+    handle-color:     @accent;
     background-color: transparent;
 }
 

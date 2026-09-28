@@ -1,5 +1,10 @@
 /* Lanzador rofi: mismo estilo que wall-picker, colores de matugen. */
 @import "~/.config/rofi/colors.rasi"
+
+configuration {
+    show-icons: true;
+}
+
 * {
     bg:       @surface-container;
     bg2:      @surface-container-high;
@@ -84,6 +89,28 @@ element-text {
 
 element selected {
     background-color: @bg-sel;
+}
+
+element alternate.normal,
+element normal.normal {
+    background-color: transparent;
+    text-color:       @fg;
+}
+
+element alternate.urgent,
+element normal.urgent,
+element alternate.active,
+element normal.active {
+    background-color: transparent;
+    text-color:       @fg;
+}
+
+element selected.normal,
+element selected.alternate,
+element selected.urgent,
+element selected.active {
+    background-color: @bg-sel;
+    text-color:       @on-accent;
 }
 
 element-text selected {
