@@ -12,6 +12,7 @@ import os
 import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -26,7 +27,7 @@ from gi.repository import Gtk, Gdk, GtkLayerShell, GLib, GLibUnix, GdkPixbuf
 
 RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
 PIDFILE = os.path.join(RUNTIME_DIR, "musicwidget.pid")
-COVER_SIZE = 110
+COVER_SIZE = 160
 BASE_DIR = Path(__file__).parent
 
 
@@ -82,36 +83,36 @@ class MusicWidget(Gtk.Window):
         except Exception:
             pass
 
-        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-        box.set_border_width(12)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=18)
+        box.set_border_width(18)
         self.add(box)
 
         self.cover = Gtk.Image()
         self.cover.set_size_request(COVER_SIZE, COVER_SIZE)
         box.pack_start(self.cover, False, False, 0)
 
-        right = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        right = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         box.pack_start(right, True, True, 0)
 
         self.title = Gtk.Label()
         self.title.set_use_markup(True)
         self.title.set_halign(Gtk.Align.START)
         self.title.set_ellipsize(3)  # PANGO_ELLIPSIZE_END
-        self.title.set_max_width_chars(38)
+        self.title.set_max_width_chars(44)
         right.pack_start(self.title, False, False, 0)
 
         self.artist = Gtk.Label()
         self.artist.set_use_markup(True)
         self.artist.set_halign(Gtk.Align.START)
         self.artist.set_ellipsize(3)
-        self.artist.set_max_width_chars(38)
+        self.artist.set_max_width_chars(44)
         right.pack_start(self.artist, False, False, 0)
 
         self.album = Gtk.Label()
         self.album.set_use_markup(True)
         self.album.set_halign(Gtk.Align.START)
         self.album.set_ellipsize(3)
-        self.album.set_max_width_chars(38)
+        self.album.set_max_width_chars(44)
         right.pack_start(self.album, False, False, 0)
 
         self.progress = Gtk.ProgressBar()
@@ -129,13 +130,17 @@ class MusicWidget(Gtk.Window):
         ]:
             btn = Gtk.Button()
             btn.set_image(
-                Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.BUTTON)
+                Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.LARGE_TOOLBAR)
             )
             btn.set_relief(Gtk.ReliefStyle.NONE)
             btn.connect("clicked", self.on_media_button, cmd)
             btns.pack_start(btn, False, False, 0)
 
         self._cover_path = object()  # fuerza primera carga
+        self._est_pos = 0.0  # posición estimada (Firefox miente hasta pausar)
+        self._est_time = time.monotonic()
+        self._last_reported = None
+        self._track_key = None
         self.update()
         GLib.timeout_add(1000, self.update)
 
@@ -179,7 +184,7 @@ class MusicWidget(Gtk.Window):
             status = playerctl("status")
             if not status:
                 self.title.set_markup(
-                    '<span font="JetBrainsMono Nerd Font 11"><b>♪ sin reproductor</b></span>'
+                    '<span font="JetBrainsMono Nerd Font 13"><b>♪ sin reproductor</b></span>'
                 )
                 self.artist.set_text("")
                 self.album.set_text("")
@@ -190,18 +195,24 @@ class MusicWidget(Gtk.Window):
             meta = playerctl(
                 "metadata",
                 "--format",
-                "{{artist}}|{{title}}|{{album}}|{{mpris:length}}|{{mpris:artUrl}}",
-            ) or "||||"
-            artist, title, album, length, art = meta.split("|", 4)
+                "\x1f".join(
+                    ["{{artist}}", "{{title}}", "{{album}}",
+                     "{{mpris:length}}", "{{mpris:artUrl}}"]
+                ),
+            ) or ""
+            # Separador \x1f: los títulos (ej. YouTube) suelen traer "|"
+            parts = meta.split("\x1f")
+            parts += [""] * (5 - len(parts))
+            artist, title, album, length, art = parts[:5]
             icon = "⏸" if status == "Playing" else "▶"
             self.title.set_markup(
-                f'<span font="JetBrainsMono Nerd Font 11"><b>{icon} {GLib.markup_escape_text(title or "?")}</b></span>'
+                f'<span font="JetBrainsMono Nerd Font 14"><b>{icon} {GLib.markup_escape_text(title or "?")}</b></span>'
             )
             self.artist.set_markup(
-                f'<span font="JetBrainsMono Nerd Font 10">{GLib.markup_escape_text(artist or "?")}</span>'
+                f'<span font="JetBrainsMono Nerd Font 12">{GLib.markup_escape_text(artist or "?")}</span>'
             )
             self.album.set_markup(
-                f'<span font="JetBrainsMono Nerd Font 10" foreground="#aaaaaa">{GLib.markup_escape_text(album or "")}</span>'
+                f'<span font="JetBrainsMono Nerd Font 11">{GLib.markup_escape_text(album or "")}</span>'
             )
 
             try:
@@ -209,9 +220,28 @@ class MusicWidget(Gtk.Window):
             except (TypeError, ValueError):
                 total = 0
             try:
-                pos = float(playerctl("position") or 0)
+                reported = float(playerctl("position") or 0)
             except (TypeError, ValueError):
-                pos = 0
+                reported = 0
+            # Estimador: Firefox congela position en ~0 hasta pausar/seguir.
+            # Si el dato se mueve (seek, dato real) se ancla; si está
+            # congelado sonando, se avanza por reloj. Pausado = quieto.
+            now = time.monotonic()
+            track_key = (title, artist, album, length)
+            if track_key != self._track_key:
+                self._track_key = track_key
+                self._est_pos = reported
+                self._est_time = now
+            elif status == "Playing" and reported == self._last_reported:
+                self._est_pos += now - self._est_time
+                self._est_time = now
+            else:
+                self._est_pos = reported
+                self._est_time = now
+            self._last_reported = reported
+            pos = self._est_pos
+            if total > 0:
+                pos = min(pos, total)
             if total > 0:
                 self.progress.set_fraction(min(pos / total, 1.0))
                 self.progress.set_text(
