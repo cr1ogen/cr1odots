@@ -45,7 +45,7 @@ while [[ $# -gt 0 ]]; do
 done
 set -- "${ARGS[@]:-}"
 
-mapfile -t FILES < <(find "$WALL_DIR" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' \) | sort)
+mapfile -t FILES < <(find "$WALL_DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.gif' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' \) | sort)
 if [[ ${#FILES[@]} -eq 0 ]]; then
     echo "Sin fondos en $WALL_DIR" >&2
     exit 1
@@ -85,6 +85,21 @@ run_matugen() {
 
     local img="$file" is_video=0
     case "${file,,}" in
+        *.gif)
+            is_video=1
+            img="/tmp/mpv-wall-matugen.jpg"
+            if command -v magick >/dev/null 2>&1; then
+                magick "$file[0]" -resize "480x480>" "$img" 2>/dev/null || {
+                    echo "(falló thumbnail para matugen)" >&2; sync_qtile "$file" "$file"; return 0;
+                }
+            elif command -v ffmpeg >/dev/null; then
+                ffmpeg -y -loglevel error -i "$file" -vframes 1 -vf "scale=480:-1" "$img" 2>/dev/null || {
+                    echo "(falló thumbnail para matugen)" >&2; sync_qtile "$file" "$file"; return 0;
+                }
+            else
+                echo "(sin magick/ffmpeg, no puedo extraer thumb para matugen)" >&2; sync_qtile "$file" "$file"; return 0
+            fi
+            ;;
         *.mp4|*.webm|*.mkv)
             is_video=1
             command -v ffmpeg >/dev/null || { echo "(sin ffmpeg, no puedo extraer thumb para matugen)" >&2; sync_qtile "$file" "$file"; return 0; }
@@ -110,7 +125,7 @@ sync_qtile() {
     local file="$1" img="$2"
     [[ "$QTILE_SYNC" == "1" || "$ROFI_CACHE" == "1" || "$NOTIFY" == "1" ]] || return 0
     local is_video=0
-    case "${file,,}" in *.mp4|*.webm|*.mkv) is_video=1 ;; esac
+    case "${file,,}" in *.gif|*.mp4|*.webm|*.mkv) is_video=1 ;; esac
 
     if [[ "$QTILE_SYNC" == "1" ]]; then
         command -v gsettings >/dev/null 2>&1 && {
@@ -137,10 +152,12 @@ sync_qtile() {
 
     if [[ "$ROFI_CACHE" == "1" ]] && type magick >/dev/null 2>&1; then
         local cf="$HOME/.cache/qtile_dotfiles" blur="50x30"
+        local mimg="$img"
+        case "${img,,}" in *.gif) mimg="$img[0]" ;; esac
         [[ -f "$HOME/.local/bin/blur.sh" ]] && blur="$(cat "$HOME/.local/bin/blur.sh")"
-        magick "$img" -resize 75% "$cf/blurred_wallpaper.png" 2>/dev/null || true
+        magick "$mimg" -resize 75% "$cf/blurred_wallpaper.png" 2>/dev/null || true
         [[ "$blur" != "0x0" ]] && magick "$cf/blurred_wallpaper.png" -blur "$blur" "$cf/blurred_wallpaper.png" 2>/dev/null || true
-        magick "$img" -gravity Center -extent 1:1 "$cf/square_wallpaper.png" 2>/dev/null || true
+        magick "$mimg" -gravity Center -extent 1:1 "$cf/square_wallpaper.png" 2>/dev/null || true
         echo "* { current-image: url(\"$cf/blurred_wallpaper.png\", height); }" > "$cf/current_wallpaper.rasi" 2>/dev/null || true
     fi
 
