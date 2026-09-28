@@ -8,8 +8,8 @@ from qtile_extras.widget.decorations import BorderDecoration, RectDecoration, Po
 from modules.colors import colors
 
 widget_defaults = dict(
-    font="Poppins",
-    fontsize=12,
+    font="JetBrainsMonoNLNerdFont",
+    fontsize=14,
     padding=3,
 )
 extension_defaults = widget_defaults.copy()
@@ -29,12 +29,12 @@ decoration_border = {
 
 primary_widgets = [
                 widget.TextBox(
-                    #text='',
-                    text='Debian',
+                    #text='  ',
+                    text=' Debian',
                     fontsize=18,
-                    font='Poppins Bold',
+                    font='JetBraisMonoNLNerdFont Bold',
                     padding=16,
-                    mouse_callbacks={'Button1': lazy.spawn("rofi -show drun")},
+                    mouse_callbacks={'Button1': lazy.spawn("rofi -show drun -show-icons -theme ~/.config/rofi/launcher.rasi")},
                     line_colour='#ffffff',
                     line_width=4,
                     #background=colors[3],
@@ -70,7 +70,7 @@ primary_widgets = [
                     foreground='#00000000',#transparency
                     ),
                  widget.CurrentLayout(
-                    font="Poppins",
+                    font="JetBraisMonoNLNerdFont",
                     fontsize=16,
                     padding=14,
                     #background=colors[6],
@@ -78,7 +78,7 @@ primary_widgets = [
                     **decoration_group,
                     ),
                  widget.TaskList(
-                    font="Poppins",
+                    font="JetBraisMonoNLNerdFont",
                     fontsize=16,
                     icon_size=20,
                     padding=6,
@@ -93,7 +93,7 @@ primary_widgets = [
                 widget.Spacer(
                     ),
                 widget.GroupBox(
-                    #font="Poppins",
+                    #font="JetBraisMonoNLNerdFont",
                     fontsize=24,
                     padding=10,
                     center_aligned=True,
@@ -118,19 +118,6 @@ primary_widgets = [
                     ),    
                 widget.Spacer(
                     ),
-                widget.Mpris2(
-                    font='Poppins',
-                    fontsize=16,
-                    #paused_text='',   # Muestra Play cuando está en pausa
-                    #playing_text='',  # Muestra Pausa cuando se está reproduciendo
-                    #stopped_text='',  # Muestra Stop cuando está detenido
-                    playing_text='{track}',
-                    format='{qtile:player}',
-                    mouse_callbacks={
-                        'Button1': lazy.widget['mpris2'].play_pause(), # Clic izquierdo: Play / Pausa
-                        'Button3': lazy.widget['mpris2'].stop(),
-                        'Button2': lazy.spawn("python3 /home/cr1ogen/.config/fabric/Multimedia/config.py toggle")},
-                    ),
                 widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
                     icon_size=26,
@@ -147,7 +134,7 @@ primary_widgets = [
                     ),
                 widget.KeyboardLayout(
                     configured_keyboards=['us','es'],
-                    font='Poppins',
+                    font='JetBraisMonoNLNerdFont',
                     fontsize=16,
                     padding=6,
                     background=colors["primary_container"],
@@ -159,7 +146,7 @@ primary_widgets = [
                     ),
                 widget.PulseVolumeExtra(
                     mode='icon',
-                    theme_path='/usr/share/icons/Papirus-Dark',
+                    theme_path='/home/cr1ogen/.local/share/icons/Papirus-Dark',
                     icon_theme='BeautyLine',
                     bar_width=50,
                     bar_height=75,
@@ -189,9 +176,16 @@ primary_widgets = [
                      #   **decoration_group,
                      #   background=colors[6],
                      #),
+                widget.TextBox(
+                    text='󰥠',
+                    fontsize=24,
+                    padding=6,
+                    mouse_callbacks={
+                        'Button1': lazy.spawn("python3 /home/cr1ogen/.config/musicwidget/musicwidget.py --toggle")},
+                    ),
                 widget.Bluetooth(
                     default_text='{connected_devices}',
-                    #font='Poppins',
+                    #font='JetBraisMonoNLNerdFont',
                     fontsize=24,
                     padding=6,
                     icon_theme='/usr/share/icons/Papirus-Dark',
@@ -200,12 +194,11 @@ primary_widgets = [
                 widget.WiFiIcon(
                     format='{interface}',
                     interface='wlp15s0',
-                    font='Poppins',
+                    font='JetBraisMonoNLNerdFont',
                     fontsize=16,
                     padding=6,
                     wifi_shape='arc',
                     wifi_arc=75,
-                    mouse_callbacks={'Button3': lazy.spawn("python3 /home/cr1ogen/.config/fabric/Redes/config.py toggle")},
                     ),
                 widget.GithubNotifications(
                     icon_size=22,
@@ -228,19 +221,18 @@ primary_widgets = [
                     fontsize=24,
                     foreground='#ffffff',
                     padding=14,
-                    mouse_callbacks={
+		    mouse_callbacks={
                         'Button1': lazy.spawn("wlogout"),
-                        'Button3': lazy.spawn("python3 /home/cr1ogen/.config/fabric/SidePanel/config.py toggle"),
+                        'Button2': lazy.spawn("python3 /home/cr1ogen/.config/syswidget/syswidget.py --toggle"),
                     } 
                     ),
                 widget.Clock(
                     format= '%H:%M %a',
-                    font='Poppins Bold',
+                    font='JetBraisMonoNLNerdFont Bold',
                     fontsize=18,
                     padding=14,
                     background=colors["primary_container"],
                     **decoration_border,
-                     mouse_callbacks={ 'Button1': lazy.spawn("python3 /home/cr1ogen/.config/fabric/Calendario/config.py toggle")},
                     ),
     ]
 
