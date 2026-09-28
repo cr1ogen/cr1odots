@@ -6,9 +6,9 @@ xrandr --output DisplayPort-2 --scale 0.60 &
 #scale in wayland
 wlr-randr --output DP-3 --scale 1.35 &
 
-# Share screen with pipewire hack
+# Share screen with pipewire hack (restart, no stop: sin portales Nautilus y diálogos tardan/timeout)
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots &
-systemctl --user stop  xdg-desktop-portal xdg-desktop-portal-wlr &
+systemctl --user restart xdg-desktop-portal xdg-desktop-portal-wlr &
 
 /usr/libexec/xfce-polkit &
 
