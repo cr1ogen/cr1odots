@@ -1,0 +1,98 @@
+/* wall-picker: tema simple, colores de matugen. */
+@import "~/.config/rofi/colors.rasi"
+* {
+    bg:       @surface-container;
+    bg2:      @surface-container-high;
+    fg:       @on-surface;
+    dim:      @on-surface-variant;
+    accent:   @primary;
+    on-accent:@on-primary;
+}
+
+window {
+    width:            1100px;
+    height:           inherit;
+    location:         center;
+    anchor:           center;
+    background-color: @bg;
+    border:           1px;
+    border-color:     @accent;
+    border-radius:    16px;
+    padding:          14px;
+}
+
+mainbox {
+    orientation:      vertical;
+    background-color: transparent;
+    spacing:          10px;
+    children:         [ "inputbar", "listview" ];
+}
+
+inputbar {
+    enabled:          true;
+    background-color: @bg2;
+    border-radius:    10px;
+    padding:          8px 12px;
+    spacing:          8px;
+    children:         [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled:      true;
+    str:          "";
+    text-color:   @accent;
+    background-color: transparent;
+}
+
+entry {
+    expand:           true;
+    placeholder:      " Buscar wallpaper…";
+    text-color:       @fg;
+    placeholder-color:@dim;
+    background-color: transparent;
+}
+
+listview {
+    columns:          4;
+    lines:            1;
+    spacing:          10px;
+    padding:          2px;
+    fixed-height:     true;
+    scrollbar:        false;
+    background-color: transparent;
+}
+
+element {
+    orientation:      vertical;
+    background-color: transparent;
+    border:           2px;
+    border-color:     transparent;
+    border-radius:    12px;
+    padding:          6px;
+}
+
+element-icon {
+    size:             220px;
+    border-radius:    8px;
+    background-color: transparent;
+    horizontal-align: 0.5;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    font:             "monospace 10";
+    text-color:       @dim;
+    background-color: transparent;
+    margin:           6px 0 2px 0;
+}
+
+element selected {
+    border-color:     @accent;
+}
+
+element-text selected {
+    background-color: @accent;
+    text-color:       @on-accent;
+    border-radius:    6px;
+    padding:          2px 8px;
+}

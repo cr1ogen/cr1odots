@@ -1,0 +1,91 @@
+/* Lanzador rofi: mismo estilo que wall-picker, colores de matugen. */
+@import "~/.config/rofi/colors.rasi"
+* {
+    bg:       @surface-container;
+    bg2:      @surface-container-high;
+    bg-sel:   @primary;
+    fg:       @on-surface;
+    dim:      @on-surface-variant;
+    accent:   @primary;
+    on-accent:@on-primary;
+}
+
+window {
+    width:            700px;
+    height:           inherit;
+    location:         center;
+    anchor:           center;
+    background-color: @bg;
+    border:           1px;
+    border-color:     @accent;
+    border-radius:    16px;
+    padding:          14px;
+}
+
+mainbox {
+    orientation:      vertical;
+    background-color: transparent;
+    spacing:          10px;
+    children:         [ "inputbar", "listview" ];
+}
+
+inputbar {
+    enabled:          true;
+    background-color: @bg2;
+    border-radius:    10px;
+    padding:          8px 12px;
+    spacing:          8px;
+    children:         [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled:      true;
+    str:          "";
+    text-color:   @accent;
+    background-color: transparent;
+}
+
+entry {
+    expand:           true;
+    placeholder:      " Buscar aplicación…";
+    text-color:       @fg;
+    placeholder-color:@dim;
+    background-color: transparent;
+}
+
+listview {
+    lines:            10;
+    columns:          1;
+    spacing:          4px;
+    padding:          2px;
+    fixed-height:     false;
+    scrollbar:        false;
+    background-color: transparent;
+}
+
+element {
+    orientation:      horizontal;
+    background-color: transparent;
+    border-radius:    10px;
+    padding:          8px 12px;
+    spacing:          10px;
+}
+
+element-icon {
+    size:             28px;
+    background-color: transparent;
+}
+
+element-text {
+    vertical-align:   0.5;
+    text-color:       @fg;
+    background-color: transparent;
+}
+
+element selected {
+    background-color: @bg-sel;
+}
+
+element-text selected {
+    text-color:       @on-accent;
+}
