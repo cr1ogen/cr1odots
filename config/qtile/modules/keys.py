@@ -1,4 +1,3 @@
-
 import os
 from libqtile.config import Key
 from libqtile.lazy import lazy
@@ -54,8 +53,8 @@ keys = [
     
 
     #Accesos Directo
-    Key([mod], "b", lazy.spawn("rofi -show drun"), desc="Launch apps"),
-    Key([mod, "shift"], "b", lazy.spawn("rofi -show run"), desc="Laucnh commands"),
+    Key([mod], "b", lazy.spawn("rofi -show drun -show-icons -theme ~/.config/rofi/launcher.rasi"), desc="Launch apps"),
+    Key([mod, "shift"], "b", lazy.spawn("rofi -show run -theme ~/.config/rofi/launcher.rasi"), desc="Laucnh commands"),
     Key([mod], "backslash", lazy.spawn("firefox")),
     Key([mod, "shift"], "backslash", lazy.spawn("nautilus")),
 
