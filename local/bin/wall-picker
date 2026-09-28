@@ -33,7 +33,9 @@ mapfile -t FILES < <(find "$WALL_DIR" -maxdepth 1 -type f \( -iname '*.jpg' -o -
 [[ ${#FILES[@]} -gt 0 ]] || { echo "Sin fondos en $WALL_DIR" >&2; exit 1; }
 mkdir -p "$THUMB_DIR"
 
-# Miniatura cuadrada 256x256 para rofi (evita estirado). Cacheada por mtime.
+# Miniatura panorámica 16:9 (320x180) para rofi estilo JaKooLit. Cacheada por mtime.
+THUMB_W="${THUMB_W:-320}"
+THUMB_H="${THUMB_H:-180}"
 thumb_for() {
     local f="$1" base t
     base="$(basename "$f")"
@@ -45,16 +47,16 @@ thumb_for() {
             local frame="$THUMB_DIR/$base.frame.jpg"
             ffmpeg -y -loglevel error -ss 2 -i "$f" -vframes 1 "$frame" 2>/dev/null || return 1
             if command -v magick >/dev/null 2>&1; then
-                magick "$frame" -resize "256x256^" -gravity Center -extent 256x256 "$t" 2>/dev/null || return 1
+                magick "$frame" -resize "${THUMB_W}x${THUMB_H}^" -gravity Center -extent "${THUMB_W}x${THUMB_H}" "$t" 2>/dev/null || return 1
                 rm -f "$frame"
             else
-                ffmpeg -y -loglevel error -i "$frame" -vf "scale=256:256:force_original_aspect_ratio=increase,crop=256:256" "$t" 2>/dev/null || return 1
+                ffmpeg -y -loglevel error -i "$frame" -vf "scale=${THUMB_W}:${THUMB_H}:force_original_aspect_ratio=increase,crop=${THUMB_W}:${THUMB_H}" "$t" 2>/dev/null || return 1
                 rm -f "$frame"
             fi
             ;;
         *)
             if command -v magick >/dev/null 2>&1; then
-                magick "$f" -resize "256x256^" -gravity Center -extent 256x256 "$t" 2>/dev/null || { echo "$f"; return 0; }
+                magick "$f" -resize "${THUMB_W}x${THUMB_H}^" -gravity Center -extent "${THUMB_W}x${THUMB_H}" "$t" 2>/dev/null || { echo "$f"; return 0; }
             else
                 echo "$f"; return 0
             fi
@@ -71,13 +73,17 @@ pick_rofi() {
     cols=${#FILES[@]}
     (( cols > 6 )) && cols=6
     (( cols < 1 )) && cols=1
+    # Filas justas para no dejar banda vacía abajo (máx 2 como el tema)
+    rows=$(( (${#FILES[@]} + cols - 1) / cols ))
+    (( rows > 2 )) && rows=2
+    (( rows < 1 )) && rows=1
     # NUL (\0) no puede vivir en variables bash: se genera con printf directo al pipe
     # Estilo gh0stzk: grilla de miniaturas, sin inputbar (ver rofi-wallpaper-selector.rasi)
     sel=$(for f in "${FILES[@]}"; do
         t="$(thumb_for "$f" || echo "$f")"
         base="$(basename "$f")"
         printf '%s\0icon\x1f%s\n' "$base" "$t"
-    done | rofi -dmenu -i -p "" -show-icons -theme "$theme" -theme-str "listview {columns: $cols; lines: 1;}" || true)
+    done | rofi -dmenu -i -p "" -show-icons -theme "$theme" -theme-str "listview {columns: $cols; lines: $rows;}" || true)
     [[ -n "$sel" ]] || exit 0  # Esc = cancelar
     # rofi devuelve solo el texto (basename); resolver a ruta completa
     for f in "${FILES[@]}"; do
