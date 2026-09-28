@@ -1,0 +1,76 @@
+/* Tema rofi estilo gh0stzk para wall-picker: grilla de miniaturas, sin launcher. */
+* {
+    bg:       rgba(20, 20, 28, 0.95);
+    bg-sel:   #8b7ab8;
+    fg:       #cdd6f4;
+    fg-dim:   #9399b2;
+    border:   #8b7ab8;
+}
+
+window {
+    width:            90%;
+    height:           32%;
+    location:         center;
+    anchor:           center;
+    fullscreen:       false;
+    background-color: @bg;
+    border:           0;
+    border-radius:    1.2em;
+    padding:          1.2em;
+}
+
+mainbox {
+    background-color: transparent;
+    spacing:          0;
+    padding:          0;
+}
+
+inputbar {
+    enabled: false;
+}
+
+listview {
+    columns:      6;
+    lines:        1;
+    fixed-height: true;
+    spacing:      1em;
+    background-color: transparent;
+    scrollbar:    false;
+}
+
+element {
+    orientation:      vertical;
+    background-color: transparent;
+    border:           2px;
+    border-color:     transparent;
+    border-radius:    1em;
+    padding:          0.4em;
+}
+
+element-icon {
+    size:             11em;
+    border-radius:    0.9em;
+    background-color: transparent;
+    horizontal-align: 0.5;
+    vertical-align:   0.5;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    font:             "monospace 9";
+    text-color:       @fg-dim;
+    background-color: transparent;
+    margin:           0.4em 0 0 0;
+}
+
+element selected {
+    border-color:     @border;
+    background-color: transparent;
+}
+
+element selected element-text {
+    background-color: @bg-sel;
+    text-color:       #1e1e2e;
+    border-radius:    0.5em;
+    padding:          0.15em 0.4em;
+}
