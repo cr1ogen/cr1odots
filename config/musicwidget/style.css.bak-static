@@ -1,0 +1,33 @@
+window {
+    background-color: rgba(20, 20, 28, 0.92);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+label {
+    color: #e6e6e6;
+}
+
+progressbar trough {
+    min-height: 6px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+progressbar progress {
+    border-radius: 3px;
+    background-color: #7aa2f7;
+    border: none;
+}
+
+button {
+    background: transparent;
+    border: none;
+    padding: 4px 10px;
+    color: #e6e6e6;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+}
