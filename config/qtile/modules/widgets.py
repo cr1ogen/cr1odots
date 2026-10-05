@@ -32,7 +32,7 @@ primary_widgets = [
                     #text='  ',
                     text=' Debian',
                     fontsize=18,
-                    font='JetBraisMonoNLNerdFont Bold',
+                    font='JetBrainsMonoNLNerdFont Bold',
                     padding=16,
                     mouse_callbacks={'Button1': lazy.spawn("rofi -show drun -show-icons -theme ~/.config/rofi/launcher.rasi")},
                     line_colour='#ffffff',
@@ -70,7 +70,7 @@ primary_widgets = [
                     foreground='#00000000',#transparency
                     ),
                  widget.CurrentLayout(
-                    font="JetBraisMonoNLNerdFont",
+                    font="JetBrainsMonoNLNerdFont",
                     fontsize=16,
                     padding=14,
                     #background=colors[6],
@@ -78,7 +78,7 @@ primary_widgets = [
                     **decoration_group,
                     ),
                  widget.TaskList(
-                    font="JetBraisMonoNLNerdFont",
+                    font="JetBrainsMonoNLNerdFont",
                     fontsize=16,
                     icon_size=20,
                     padding=6,
@@ -134,7 +134,7 @@ primary_widgets = [
                     ),
                 widget.KeyboardLayout(
                     configured_keyboards=['us','es'],
-                    font='JetBraisMonoNLNerdFont',
+                    font='JetBrainsMonoNLNerdFont',
                     fontsize=16,
                     padding=6,
                     background=colors["primary_container"],
@@ -194,7 +194,7 @@ primary_widgets = [
                 widget.WiFiIcon(
                     format='{interface}',
                     interface='wlp15s0',
-                    font='JetBraisMonoNLNerdFont',
+                    font='JetBrainsMonoNLNerdFont',
                     fontsize=16,
                     padding=6,
                     wifi_shape='arc',
@@ -214,7 +214,7 @@ primary_widgets = [
                     fontsize=22,
                     #margin=13,
                     padding=8,
-                    mouse_callbacks={'Button1': lazy.spawn("/usr/local/bin/waypaper")},
+                    mouse_callbacks={'Button1': lazy.spawn("/home/cr1ogen/.local/bin/wall-picker-gtk")},
                     ),
                 widget.TextBox(
                     text='',
@@ -228,7 +228,7 @@ primary_widgets = [
                     ),
                 widget.Clock(
                     format= '%H:%M %a',
-                    font='JetBraisMonoNLNerdFont Bold',
+                    font='JetBrainsMonoNLNerdFont Bold',
                     fontsize=18,
                     padding=14,
                     background=colors["primary_container"],
