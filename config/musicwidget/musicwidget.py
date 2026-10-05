@@ -8,11 +8,14 @@ Click derecho oculta, --hide inicia oculto, --quit lo cierra.
 """
 
 import argparse
+import hashlib
 import os
+import shutil
 import signal
 import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -29,6 +32,9 @@ RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
 PIDFILE = os.path.join(RUNTIME_DIR, "musicwidget.pid")
 COVER_SIZE = 160
 BASE_DIR = Path(__file__).parent
+CACHE_HOME = Path(os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache")))
+COVER_CACHE = CACHE_HOME / "musicwidget-covers"
+HAS_PLAYERCTL = shutil.which("playerctl") is not None
 
 
 def playerctl(*args):
@@ -45,11 +51,48 @@ def playerctl(*args):
 
 
 def art_to_path(art_url):
+    """Resuelve mpris:artUrl a imagen local.
+
+    - file:// -> ruta directa (caso firefox-mpris, que sobrescribe
+      el mismo PNG por pestaña).
+    - http(s):// -> descarga cacheada en COVER_CACHE (Firefox nativo
+      expone thumbs de YouTube como https).
+    Devuelve None si no se puede resolver.
+    """
     if not art_url:
         return None
     if art_url.startswith("file://"):
         return unquote(urlparse(art_url).path)
+    if art_url.startswith(("http://", "https://")):
+        try:
+            COVER_CACHE.mkdir(parents=True, exist_ok=True)
+            name = hashlib.sha1(art_url.encode()).hexdigest()
+            # conservar extensión si la hay para ayudar al loader
+            ext = Path(urlparse(art_url).path).suffix.lower()
+            if ext not in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
+                ext = ".img"
+            dest = COVER_CACHE / f"{name}{ext}"
+            if dest.is_file() and dest.stat().st_size > 0:
+                return str(dest)
+            req = urllib.request.Request(
+                art_url, headers={"User-Agent": "musicwidget/1.0"})
+            with urllib.request.urlopen(req, timeout=10) as r, \
+                    open(dest, "wb") as f:
+                f.write(r.read(2 * 1024 * 1024))
+            return str(dest) if dest.stat().st_size > 0 else None
+        except Exception:
+            return None
     return None
+
+
+def cover_stat_key(path):
+    """(path, mtime, size): detecta cuando firefox-mpris sobrescribe
+    el mismo archivo en cada cambio de tema."""
+    try:
+        st = Path(path).stat()
+        return (path, st.st_mtime_ns, st.st_size)
+    except OSError:
+        return (path, None, None)
 
 
 class MusicWidget(Gtk.Window):
@@ -136,7 +179,7 @@ class MusicWidget(Gtk.Window):
             btn.connect("clicked", self.on_media_button, cmd)
             btns.pack_start(btn, False, False, 0)
 
-        self._cover_path = object()  # fuerza primera carga
+        self._cover_key = None  # (path, mtime, size); fuerza primera carga
         self._est_pos = 0.0  # posición estimada (Firefox miente hasta pausar)
         self._est_time = time.monotonic()
         self._last_reported = None
@@ -183,8 +226,10 @@ class MusicWidget(Gtk.Window):
         try:
             status = playerctl("status")
             if not status:
+                hint = ("♪ instala playerctl (sudo apt install playerctl)"
+                        if not HAS_PLAYERCTL else "♪ sin reproductor")
                 self.title.set_markup(
-                    '<span font="JetBrainsMono Nerd Font 13"><b>♪ sin reproductor</b></span>'
+                    f'<span font="JetBrainsMono Nerd Font 13"><b>{GLib.markup_escape_text(hint)}</b></span>'
                 )
                 self.artist.set_text("")
                 self.album.set_text("")
@@ -240,6 +285,9 @@ class MusicWidget(Gtk.Window):
                 self._est_time = now
             self._last_reported = reported
             pos = self._est_pos
+            # Firefox vía MPRIS no expone mpris:length: sin total solo
+            # se muestra el tiempo estimado (el estimador de arriba lo
+            # avanza por reloj mientras suena).
             if total > 0:
                 pos = min(pos, total)
             if total > 0:
@@ -249,11 +297,15 @@ class MusicWidget(Gtk.Window):
                 )
             else:
                 self.progress.set_fraction(0.0)
-                self.progress.set_text(self.fmt_time(pos))
+                self.progress.set_text(
+                    f"{self.fmt_time(pos)} (en vivo / sin duración)" if pos >= 1
+                    else ""
+                )
 
             path = art_to_path(art)
-            if path != self._cover_path:
-                self._cover_path = path
+            key = cover_stat_key(path) if path else None
+            if key != self._cover_key:
+                self._cover_key = key
                 if path:
                     try:
                         pix = GdkPixbuf.Pixbuf.new_from_file_at_size(
