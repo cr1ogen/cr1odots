@@ -1,14 +1,15 @@
 #!/bin/sh
 
 #scale in X11
-xrandr --output DisplayPort-2 --scale 0.60 &
+#xrandr --output DisplayPort-2 --scale 0.60 &
 
 #scale in wayland
 wlr-randr --output DP-3 --scale 1.35 &
 
-# Share screen with pipewire hack (restart, no stop: sin portales Nautilus y diálogos tardan/timeout)
-dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots &
-systemctl --user restart xdg-desktop-portal xdg-desktop-portal-wlr &
+# Portales: no hacer restart incondicional (provocó timeout 23:02:34 y pérdida de seat/input).
+# Solo asegurar que estén activos, sincrónico y sin & para evitar carrera con Qtile.
+#dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots
+#systemctl --user is-active --quiet xdg-desktop-portal xdg-desktop-portal-wlr || systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr
 
 /usr/libexec/xfce-polkit &
 
