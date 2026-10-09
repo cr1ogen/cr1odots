@@ -1,31 +1,31 @@
 # Archivo de plantilla Matugen para Qtile (Sintaxis con .default)
 colors = {
     # --- COLORES DE FONDO Y SUPERFICIES ---
-    "bg": "#11131a",
-    "bg_dim": "#11131a",
-    "bg_bright": "#363940",
-    "surface": "#1d2026",
-    "surface_low": "#191b22",
-    "surface_high": "#272a31",
-    "surface_highest": "#32353c",
+    "bg": "#1c110f",
+    "bg_dim": "#1c110f",
+    "bg_bright": "#443633",
+    "surface": "#291d1a",
+    "surface_low": "#251917",
+    "surface_high": "#342725",
+    "surface_highest": "#3f312f",
     
     # --- COLORES DE TEXTO Y CONTENIDO ---
-    "fg": "#e1e2eb",
-    "fg_variant": "#c2c6d5",
-    "on_primary": "#002e69",
-    "on_secondary": "#193057",
-    "on_tertiary": "#55006a",
+    "fg": "#f4ddd9",
+    "fg_variant": "#dfbfba",
+    "on_primary": "#670500",
+    "on_secondary": "#532119",
+    "on_tertiary": "#432c00",
 
     # --- PALETA PRINCIPAL ---
-    "primary": "#adc6ff",
-    "primary_container": "#4d8efe",
-    "on_primary_container": "#000000",
+    "primary": "#ffb4a7",
+    "primary_container": "#a03020",
+    "on_primary_container": "#fffdff",
 
-    "secondary": "#b1c6f7",
-    "secondary_container": "#344972",
+    "secondary": "#ffb4a7",
+    "secondary_container": "#71392f",
     
-    "tertiary": "#f4aeff",
-    "tertiary_container": "#c66dda",
+    "tertiary": "#f1be69",
+    "tertiary_container": "#765100",
 
     # --- COLORES DE ERROR / ALERTAS ---
     "error": "#ffb4ab",

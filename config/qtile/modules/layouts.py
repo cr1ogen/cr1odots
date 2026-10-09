@@ -29,12 +29,7 @@ layouts = [
     layout.Max(**layout_theme),
     layout.MonadWide(**layout_theme),
     layout.Floating(**layout_theme),
-    Plasma(
-        border_width=6,
-        margin=16,
-        border_focus=colors["primary"],
-        border_normal=colors["surface_highest"],
-    ),
+    # layout.Plasma(),
     # layout.RatioTile(),
     # layout.Tile(),
     # layout.TreeTab(),

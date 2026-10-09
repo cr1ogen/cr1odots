@@ -8,7 +8,7 @@ groups = [
     Group(name='2', label="󰲢", layout="floating"),
     Group(name='3', label="󰲤", layout="monadtall"),
     Group(name='4', label="󰲦", matches=[
-          Match(wm_class='Telegram'), Match(wm_class='discord')], layout='plasma'),
+          Match(wm_class='Telegram'), Match(wm_class='discord')], layout='monadwide'),
     Group(name='5', label="󰲨", matches=[
         Match(wm_class='pw-jack ardour')], layout='max'),
     Group(name='6', label="󰲪", matches=[
