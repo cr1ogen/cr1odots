@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Selector visual de wallpapers (GTK3) para mpv-wall.
+# Selector visual de wallpapers (GTK4) para mpv-wall.
 # Busca recursivo en WALL_DIR, thumbs 16:9 cacheados en THUMB_DIR
 # (mismo cache que el viejo wall-picker.sh, compartido).
 # Uso: wall-picker.py [-o <salida>]
@@ -7,15 +7,17 @@
 """GTK wallpaper picker for mpv-wall (recursive, cached 16:9 thumbs)."""
 
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
+gi.require_version("Gdk", "4.0")
 gi.require_version("GdkPixbuf", "2.0")
-from gi.repository import GdkPixbuf, GLib, Gtk  # noqa: E402
+from gi.repository import Gdk, GdkPixbuf, GLib, Gtk, Pango  # noqa: E402
 
 WALL_DIR = Path(os.environ.get("WALL_DIR", str(Path.home() / "Imágenes/wallpapers")))
 THUMB_DIR = Path(os.environ.get("THUMB_DIR", str(Path.home() / ".cache/mpv-wall-thumbs")))
@@ -55,6 +57,8 @@ def thumb_for(src: Path) -> Path | None:
             return thumb
     except OSError:
         pass
+    if shutil.which("magick") is None:
+        return thumb_for_ffmpeg(src, thumb)
     name = src.name.lower()
     try:
         if name.endswith(VID_EXTS):
@@ -85,6 +89,33 @@ def thumb_for(src: Path) -> Path | None:
         return None
 
 
+def thumb_for_ffmpeg(src: Path, thumb: Path) -> Path | None:
+    """Plan B sin ImageMagick: videos/gif vía ffmpeg con scale+crop.
+
+    Imágenes fijas devuelven None a propósito: el llamador ya las
+    carga directo con GdkPixbuf (sin caché, pero se ven).
+    """
+    name = src.name.lower()
+    if not name.endswith(VID_EXTS + (".gif",)):
+        return None
+    if shutil.which("ffmpeg") is None:
+        return None
+    vf = (f"scale={THUMB_W}:{THUMB_H}:force_original_aspect_ratio=increase,"
+          f"crop={THUMB_W}:{THUMB_H}")
+    try:
+        # -ss 2 falla en clips más cortos: reintento desde el inicio.
+        for seek in ("2", "0"):
+            r = subprocess.run(
+                ["ffmpeg", "-y", "-loglevel", "error", "-ss", seek,
+                 "-i", str(src), "-vframes", "1", "-vf", vf, str(thumb)],
+                timeout=30)
+            if r.returncode == 0 and thumb.is_file():
+                return thumb
+    except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
 def load_pixbuf(path: Path, w: int, h: int):
     try:
         return GdkPixbuf.Pixbuf.new_from_file_at_size(str(path), w, h)
@@ -93,64 +124,73 @@ def load_pixbuf(path: Path, w: int, h: int):
 
 
 class Picker(Gtk.Window):
-    def __init__(self, files: list[Path]):
+    def __init__(self, files: list[Path], loop: GLib.MainLoop):
         super().__init__(title="Wallpapers")
         self.files = files
-        self.set_default_size(1100, 700)
-        self.set_position(Gtk.WindowPosition.CENTER)
+        self._loop = loop
+        self.set_default_size(1200, 750)
         self._applying = False
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        vbox.set_border_width(10)
-        self.add(vbox)
+        for m in ("margin_top", "margin_bottom",
+                  "margin_start", "margin_end"):
+            vbox.set_property(m, 10)
+        self.set_child(vbox)
 
         top = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        vbox.pack_start(top, False, False, 0)
+        vbox.append(top)
 
         self.search = Gtk.SearchEntry(placeholder_text=" Buscar wallpaper…")
+        self.search.set_hexpand(True)
         self.search.connect("search-changed", self.on_search)
-        top.pack_start(self.search, True, True, 0)
+        top.append(self.search)
 
         self.count = Gtk.Label()
-        top.pack_start(self.count, False, False, 0)
+        top.append(self.count)
 
         scroll = Gtk.ScrolledWindow()
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        vbox.pack_start(scroll, True, True, 0)
+        scroll.set_vexpand(True)
+        scroll.set_hexpand(True)
+        vbox.append(scroll)
 
         self.flow = Gtk.FlowBox()
         self.flow.set_valign(Gtk.Align.START)
-        self.flow.set_max_children_per_line(4)
+        self.flow.set_max_children_per_line(3)
         self.flow.set_selection_mode(Gtk.SelectionMode.SINGLE)
         self.flow.set_filter_func(self.filter_func)
         self.flow.connect("child-activated", self.on_activate)
-        scroll.add(self.flow)
+        scroll.set_child(self.flow)
 
         self.items: list[tuple[Gtk.FlowBoxChild, Path, str]] = []
         for f in files:
             child = self.make_item(f)
-            self.flow.add(child)
-        self.flow.show_all()
+            self.flow.append(child)
         self.update_count()
         # Thumbs en idle para no congelar la UI con 400 archivos
         self._pending = list(self.items)
         GLib.idle_add(self.fill_next_thumb)
-        self.connect("key-press-event", self.on_key)
+
+        keys = Gtk.EventControllerKey()
+        keys.connect("key-pressed", self.on_key)
+        self.add_controller(keys)
 
     def make_item(self, path: Path) -> Gtk.FlowBoxChild:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-        box.set_border_width(6)
-        img = Gtk.Image()
-        img.set_size_request(THUMB_W // 2, THUMB_H // 2)
-        box.pack_start(img, False, False, 0)
+        for m in ("margin_top", "margin_bottom",
+                  "margin_start", "margin_end"):
+            box.set_property(m, 6)
+        img = Gtk.Picture()
+        img.set_size_request(THUMB_W, THUMB_H)
+        img.set_content_fit(Gtk.ContentFit.CONTAIN)
+        box.append(img)
         label = Gtk.Label(label=rel_of(path))
-        label.set_ellipsize(3)  # END
+        label.set_ellipsize(Pango.EllipsizeMode.END)
         label.set_max_width_chars(28)
-        label.get_style_context().add_class("dim-label")
-        box.pack_start(label, False, False, 0)
+        label.add_css_class("dim-label")
+        box.append(label)
         child = Gtk.FlowBoxChild()
-        child.add(box)
-        child.show_all()
+        child.set_child(box)
         self.items.append((child, path, rel_of(path).lower()))
         return child
 
@@ -161,12 +201,15 @@ class Picker(Gtk.Window):
                 return False
             child, path, _ = self._pending.pop(0)
             thumb = thumb_for(path)
-            pix = load_pixbuf(thumb or path, THUMB_W // 2, THUMB_H // 2)
+            pix = load_pixbuf(thumb or path, THUMB_W, THUMB_H)
             if pix is not None:
-                for widget in child.get_child().get_children():
-                    if isinstance(widget, Gtk.Image):
-                        widget.set_from_pixbuf(pix)
+                tex = Gdk.Texture.new_for_pixbuf(pix)
+                w = child.get_child().get_first_child()
+                while w is not None:
+                    if isinstance(w, Gtk.Picture):
+                        w.set_paintable(tex)
                         break
+                    w = w.get_next_sibling()
         return True
 
     def filter_func(self, child: Gtk.FlowBoxChild) -> bool:
@@ -186,8 +229,8 @@ class Picker(Gtk.Window):
         visible = sum(1 for c, _, _ in self.items if c.get_visible())
         self.count.set_text(f"{visible}/{len(self.items)}")
 
-    def on_key(self, _w, event):
-        if event.keyval in (65293, 65421):  # Enter/KP_Enter
+    def on_key(self, _ctrl, keyval, _keycode, _state):
+        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
             sel = self.flow.get_selected_children()
             if sel:
                 self.apply(sel[0])
@@ -211,7 +254,7 @@ class Picker(Gtk.Window):
                     subprocess.run(cmd, env=env, timeout=120)
                 except (OSError, subprocess.SubprocessError):
                     pass
-                Gtk.main_quit()
+                self._loop.quit()
                 return
 
 
@@ -235,10 +278,11 @@ def main(argv: list[str]) -> int:
     if not files:
         print(f"Sin fondos en {WALL_DIR} (y subcarpetas)", file=sys.stderr)
         return 1
-    win = Picker(files)
-    win.connect("destroy", Gtk.main_quit)
-    win.show_all()
-    Gtk.main()
+    loop = GLib.MainLoop()
+    win = Picker(files, loop)
+    win.connect("close-request", lambda *_: (loop.quit(), False)[1])
+    win.present()
+    loop.run()
     return 0
 
 
