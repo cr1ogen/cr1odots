@@ -77,10 +77,13 @@ alias tree='eza --tree --icons'
 compdef eza=ls
 
 # Shell integrations
+eval "$(starship init zsh)"
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
+
 
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.opencode/bin:$PATH"
+export PATH="$HOME/.config/emacs/bin:$PATH"
 
