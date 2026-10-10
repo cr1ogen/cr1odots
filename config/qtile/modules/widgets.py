@@ -118,6 +118,16 @@ primary_widgets = [
                     ),    
                 widget.Spacer(
                     ),
+                widget.Mpris2(
+                    popup_layout=COMPACT_LAYOUT,
+                    max_chars=19,
+                    font='JetBrainsMonoNLNerdFont Bold',
+                    fontsize=15,
+                    scroll=True,
+                    croll_fixed_width=False,
+                    mouse_callbacks={
+                        'Button3': lazy.spawn("python3 /home/cr1ogen/.config/musicwidget/musicwidget.py --toggle")},
+                    ),
                 widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
                     icon_size=26,
@@ -176,13 +186,6 @@ primary_widgets = [
                      #   **decoration_group,
                      #   background=colors[6],
                      #),
-                widget.TextBox(
-                    text='󰥠',
-                    fontsize=24,
-                    padding=6,
-                    mouse_callbacks={
-                        'Button1': lazy.spawn("python3 /home/cr1ogen/.config/musicwidget/musicwidget.py --toggle")},
-                    ),
                 widget.Bluetooth(
                     default_text='{connected_devices}',
                     #font='JetBraisMonoNLNerdFont',
