@@ -126,7 +126,6 @@ primary_widgets = [
                     scroll=True,
                     croll_fixed_width=False,
                     mouse_callbacks={
-                        'Button3': lazy.spawn("python3 /home/cr1ogen/.config/musicwidget/musicwidget.py --toggle")},
                     ),
                 widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
