@@ -118,11 +118,14 @@ primary_widgets = [
                 widget.Spacer(
                     ),
                 widget.Mpris2(
-                    max_chars=20,
+                    width=150,
                     font='JetBrainsMonoNLNerdFont Bold',
-                    fontsize=15,
+                    fontsize=16,
                     scroll=True,
                     scroll_fixed_width=True,
+                    scroll_interval=0.1,
+                    scroll_delay=5,
+                    scroll_repeat=True,
                     mouse_callbacks={
                         'Button2': lazy.spawn("python3 /home/cr1ogen/.config/musicwidget/musicwidget.py --toggle")},
                     ),
