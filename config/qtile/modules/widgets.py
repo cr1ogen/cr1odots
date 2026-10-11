@@ -3,7 +3,6 @@ import subprocess
 from libqtile import qtile
 from libqtile.lazy import lazy
 from qtile_extras import widget #as extrawidgets #Extras
-from qtile_extras.popup.templates.mpris2 import COMPACT_LAYOUT, DEFAULT_LAYOUT
 from qtile_extras.widget.decorations import BorderDecoration, RectDecoration, PowerLineDecoration
 from modules.colors import colors
 
@@ -119,14 +118,13 @@ primary_widgets = [
                 widget.Spacer(
                     ),
                 widget.Mpris2(
-                    popup_layout=COMPACT_LAYOUT,
-                    max_chars=19,
+                    max_chars=20,
                     font='JetBrainsMonoNLNerdFont Bold',
                     fontsize=15,
                     scroll=True,
-                    croll_fixed_width=False,
+                    scroll_fixed_width=True,
                     mouse_callbacks={
-						'Button2': lazy.spawn("python3 /home/cr1ogen/.config/musicwidget/musicwidget.py --toggle")},
+                        'Button2': lazy.spawn("python3 /home/cr1ogen/.config/musicwidget/musicwidget.py --toggle")},
                     ),
                 widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
