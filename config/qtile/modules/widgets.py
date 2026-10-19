@@ -121,7 +121,7 @@ primary_widgets = [
                     width=150,
                     font='JetBrainsMonoNLNerdFont Bold',
                     fontsize=16,
-					padding=6,
+                    padding=6,
                     scroll=True,
                     scroll_fixed_width=True,
                     scroll_interval=0.1,
@@ -129,6 +129,10 @@ primary_widgets = [
                     scroll_repeat=True,
                     mouse_callbacks={
                         'Button2': lazy.spawn("python3 /home/cr1ogen/.config/musicwidget/musicwidget.py --toggle")},
+                    ),
+                widget.Sep(
+                    padding=8,
+                    foreground='#00000000', #transparency
                     ),
                 widget.StatusNotifier(
                     icon_theme='/usr/share/icons/BeautyLine',
@@ -226,7 +230,7 @@ primary_widgets = [
                     fontsize=24,
                     foreground='#ffffff',
                     padding=14,
-		    mouse_callbacks={
+	                mouse_callbacks={
                         'Button1': lazy.spawn("wlogout"),
                         'Button2': lazy.spawn("python3 /home/cr1ogen/.config/syswidget/syswidget.py --toggle"),
                     } 
