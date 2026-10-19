@@ -121,6 +121,7 @@ primary_widgets = [
                     width=150,
                     font='JetBrainsMonoNLNerdFont Bold',
                     fontsize=16,
+					padding=6,
                     scroll=True,
                     scroll_fixed_width=True,
                     scroll_interval=0.1,
