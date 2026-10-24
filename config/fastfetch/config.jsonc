@@ -1,0 +1,47 @@
+
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "source": "/home/cr1ogen/.config/fastfetch/Tuxhack.png",
+    "type": "kitty",
+    "width": 35,
+    "height": 18,
+    "padding": { "top": 3, "left": 2 }
+  },
+  "display": {
+    "separator": " > ",
+    "color": { "keys": "33" },
+    "bar": {
+      "charelapsed": "■",
+      "charRemaining": " ",
+      "width": 15
+    },
+    "percent": { "type": 3 }
+  },
+  "modules": [
+    "title",
+    { "type": "custom", "format": "{#36}┌──────── CYBERDECK OS ───────────────────────┐" },
+    { "type": "os", "key": "{#36}│ {#33}OS  " },
+    { "type": "host", "key": "{#36}│ {#33}HOST" },
+    { "type": "kernel", "key": "{#36}│ {#33}KERN" },
+    { "type": "packages", "key": "{#36}│ {#33}PKGS" },
+    { "type": "shell", "key": "{#36}│ {#33}SHLL" },
+    { "type": "display", "key": "{#36}│ {#33}DISP" },
+    { "type": "de", "key": "{#36}│ {#33}DE  " },
+    { "type": "wm", "key": "{#36}│ {#33}WM  " },
+    { "type": "terminal", "key": "{#36}│ {#33}TERM" },
+    { "type": "custom", "format": "{#36}└─────────────────────────────────────────────┘" },
+    { "type": "custom", "format": "{#31}┌──────── NEUROWARE SYS ──────────────────────┐" },
+    { "type": "cpu", "key": "{#31}│ {#33}CPU ", "format": "{1} ({3}) {#33}{4} {/4}" },
+    { "type": "gpu", "key": "{#31}│ {#33}GPU " },
+    { "type": "memory", "key": "{#31}│ {#33}RAM ", "format": "{1} / {2} {#33}{3} {/3}" },
+    { "type": "swap", "key": "{#31}│ {#33}SWP ", "format": "{1} / {2} {#33}{3} {/3}" },
+    { "type": "disk", "key": "{#31}│ {#33}DSK ", "format": "{1} / {2} ({3}) {#33}{10} {/10}" },
+    { "type": "battery", "key": "{#31}│ {#33}PWR ", "format": "{4} {#33}{5} {/5}" },
+    { "type": "poweradapter", "key": "{#31}│ {#33}ADP " },
+    { "type": "custom", "format": "{#31}└─────────────────────────────────────────────┘" },
+    { "type": "custom", "format": "{#35}┌────── CYBERADIO ─────────────────────┐" },
+    { "type": "localip", "key": "{#35}│ {#33}IP  " },
+    { "type": "custom", "format": "{#35}└─────────────────────────────────────────────┘" },
+  ]
+}
