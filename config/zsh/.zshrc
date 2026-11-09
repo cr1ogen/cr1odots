@@ -86,4 +86,8 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.opencode/bin:$PATH"
 export PATH="$HOME/.config/emacs/bin:$PATH"
+export DEBEMAIL="cr1ogen@protonmail.com"
+export DEBFULLNAME="cr1ogen"
+
+fastfetch
 
