@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Cambiador simple de wallpapers para Wayland usando mpvpaper.
-# Uso: mpv-wall.sh [next|random|list|set <archivo>|daemon <segundos>] [-o <salida>]
+# Uso: mpv-wall.sh [next|random|list|set <archivo>|daemon <segundos>|wallhaven <query>]
 # Por defecto usa ~/Imágenes/wallpapers y la primera salida de `mpvpaper -d`.
 
 set -euo pipefail
@@ -17,6 +17,12 @@ MATUGEN="${MATUGEN:-1}"
 MATUGEN_MODE="${MATUGEN_MODE:-dark}"
 # Evita el prompt interactivo de matugen cuando hay varios colores candidatos
 MATUGEN_PREFER="${MATUGEN_PREFER:-darkness}"
+# Wallhaven.cc
+WH_API="${WH_API:-https://wallhaven.cc/api/v1/search}"
+WH_PURITY="${WH_PURITY:-sfw}"
+WH_CATEGORIES="${WH_CATEGORIES:-100}"   # máscara 3 dígitos: 100=general, 010=anime, 001=people
+WH_RESOLUTION="${WH_RESOLUTION:-1920x1080}"
+WH_LIMIT="${WH_LIMIT:-5}"
 
 detect_output() {
     mpvpaper -d 2>/dev/null | grep -oE 'Output: [^ ]+' | awk '{print $2}' | head -n1
@@ -172,6 +178,77 @@ sync_qtile() {
     fi
 }
 
+# ---------- Wallhaven.cc ----------
+
+wh_api_get() {
+    local query="$1" res="$2" purity="$3" cats="$4"
+    local encoded
+    encoded="$(python3 -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$query")"
+    curl -s --fail --max-time 30 \
+        "${WH_API}?q=${encoded}&sorting=relevance&order=desc&atleast=${res}&ratios=16x9&purity=${purity}&categories=${cats}&apikey=" \
+        2>/dev/null || echo '{}'
+}
+
+wh_parse() {
+    python3 -c '
+import json,sys
+try:
+    d=json.load(sys.stdin)
+except Exception:
+    sys.exit(0)
+for it in d.get("data",[]):
+    p=it.get("path"); i=it.get("id")
+    if p and i:
+        print(p+"\t"+str(i))
+'
+}
+
+cmd_wallhaven() {
+    local query="" apply=0 limit="$WH_LIMIT" res="$WH_RESOLUTION" purity="$WH_PURITY" cats="$WH_CATEGORIES"
+    local first_new=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --apply) apply=1; shift ;;
+            --limit) limit="$2"; shift 2 ;;
+            --res) res="$2"; shift 2 ;;
+            --purity) purity="$2"; shift 2 ;;
+            --categories) cats="$2"; shift 2 ;;
+            -h|--help) echo "Uso: $0 wallhaven <query> [--apply] [--limit N] [--res WxH] [--purity sfw|sketchy|nsfw] [--categories 100]"; return 0 ;;
+            -*) echo "Opción desconocida: $1" >&2; return 1 ;;
+            *) query="$1"; shift ;;
+        esac
+    done
+    [[ -z "$query" ]] && { echo "Uso: $0 wallhaven <query> [--apply] [--limit N] [--res WxH] [--purity sfw] [--categories 100]" >&2; return 1; }
+    mkdir -p "$WALL_DIR"
+    echo "Buscando en Wallhaven: $query ..." >&2
+    local json count=0 saved=0
+    json="$(wh_api_get "$query" "$res" "$purity" "$cats")" || true
+    while IFS=$'\t' read -r path id; do
+        [[ -z "$path" ]] && continue
+        count=$((count+1))
+        [[ $count -gt $limit ]] && break
+        local fname
+        fname="$(basename "$path")"
+        local dst="$WALL_DIR/$fname"
+        if [[ -f "$dst" ]]; then
+            echo "  ya existe: $fname" >&2
+        else
+            echo "  descargando: $fname" >&2
+            if curl -sL --fail --max-time 60 -o "$dst" "$path" 2>/dev/null; then
+                saved=$((saved+1))
+                [[ -z "$first_new" ]] && first_new="$dst"
+            else
+                echo "  falló: $fname" >&2
+                rm -f "$dst"
+            fi
+        fi
+    done < <(wh_parse <<<"$json")
+    echo "Wallhaven: $saved guardado(s) de $count resultado(s) en $WALL_DIR" >&2
+    if [[ $apply -eq 1 && -n "$first_new" ]]; then
+        apply "$first_new"
+    fi
+}
+
 cmd="${1:-random}"
 
 case "$cmd" in
@@ -214,14 +291,18 @@ case "$cmd" in
             sleep "$secs"
         done
         ;;
+    wallhaven|wh)
+        cmd_wallhaven "${@:2}"
+        ;;
     -h|--help|help)
         sed -n '2,5p' "$0"
-        echo "Comandos: next | random | list | set <archivo> | daemon <segundos>"
+        echo "Comandos: next | random | list | set <archivo> | daemon <segundos> | wallhaven <query>"
         echo "Flags: -o <salida> | --no-matugen | --no-qtile | --no-rofi | --no-notify | --matugen-mode <dark|light>"
         echo "Env: WALL_DIR MATUGEN=0/1 QTILE_SYNC=0/1 ROFI_CACHE=0/1 NOTIFY=0/1 MATUGEN_MODE=dark OUTPUT"
+        echo "     WH_PURITY=sfw WH_CATEGORIES=100 WH_RESOLUTION=1920x1080 WH_LIMIT=5"
         ;;
     *)
-        echo "Comando desconocido: $cmd (usa: next, random, list, set, daemon)" >&2
+        echo "Comando desconocido: $cmd (usa: next, random, list, set, daemon, wallhaven)" >&2
         exit 1
         ;;
 esac
