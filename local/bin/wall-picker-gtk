@@ -6,10 +6,13 @@
 # Env: WALL_DIR, OUTPUT, THUMB_DIR, THUMB_W, THUMB_H, PICKER_CMD
 """GTK wallpaper picker for mpv-wall (recursive, cached 16:9 thumbs)."""
 
+import json
 import os
 import shutil
 import subprocess
 import sys
+import threading
+import urllib.parse
 from pathlib import Path
 
 import gi
@@ -26,6 +29,14 @@ THUMB_H = int(os.environ.get("THUMB_H", "180"))
 OUTPUT = os.environ.get("OUTPUT", "")
 EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".webm", ".mkv")
 VID_EXTS = (".mp4", ".webm", ".mkv")
+# Wallhaven.cc
+WH_API = "https://wallhaven.cc/api/v1/search"
+WH_PURITY = os.environ.get("WH_PURITY", "sfw")
+WH_CATEGORIES = os.environ.get("WH_CATEGORIES", "100")  # 100=general, 010=anime, 001=people
+WH_RESOLUTION = os.environ.get("WH_RESOLUTION", "1920x1080")
+WH_LIMIT = int(os.environ.get("WH_LIMIT", "5"))
+WH_PREVIEW_W = int(os.environ.get("WH_PREVIEW_W", "240"))
+WH_PREVIEW_H = int(os.environ.get("WH_PREVIEW_H", "135"))
 
 
 def picker_cmd():
@@ -116,11 +127,8 @@ def thumb_for_ffmpeg(src: Path, thumb: Path) -> Path | None:
     return None
 
 
-def load_pixbuf(path: Path, w: int, h: int):
-    try:
-        return GdkPixbuf.Pixbuf.new_from_file_at_size(str(path), w, h)
-    except GLib.Error:
-        return None
+def run_cmd(cmd: list[str], timeout: int = 60) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
 
 
 class Picker(Gtk.Window):
@@ -137,45 +145,117 @@ class Picker(Gtk.Window):
             vbox.set_property(m, 10)
         self.set_child(vbox)
 
-        top = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        vbox.append(top)
+        # Notebook con dos pestañas: Locales y Wallhaven
+        self.notebook = Gtk.Notebook()
+        vbox.append(self.notebook)
 
-        self.search = Gtk.SearchEntry(placeholder_text=" Buscar wallpaper…")
-        self.search.set_hexpand(True)
-        self.search.connect("search-changed", self.on_search)
-        top.append(self.search)
+        # ---------- Página 1: Locales ----------
+        local_page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        for m in ("margin_top", "margin_bottom",
+                  "margin_start", "margin_end"):
+            local_page.set_property(m, 8)
 
-        self.count = Gtk.Label()
-        top.append(self.count)
+        top_local = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self.search_local = Gtk.SearchEntry(placeholder_text=" Buscar wallpaper…")
+        self.search_local.set_hexpand(True)
+        self.search_local.connect("search-changed", self.on_search_local)
+        top_local.append(self.search_local)
 
-        scroll = Gtk.ScrolledWindow()
-        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll.set_vexpand(True)
-        scroll.set_hexpand(True)
-        vbox.append(scroll)
+        self.count_local = Gtk.Label()
+        top_local.append(self.count_local)
+        local_page.append(top_local)
 
-        self.flow = Gtk.FlowBox()
-        self.flow.set_valign(Gtk.Align.START)
-        self.flow.set_max_children_per_line(3)
-        self.flow.set_selection_mode(Gtk.SelectionMode.SINGLE)
-        self.flow.set_filter_func(self.filter_func)
-        self.flow.connect("child-activated", self.on_activate)
-        scroll.set_child(self.flow)
+        scroll_local = Gtk.ScrolledWindow()
+        scroll_local.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scroll_local.set_vexpand(True)
+        scroll_local.set_hexpand(True)
+        local_page.append(scroll_local)
 
-        self.items: list[tuple[Gtk.FlowBoxChild, Path, str]] = []
+        self.flow_local = Gtk.FlowBox()
+        self.flow_local.set_valign(Gtk.Align.START)
+        self.flow_local.set_max_children_per_line(3)
+        self.flow_local.set_selection_mode(Gtk.SelectionMode.SINGLE)
+        self.flow_local.set_filter_func(self.filter_func_local)
+        self.flow_local.connect("child-activated", self.on_activate_local)
+        scroll_local.set_child(self.flow_local)
+
+        self.items_local: list[tuple[Gtk.FlowBoxChild, Path, str]] = []
         for f in files:
-            child = self.make_item(f)
-            self.flow.append(child)
-        self.update_count()
-        # Thumbs en idle para no congelar la UI con 400 archivos
-        self._pending = list(self.items)
-        GLib.idle_add(self.fill_next_thumb)
+            child = self.make_item_local(f)
+            self.flow_local.append(child)
+        self.update_count_local()
+        self._pending_local = list(self.items_local)
+        GLib.idle_add(self.fill_next_thumb_local)
+
+        self.notebook.append_page(local_page, Gtk.Label(label="Locales"))
+
+        # ---------- Página 2: Wallhaven ----------
+        wh_page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        for m in ("margin_top", "margin_bottom",
+                  "margin_start", "margin_end"):
+            wh_page.set_property(m, 8)
+
+        # fila de búsqueda Wallhaven
+        top_wh = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self.search_wh = Gtk.Entry()
+        self.search_wh.set_placeholder_text("Ej: nature, anime, cyberpunk…")
+        self.search_wh.set_hexpand(True)
+        top_wh.append(self.search_wh)
+
+        self.btn_search_wh = Gtk.Button(label="Buscar")
+        self.btn_search_wh.connect("clicked", self.on_search_wh_clicked)
+        top_wh.append(self.btn_search_wh)
+
+        row_wh = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        row_wh.append(Gtk.Label(label="Límite:"))
+        self.limit_wh = Gtk.SpinButton()
+        self.limit_wh.set_range(1, 30)
+        self.limit_wh.set_value(WH_LIMIT)
+        self.limit_wh.set_numeric(True)
+        row_wh.append(self.limit_wh)
+        top_wh.append(row_wh)
+        wh_page.append(top_wh)
+
+        # resultados con preview (selección múltiple)
+        scroll_wh = Gtk.ScrolledWindow()
+        scroll_wh.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scroll_wh.set_vexpand(True)
+        scroll_wh.set_hexpand(True)
+        wh_page.append(scroll_wh)
+
+        self.flow_wh = Gtk.FlowBox()
+        self.flow_wh.set_valign(Gtk.Align.START)
+        self.flow_wh.set_max_children_per_line(4)
+        self.flow_wh.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
+        self.flow_wh.connect("selected-children-changed",
+                             self.on_selection_changed_wh)
+        scroll_wh.set_child(self.flow_wh)
+
+        self.status_wh = Gtk.Label(label="")
+        self.status_wh.set_hexpand(True)
+        wh_page.append(self.status_wh)
+
+        # barra de botones
+        btns_wh = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        btns_wh.set_halign(Gtk.Align.END)
+        self.btn_download_wh = Gtk.Button(label="Descargar seleccionados")
+        self.btn_download_wh.add_css_class("suggested-action")
+        self.btn_download_wh.set_sensitive(False)
+        self.btn_download_wh.connect("clicked", self.on_download_wh_clicked)
+        btns_wh.append(self.btn_download_wh)
+        wh_page.append(btns_wh)
+
+        self.notebook.append_page(wh_page, Gtk.Label(label="Wallhaven"))
+
+        self.result_data_wh = {}  # child -> (full_url, wall_id, ext)
 
         keys = Gtk.EventControllerKey()
         keys.connect("key-pressed", self.on_key)
         self.add_controller(keys)
 
-    def make_item(self, path: Path) -> Gtk.FlowBoxChild:
+    # ---------- Página Locales ----------
+
+    def make_item_local(self, path: Path) -> Gtk.FlowBoxChild:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         for m in ("margin_top", "margin_bottom",
                   "margin_start", "margin_end"):
@@ -191,19 +271,21 @@ class Picker(Gtk.Window):
         box.append(label)
         child = Gtk.FlowBoxChild()
         child.set_child(box)
-        self.items.append((child, path, rel_of(path).lower()))
+        self.items_local.append((child, path, rel_of(path).lower()))
         return child
 
-    def fill_next_thumb(self):
-        # 3 por ciclo idle: UI fluida, termina solo (~7s con 400 fondos)
+    def fill_next_thumb_local(self):
         for _ in range(3):
-            if not self._pending:
+            if not self._pending_local:
                 return False
-            child, path, _ = self._pending.pop(0)
+            child, path, _ = self._pending_local.pop(0)
             thumb = thumb_for(path)
-            pix = load_pixbuf(thumb or path, THUMB_W, THUMB_H)
-            if pix is not None:
-                tex = Gdk.Texture.new_for_pixbuf(pix)
+            src = thumb or path
+            try:
+                tex = Gdk.Texture.new_from_filename(str(src))
+            except GLib.Error:
+                tex = None
+            if tex is not None:
                 w = child.get_child().get_first_child()
                 while w is not None:
                     if isinstance(w, Gtk.Picture):
@@ -212,38 +294,38 @@ class Picker(Gtk.Window):
                     w = w.get_next_sibling()
         return True
 
-    def filter_func(self, child: Gtk.FlowBoxChild) -> bool:
-        q = self.search.get_text().lower().strip()
+    def filter_func_local(self, child: Gtk.FlowBoxChild) -> bool:
+        q = self.search_local.get_text().lower().strip()
         if not q:
             return True
-        for c, _, rel in self.items:
+        for c, _, rel in self.items_local:
             if c is child:
                 return q in rel
         return True
 
-    def on_search(self, _entry):
-        self.flow.invalidate_filter()
-        self.update_count()
+    def on_search_local(self, _entry):
+        self.flow_local.invalidate_filter()
+        self.update_count_local()
 
-    def update_count(self):
-        visible = sum(1 for c, _, _ in self.items if c.get_visible())
-        self.count.set_text(f"{visible}/{len(self.items)}")
+    def update_count_local(self):
+        visible = sum(1 for c, _, _ in self.items_local if c.get_visible())
+        self.count_local.set_text(f"{visible}/{len(self.items_local)}")
 
     def on_key(self, _ctrl, keyval, _keycode, _state):
         if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
-            sel = self.flow.get_selected_children()
+            sel = self.flow_local.get_selected_children()
             if sel:
-                self.apply(sel[0])
+                self.apply_local(sel[0])
                 return True
         return False
 
-    def on_activate(self, _flow, child):
-        self.apply(child)
+    def on_activate_local(self, _flow, child):
+        self.apply_local(child)
 
-    def apply(self, child: Gtk.FlowBoxChild):
+    def apply_local(self, child: Gtk.FlowBoxChild):
         if self._applying:
             return
-        for c, path, _ in self.items:
+        for c, path, _ in self.items_local:
             if c is child:
                 self._applying = True
                 cmd = picker_cmd() + ["set", str(path)]
@@ -256,6 +338,179 @@ class Picker(Gtk.Window):
                     pass
                 self._loop.quit()
                 return
+
+    def refresh_locals(self):
+        """Vuelve a escanear WALL_DIR y reconstruye la pestaña Locales."""
+        files = sorted(p for p in WALL_DIR.rglob("*")
+                       if p.is_file() and p.suffix.lower() in EXTS)
+        if not files:
+            return False
+        self.files = files
+        for child, _, _ in list(self.items_local):
+            self.flow_local.remove(child)
+        self.items_local.clear()
+        for f in files:
+            child = self.make_item_local(f)
+            self.flow_local.append(child)
+        self.update_count_local()
+        self._pending_local = list(self.items_local)
+        GLib.idle_add(self.fill_next_thumb_local)
+        return False
+
+    # ---------- Página Wallhaven ----------
+
+    def on_search_wh_clicked(self, _button):
+        query = self.search_wh.get_text().strip()
+        if not query:
+            self.status_wh.set_text("Escribe una búsqueda.")
+            return
+        self.btn_search_wh.set_sensitive(False)
+        self.btn_download_wh.set_sensitive(False)
+        self.status_wh.set_text("Buscando en wallhaven.cc…")
+        for child in list(self.result_data_wh.keys()):
+            self.flow_wh.remove(child)
+        self.result_data_wh.clear()
+        limit = int(self.limit_wh.get_value())
+        threading.Thread(target=self._do_wallhaven,
+                         args=(query, limit), daemon=True).start()
+
+    def on_selection_changed_wh(self, _flow):
+        self.btn_download_wh.set_sensitive(
+            len(self.flow_wh.get_selected_children()) > 0)
+
+    def on_download_wh_clicked(self, _button):
+        selected = self.flow_wh.get_selected_children()
+        if not selected:
+            return
+        self.btn_download_wh.set_sensitive(False)
+        self.status_wh.set_text("Descargando seleccionados…")
+        items = [self.result_data_wh[c] for c in selected
+                 if c in self.result_data_wh]
+        threading.Thread(target=self._download_selected_wh,
+                         args=(items,), daemon=True).start()
+
+    # ---------- Wallhaven helpers (curl) ----------
+
+    def _api_search(self, query: str, limit: int) -> list[dict]:
+        q = urllib.parse.quote(query, safe="")
+        url = (f"{WH_API}?q={q}&sorting=relevance&order=desc"
+               f"&atleast={WH_RESOLUTION}&ratios=16x9&purity={WH_PURITY}"
+               f"&categories={WH_CATEGORIES}&apikey=")
+        r = run_cmd(["curl", "-s", "--fail", "--max-time", "30",
+                     "-H", "User-Agent: mpv-wall/1.0", url], timeout=35)
+        if r.returncode != 0:
+            raise RuntimeError(r.stderr.strip() or f"curl exited {r.returncode}")
+        data = json.loads(r.stdout)
+        results = []
+        for it in data.get("data", [])[:limit]:
+            path = it.get("path"); i = it.get("id")
+            thumbs = it.get("thumbs") or {}
+            thumb_url = thumbs.get("original") or thumbs.get("large") or path
+            if path and i:
+                results.append({"path": path, "id": str(i), "thumb_url": thumb_url})
+        return results
+
+    def _download_file(self, url: str, dst: Path, timeout: int = 60) -> bool:
+        try:
+            r = run_cmd(["curl", "-sL", "--fail", "--max-time", str(timeout),
+                         "-H", "User-Agent: mpv-wall/1.0",
+                         "-o", str(dst), url], timeout=timeout + 5)
+            return r.returncode == 0 and dst.is_file() and dst.stat().st_size > 0
+        except Exception:
+            return False
+
+    def _do_wallhaven(self, query: str, limit: int):
+        try:
+            results = self._api_search(query, limit)
+        except Exception as e:
+            GLib.idle_add(self._fail_wh, f"Error de red: {e}")
+            return
+
+        GLib.idle_add(self._clear_flow_wh)
+
+        if not results:
+            GLib.idle_add(self._search_done_wh, 0)
+            return
+
+        THUMB_DIR.mkdir(parents=True, exist_ok=True)
+        for item in results:
+            wall_id = item["id"]
+            thumb_url = item["thumb_url"]
+            thumb_path = THUMB_DIR / f"wh-preview-{wall_id}.jpg"
+            if not (thumb_path.is_file() and thumb_path.stat().st_size > 0):
+                self._download_file(thumb_url, thumb_path, timeout=30)
+            GLib.idle_add(self._add_result_item_wh,
+                          item["path"], wall_id, thumb_path)
+
+        GLib.idle_add(self._search_done_wh, len(results))
+
+    def _clear_flow_wh(self) -> bool:
+        for child in list(self.result_data_wh.keys()):
+            self.flow_wh.remove(child)
+        self.result_data_wh.clear()
+        return False
+
+    def _add_result_item_wh(self, full_url: str, wall_id: str,
+                            thumb_path: Path) -> bool:
+        ext = Path(full_url).suffix or ".jpg"
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        for m in ("margin_top", "margin_bottom", "margin_start", "margin_end"):
+            box.set_property(m, 4)
+
+        img = Gtk.Image()
+        img.set_pixel_size(WH_PREVIEW_W)
+        img.set_hexpand(True)
+        if thumb_path.is_file() and thumb_path.stat().st_size > 0:
+            try:
+                img.set_from_file(str(thumb_path))
+            except GLib.Error:
+                pass
+        box.append(img)
+
+        label = Gtk.Label(label=f"wallhaven-{wall_id}")
+        label.set_ellipsize(Pango.EllipsizeMode.END)
+        label.set_max_width_chars(18)
+        label.add_css_class("dim-label")
+        box.append(label)
+
+        child = Gtk.FlowBoxChild()
+        child.set_child(box)
+        self.flow_wh.append(child)
+        self.result_data_wh[child] = (full_url, wall_id, ext)
+        return False
+
+    def _search_done_wh(self, count: int) -> bool:
+        self.btn_search_wh.set_sensitive(True)
+        self.status_wh.set_text(f"{count} resultado(s) de wallhaven.cc")
+        self.btn_download_wh.set_sensitive(
+            len(self.flow_wh.get_selected_children()) > 0)
+        return False
+
+    def _fail_wh(self, msg: str) -> bool:
+        self.status_wh.set_text(msg)
+        self.btn_search_wh.set_sensitive(True)
+        return False
+
+    def _download_selected_wh(self, items: list[tuple[str, str, str]]):
+        WALL_DIR.mkdir(parents=True, exist_ok=True)
+        saved = 0
+        for full_url, wall_id, ext in items:
+            dst = WALL_DIR / f"wallhaven-{wall_id}{ext}"
+            if dst.exists():
+                continue
+            if self._download_file(full_url, dst, timeout=60):
+                saved += 1
+            else:
+                try:
+                    dst.unlink(missing_ok=True)
+                except Exception:
+                    pass
+        GLib.idle_add(self._finished_wh, saved)
+
+    def _finished_wh(self, saved: int) -> bool:
+        self.status_wh.set_text(f"Descargado(s): {saved}")
+        self.refresh_locals()
+        return False
 
 
 def main(argv: list[str]) -> int:
