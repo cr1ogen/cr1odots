@@ -21,7 +21,7 @@ window {
     location:         center;
     anchor:           center;
     background-color: @bg;
-    border:           1px;
+    border:           6px;
     border-color:     @accent;
     border-radius:    16px;
     padding:          14px;
