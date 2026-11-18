@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # Selector visual de wallpapers (GTK4) para mpv-wall.
-# Busca recursivo en WALL_DIR, thumbs 16:9 cacheados en THUMB_DIR
-# (mismo cache que el viejo wall-picker.sh, compartido).
+# Diseño basado en wallhaven.cc: tema oscuro, pestañas Local/Wallhaven,
+# grid de miniaturas, panel de Tags, paginación y controles de ajuste.
+# Los colores se toman de matugen (~/.config/gtk-4.0/gtk.css).
 # Uso: wall-picker.py [-o <salida>]
 # Env: WALL_DIR, OUTPUT, THUMB_DIR, THUMB_W, THUMB_H, PICKER_CMD
-"""GTK wallpaper picker for mpv-wall (recursive, cached 16:9 thumbs)."""
+"""GTK wallpaper picker for mpv-wall (wallhaven-style UI, matugen colors)."""
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -24,19 +26,211 @@ from gi.repository import Gdk, GdkPixbuf, GLib, Gtk, Pango  # noqa: E402
 
 WALL_DIR = Path(os.environ.get("WALL_DIR", str(Path.home() / "Imágenes/wallpapers")))
 THUMB_DIR = Path(os.environ.get("THUMB_DIR", str(Path.home() / ".cache/mpv-wall-thumbs")))
-THUMB_W = int(os.environ.get("THUMB_W", "320"))
-THUMB_H = int(os.environ.get("THUMB_H", "180"))
+THUMB_W = int(os.environ.get("THUMB_W", "240"))
+THUMB_H = int(os.environ.get("THUMB_H", "135"))
 OUTPUT = os.environ.get("OUTPUT", "")
 EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".webm", ".mkv")
 VID_EXTS = (".mp4", ".webm", ".mkv")
 # Wallhaven.cc
 WH_API = "https://wallhaven.cc/api/v1/search"
 WH_PURITY = os.environ.get("WH_PURITY", "sfw")
-WH_CATEGORIES = os.environ.get("WH_CATEGORIES", "100")  # 100=general, 010=anime, 001=people
+WH_CATEGORIES = os.environ.get("WH_CATEGORIES", "100")
 WH_RESOLUTION = os.environ.get("WH_RESOLUTION", "1920x1080")
-WH_LIMIT = int(os.environ.get("WH_LIMIT", "5"))
+WH_LIMIT = int(os.environ.get("WH_LIMIT", "24"))
 WH_PREVIEW_W = int(os.environ.get("WH_PREVIEW_W", "240"))
 WH_PREVIEW_H = int(os.environ.get("WH_PREVIEW_H", "135"))
+
+# ---------- Colores de matugen desde ~/.config/gtk-4.0/gtk.css ----------
+MATUGEN_GTK_CSS = Path.home() / ".config/gtk-4.0/gtk.css"
+
+
+def load_matugen_colors() -> dict:
+    """Lee los colores dark de ~/.config/gtk-4.0/gtk.css generados por matugen."""
+    defaults = {
+        "bg": "#191112",
+        "fg": "#efdfde",
+        "accent": "#ffb3b5",
+        "surface": "#261d1e",
+        "surface_hover": "#663e3f",
+        "muted": "#dac1c0",
+        "border": "#877272",
+    }
+    try:
+        if MATUGEN_GTK_CSS.is_file():
+            text = MATUGEN_GTK_CSS.read_text()
+            # Extraer solo el bloque @media (prefers-color-scheme: dark)
+            dark_match = re.search(
+                r'@media\s*\(prefers-color-scheme:\s*dark\)\s*\{(.*?)\n\}', text, re.DOTALL)
+            if dark_match:
+                block = dark_match.group(1)
+            else:
+                block = text
+            # Buscar @define-color nombre #hex o rgba(...)
+            colors = {}
+            for m in re.finditer(
+                    r'@define-color\s+(\w+)\s+#([0-9a-fA-F]{6});', block):
+                name = m.group(1)
+                hexval = "#" + m.group(2)
+                colors[name] = hexval
+            # Mapear nombres de matugen a nuestros roles
+            bg = colors.get("window_bg_color", defaults["bg"])
+            fg = colors.get("window_fg_color", defaults["fg"])
+            accent = colors.get("accent_color", defaults["accent"])
+            surface = colors.get("card_bg_color", defaults["surface"])
+            surface_hover = colors.get(
+                "sidebar_row_active_bg_color", defaults["surface_hover"])
+            muted = colors.get("secondary_sidebar_fg_color", defaults["muted"])
+            border = colors.get("outline", defaults["border"])
+            return {
+                "bg": bg, "fg": fg, "accent": accent,
+                "surface": surface, "surface_hover": surface_hover,
+                "muted": muted, "border": border,
+            }
+    except Exception:
+        pass
+    return defaults
+
+
+def build_css(c: dict) -> str:
+    return f"""
+* {{
+    font-family: 'Inter', 'Noto Sans', sans-serif;
+    font-size: 13px;
+}}
+window {{
+    background: {c['bg']};
+    color: {c['fg']};
+}}
+.title-label {{
+    font-size: 20px;
+    font-weight: bold;
+    color: {c['accent']};
+}}
+.subtitle-label {{
+    font-size: 12px;
+    color: {c['muted']};
+}}
+.tab-button {{
+    background: {c['surface']};
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    color: {c['fg']};
+    font-weight: bold;
+    min-width: 80px;
+}}
+.tab-button:checked {{
+    background: {c['surface_hover']};
+    color: {c['fg']};
+}}
+.search-entry {{
+    background: {c['surface']};
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: {c['fg']};
+    caret-color: {c['accent']};
+}}
+.category-button {{
+    background: {c['surface']};
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: {c['fg']};
+}}
+.category-button:checked {{
+    background: {c['surface_hover']};
+    color: {c['fg']};
+}}
+.flowbox {{
+    background: transparent;
+}}
+.flowbox > flowboxchild {{
+    background: transparent;
+    border-radius: 8px;
+    padding: 4px;
+}}
+.flowbox > flowboxchild:selected {{
+    background: {c['surface_hover']};
+    border: 2px solid {c['accent']};
+    border-radius: 8px;
+}}
+.thumb-image {{
+    border-radius: 6px;
+    border: 1px solid {c['border']};
+}}
+.resolution-label {{
+    font-size: 11px;
+    color: {c['muted']};
+    background: rgba(0,0,0,0.6);
+    padding: 2px 6px;
+    border-radius: 4px;
+}}
+.info-label {{
+    font-size: 12px;
+    color: {c['muted']};
+}}
+.status-label {{
+    font-size: 12px;
+    color: {c['accent']};
+}}
+.pagination-button {{
+    background: {c['surface']};
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    color: {c['fg']};
+}}
+.pagination-button:disabled {{
+    color: #555;
+}}
+.tags-panel {{
+    background: {c['surface']};
+    border-radius: 8px;
+    padding: 12px;
+}}
+.tags-title {{
+    font-size: 14px;
+    font-weight: bold;
+    color: {c['accent']};
+}}
+.tags-button {{
+    background: {c['surface']};
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    color: {c['fg']};
+    font-size: 11px;
+    margin: 2px;
+}}
+.tags-button:checked {{
+    background: {c['surface_hover']};
+    color: {c['fg']};
+}}
+.apply-button {{
+    background: {c['accent']};
+    border: none;
+    border-radius: 6px;
+    padding: 8px 24px;
+    color: #000;
+    font-weight: bold;
+}}
+.apply-button:disabled {{
+    background: #555;
+    color: #888;
+}}
+"""
+
+
+CSS_PROVIDER = Gtk.CssProvider()
+
+
+def apply_css(colors: dict):
+    css = build_css(colors)
+    CSS_PROVIDER.load_from_data(css.encode("utf-8"))
+    Gtk.StyleContext.add_provider_for_display(
+        Gdk.Display.get_default(), CSS_PROVIDER,
+        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 
 def picker_cmd():
@@ -59,7 +253,7 @@ def rel_of(path: Path) -> str:
 
 
 def thumb_for(src: Path) -> Path | None:
-    """Devuelve thumb 320x180 cacheado (lo genera si falta o es viejo)."""
+    """Devuelve thumb cacheado (lo genera si falta o es viejo)."""
     THUMB_DIR.mkdir(parents=True, exist_ok=True)
     safe = rel_of(src).replace("/", "_")
     thumb = THUMB_DIR / f"{safe}.thumb.jpg"
@@ -101,11 +295,7 @@ def thumb_for(src: Path) -> Path | None:
 
 
 def thumb_for_ffmpeg(src: Path, thumb: Path) -> Path | None:
-    """Plan B sin ImageMagick: videos/gif vía ffmpeg con scale+crop.
-
-    Imágenes fijas devuelven None a propósito: el llamador ya las
-    carga directo con GdkPixbuf (sin caché, pero se ven).
-    """
+    """Plan B sin ImageMagick: videos/gif vía ffmpeg."""
     name = src.name.lower()
     if not name.endswith(VID_EXTS + (".gif",)):
         return None
@@ -114,7 +304,6 @@ def thumb_for_ffmpeg(src: Path, thumb: Path) -> Path | None:
     vf = (f"scale={THUMB_W}:{THUMB_H}:force_original_aspect_ratio=increase,"
           f"crop={THUMB_W}:{THUMB_H}")
     try:
-        # -ss 2 falla en clips más cortos: reintento desde el inicio.
         for seek in ("2", "0"):
             r = subprocess.run(
                 ["ffmpeg", "-y", "-loglevel", "error", "-ss", seek,
@@ -132,50 +321,121 @@ def run_cmd(cmd: list[str], timeout: int = 60) -> subprocess.CompletedProcess:
 
 
 class Picker(Gtk.Window):
-    def __init__(self, files: list[Path], loop: GLib.MainLoop):
-        super().__init__(title="Wallpapers")
+    def __init__(self, files: list[Path], loop: GLib.MainLoop, colors: dict):
+        super().__init__(title="Fondo de pantalla")
         self.files = files
         self._loop = loop
-        self.set_default_size(1200, 750)
+        self.colors = colors
+        self.set_default_size(1200, 800)
         self._applying = False
 
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        for m in ("margin_top", "margin_bottom",
-                  "margin_start", "margin_end"):
-            vbox.set_property(m, 10)
+        apply_css(colors)
+
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        vbox.set_margin_top(16)
+        vbox.set_margin_bottom(16)
+        vbox.set_margin_start(16)
+        vbox.set_margin_end(16)
         self.set_child(vbox)
 
-        # Notebook con dos pestañas: Locales y Wallhaven
-        self.notebook = Gtk.Notebook()
-        vbox.append(self.notebook)
+        # ---------- Header ----------
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16)
+        header.set_halign(Gtk.Align.FILL)
+        header.set_valign(Gtk.Align.START)
 
-        # ---------- Página 1: Locales ----------
-        local_page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        for m in ("margin_top", "margin_bottom",
-                  "margin_start", "margin_end"):
-            local_page.set_property(m, 8)
+        self.title_lbl = Gtk.Label(label="Fondo de pantalla")
+        self.title_lbl.add_css_class("title-label")
+        header.append(self.title_lbl)
+
+        header.append(Gtk.Label(label="  "))
+
+        # Ajuste
+        ajuste_lbl = Gtk.Label(label="Ajuste:")
+        ajuste_lbl.add_css_class("subtitle-label")
+        header.append(ajuste_lbl)
+
+        self.btn_centrada = Gtk.ToggleButton(label="Centrada")
+        self.btn_centrada.add_css_class("category-button")
+        self.btn_centrada.set_active(True)
+        header.append(self.btn_centrada)
+
+        self.btn_full = Gtk.ToggleButton(label="Full")
+        self.btn_full.add_css_class("category-button")
+        header.append(self.btn_full)
+
+        self.btn_estirada = Gtk.ToggleButton(label="Estirada")
+        self.btn_estirada.add_css_class("category-button")
+        header.append(self.btn_estirada)
+
+        header.append(Gtk.Label(label="  "))
+
+        # Instrucciones
+        instr = Gtk.Label()
+        instr.set_markup(
+            f'<span foreground="{colors["muted"]}" size="small">'
+            'Clic: ampliar vista previa &#160;·&#160; '
+            'Doble clic: descargar y aplicar fondo</span>')
+        header.append(instr)
+
+        vbox.append(header)
+
+        # ---------- Separador ----------
+        sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+        vbox.append(sep)
+
+        # ---------- Pestañas Local / Wallhaven ----------
+        tabs_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        tabs_box.set_margin_top(12)
+        tabs_box.set_margin_bottom(8)
+
+        self.tab_local = Gtk.ToggleButton(label="Local")
+        self.tab_local.add_css_class("tab-button")
+        self.tab_local.set_active(True)
+        self.tab_local.connect("toggled", self.on_tab_toggled)
+        tabs_box.append(self.tab_local)
+
+        self.tab_wh = Gtk.ToggleButton(label="Wallhaven")
+        self.tab_wh.add_css_class("tab-button")
+        self.tab_wh.connect("toggled", self.on_tab_toggled)
+        tabs_box.append(self.tab_wh)
+
+        tabs_box.append(Gtk.Label(label="  "))
+
+        # Botón cerrar
+        self.btn_close = Gtk.Button(label="✕")
+        self.btn_close.add_css_class("category-button")
+        self.btn_close.connect("clicked", lambda _b: self.close())
+        tabs_box.append(self.btn_close)
+
+        vbox.append(tabs_box)
+
+        # ---------- Página Local ----------
+        self.page_local = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
 
         top_local = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        self.search_local = Gtk.SearchEntry(placeholder_text=" Buscar wallpaper…")
+        self.search_local = Gtk.SearchEntry()
+        self.search_local.set_placeholder_text("Buscar wallpapers locales…")
         self.search_local.set_hexpand(True)
+        self.search_local.add_css_class("search-entry")
         self.search_local.connect("search-changed", self.on_search_local)
         top_local.append(self.search_local)
 
-        self.count_local = Gtk.Label()
+        self.count_local = Gtk.Label(label="")
+        self.count_local.add_css_class("info-label")
         top_local.append(self.count_local)
-        local_page.append(top_local)
+
+        self.page_local.append(top_local)
 
         scroll_local = Gtk.ScrolledWindow()
         scroll_local.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scroll_local.set_vexpand(True)
         scroll_local.set_hexpand(True)
-        local_page.append(scroll_local)
+        self.page_local.append(scroll_local)
 
         self.flow_local = Gtk.FlowBox()
         self.flow_local.set_valign(Gtk.Align.START)
-        self.flow_local.set_max_children_per_line(3)
+        self.flow_local.set_max_children_per_line(4)
         self.flow_local.set_selection_mode(Gtk.SelectionMode.SINGLE)
-        self.flow_local.set_filter_func(self.filter_func_local)
         self.flow_local.connect("child-activated", self.on_activate_local)
         scroll_local.set_child(self.flow_local)
 
@@ -187,41 +447,55 @@ class Picker(Gtk.Window):
         self._pending_local = list(self.items_local)
         GLib.idle_add(self.fill_next_thumb_local)
 
-        self.notebook.append_page(local_page, Gtk.Label(label="Locales"))
+        # ---------- Página Wallhaven ----------
+        self.page_wh = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
 
-        # ---------- Página 2: Wallhaven ----------
-        wh_page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        for m in ("margin_top", "margin_bottom",
-                  "margin_start", "margin_end"):
-            wh_page.set_property(m, 8)
-
-        # fila de búsqueda Wallhaven
+        # Barra de búsqueda Wallhaven
         top_wh = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         self.search_wh = Gtk.Entry()
-        self.search_wh.set_placeholder_text("Ej: nature, anime, cyberpunk…")
+        self.search_wh.set_placeholder_text(
+            "Buscar en wallhaven.cc (vacío = populares)…")
         self.search_wh.set_hexpand(True)
+        self.search_wh.add_css_class("search-entry")
+        self.search_wh.connect("activate", lambda _e: self.on_search_wh())
         top_wh.append(self.search_wh)
 
-        self.btn_search_wh = Gtk.Button(label="Buscar")
-        self.btn_search_wh.connect("clicked", self.on_search_wh_clicked)
-        top_wh.append(self.btn_search_wh)
+        btn_search_wh = Gtk.Button(label="Buscar")
+        btn_search_wh.add_css_class("category-button")
+        btn_search_wh.connect("clicked", lambda _b: self.on_search_wh())
+        top_wh.append(btn_search_wh)
 
-        row_wh = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        row_wh.append(Gtk.Label(label="Límite:"))
-        self.limit_wh = Gtk.SpinButton()
-        self.limit_wh.set_range(1, 30)
-        self.limit_wh.set_value(WH_LIMIT)
-        self.limit_wh.set_numeric(True)
-        row_wh.append(self.limit_wh)
-        top_wh.append(row_wh)
-        wh_page.append(top_wh)
+        # Categorías
+        cat_lbl = Gtk.Label(label="Categoría:")
+        cat_lbl.add_css_class("subtitle-label")
+        top_wh.append(cat_lbl)
 
-        # resultados con preview (selección múltiple)
+        self.cat_general = Gtk.ToggleButton(label="General")
+        self.cat_general.add_css_class("category-button")
+        self.cat_general.set_active(True)
+        top_wh.append(self.cat_general)
+
+        self.cat_anime = Gtk.ToggleButton(label="Anime")
+        self.cat_anime.add_css_class("category-button")
+        top_wh.append(self.cat_anime)
+
+        self.cat_personas = Gtk.ToggleButton(label="Personas")
+        self.cat_personas.add_css_class("category-button")
+        top_wh.append(self.cat_personas)
+
+        self.page_wh.append(top_wh)
+
+        # Área principal con scroll + panel de tags
+        main_wh = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        main_wh.set_hexpand(True)
+        main_wh.set_vexpand(True)
+        self.page_wh.append(main_wh)
+
         scroll_wh = Gtk.ScrolledWindow()
         scroll_wh.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scroll_wh.set_vexpand(True)
         scroll_wh.set_hexpand(True)
-        wh_page.append(scroll_wh)
+        main_wh.append(scroll_wh)
 
         self.flow_wh = Gtk.FlowBox()
         self.flow_wh.set_valign(Gtk.Align.START)
@@ -229,46 +503,127 @@ class Picker(Gtk.Window):
         self.flow_wh.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
         self.flow_wh.connect("selected-children-changed",
                              self.on_selection_changed_wh)
+        self.flow_wh.connect("child-activated", self.on_activate_wh)
         scroll_wh.set_child(self.flow_wh)
 
-        self.status_wh = Gtk.Label(label="")
-        self.status_wh.set_hexpand(True)
-        wh_page.append(self.status_wh)
+        # Panel lateral de Tags
+        self.tags_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        self.tags_panel.set_hexpand(False)
+        self.tags_panel.set_halign(Gtk.Align.FILL)
+        self.tags_panel.add_css_class("tags-panel")
 
-        # barra de botones
-        btns_wh = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        btns_wh.set_halign(Gtk.Align.END)
-        self.btn_download_wh = Gtk.Button(label="Descargar seleccionados")
-        self.btn_download_wh.add_css_class("suggested-action")
+        tags_title = Gtk.Label(label="Tags")
+        tags_title.add_css_class("tags-title")
+        self.tags_panel.append(tags_title)
+
+        self.tags_flow = Gtk.FlowBox()
+        self.tags_flow.set_valign(Gtk.Align.START)
+        self.tags_flow.set_max_children_per_line(1)
+        self.tags_flow.set_homogeneous(False)
+        self.tags_panel.append(self.tags_flow)
+
+        main_wh.append(self.tags_panel)
+
+        # Barra inferior Wallhaven (paginación + descargar)
+        bottom_wh = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        bottom_wh.set_margin_top(8)
+
+        self.status_wh = Gtk.Label(label="")
+        self.status_wh.add_css_class("status-label")
+        bottom_wh.append(self.status_wh)
+
+        bottom_wh.append(Gtk.Label(label="  "))
+
+        self.btn_pag_ant = Gtk.ToggleButton(label="〈 Anterior")
+        self.btn_pag_ant.add_css_class("pagination-button")
+        self.btn_pag_ant.set_sensitive(False)
+        self.btn_pag_ant.connect("clicked", self.on_pag_ant)
+        bottom_wh.append(self.btn_pag_ant)
+
+        self.pag_lbl = Gtk.Label(label="Página 1 de 1")
+        self.pag_lbl.add_css_class("info-label")
+        bottom_wh.append(self.pag_lbl)
+
+        self.btn_pag_sig = Gtk.ToggleButton(label="Siguiente 〉")
+        self.btn_pag_sig.add_css_class("pagination-button")
+        self.btn_pag_sig.connect("clicked", self.on_pag_sig)
+        bottom_wh.append(self.btn_pag_sig)
+
+        bottom_wh.append(Gtk.Label(label="  "))
+        instr2 = Gtk.Label()
+        instr2.set_markup(
+            "Flechas: moverse &#160;·&#160; Enter: descargar y aplicar")
+        instr2.add_css_class("subtitle-label")
+        bottom_wh.append(instr2)
+
+        self.btn_download_wh = Gtk.Button(label="Descargar y aplicar fondo")
+        self.btn_download_wh.add_css_class("apply-button")
         self.btn_download_wh.set_sensitive(False)
         self.btn_download_wh.connect("clicked", self.on_download_wh_clicked)
-        btns_wh.append(self.btn_download_wh)
-        wh_page.append(btns_wh)
+        bottom_wh.append(self.btn_download_wh)
 
-        self.notebook.append_page(wh_page, Gtk.Label(label="Wallhaven"))
+        self.page_wh.append(bottom_wh)
 
-        self.result_data_wh = {}  # child -> (full_url, wall_id, ext)
+        # ---------- Stack para cambiar de página ----------
+        self.stack = Gtk.Stack()
+        self.stack.add_titled(self.page_local, "local", "Local")
+        self.stack.add_titled(self.page_wh, "wallhaven", "Wallhaven")
+        self.stack.set_visible_child_name("local")
+        vbox.append(self.stack)
 
+        # Teclado
         keys = Gtk.EventControllerKey()
         keys.connect("key-pressed", self.on_key)
         self.add_controller(keys)
 
-    # ---------- Página Locales ----------
+        # Estado Wallhaven
+        self.result_data_wh = {}  # child -> (full_url, wall_id, ext, resolution)
+        self.tags_flow_children = []  # hijos del tags_flow (FlowBox no tiene get_children)
+        self.wh_page = 1
+        self.wh_query = ""
+        self.wh_total = 0
+
+    # ---------- Pestañas ----------
+
+    def on_tab_toggled(self, toggle):
+        # Exclusión mutua: solo una pestaña activa a la vez
+        if toggle is self.tab_local and self.tab_local.get_active():
+            if self.tab_wh.get_active():
+                self.tab_wh.set_active(False)
+            self.stack.set_visible_child_name("local")
+        elif toggle is self.tab_wh and self.tab_wh.get_active():
+            if self.tab_local.get_active():
+                self.tab_local.set_active(False)
+            self.stack.set_visible_child_name("wallhaven")
+            # Búsqueda automática de populares al abrir la pestaña Wallhaven
+            if not self.result_data_wh:
+                GLib.idle_add(self._auto_search_wallhaven)
+
+    def _auto_search_wallhaven(self) -> bool:
+        self.on_search_wh()
+        return False
+
+    # ---------- Página Local ----------
 
     def make_item_local(self, path: Path) -> Gtk.FlowBoxChild:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-        for m in ("margin_top", "margin_bottom",
-                  "margin_start", "margin_end"):
-            box.set_property(m, 6)
+        box.set_margin_top(6)
+        box.set_margin_bottom(6)
+        box.set_margin_start(6)
+        box.set_margin_end(6)
+
         img = Gtk.Picture()
         img.set_size_request(THUMB_W, THUMB_H)
-        img.set_content_fit(Gtk.ContentFit.CONTAIN)
+        img.set_content_fit(Gtk.ContentFit.COVER)
+        img.add_css_class("thumb-image")
         box.append(img)
+
         label = Gtk.Label(label=rel_of(path))
         label.set_ellipsize(Pango.EllipsizeMode.END)
-        label.set_max_width_chars(28)
-        label.add_css_class("dim-label")
+        label.set_max_width_chars(22)
+        label.add_css_class("info-label")
         box.append(label)
+
         child = Gtk.FlowBoxChild()
         child.set_child(box)
         self.items_local.append((child, path, rel_of(path).lower()))
@@ -294,15 +649,6 @@ class Picker(Gtk.Window):
                     w = w.get_next_sibling()
         return True
 
-    def filter_func_local(self, child: Gtk.FlowBoxChild) -> bool:
-        q = self.search_local.get_text().lower().strip()
-        if not q:
-            return True
-        for c, _, rel in self.items_local:
-            if c is child:
-                return q in rel
-        return True
-
     def on_search_local(self, _entry):
         self.flow_local.invalidate_filter()
         self.update_count_local()
@@ -310,14 +656,6 @@ class Picker(Gtk.Window):
     def update_count_local(self):
         visible = sum(1 for c, _, _ in self.items_local if c.get_visible())
         self.count_local.set_text(f"{visible}/{len(self.items_local)}")
-
-    def on_key(self, _ctrl, keyval, _keycode, _state):
-        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
-            sel = self.flow_local.get_selected_children()
-            if sel:
-                self.apply_local(sel[0])
-                return True
-        return False
 
     def on_activate_local(self, _flow, child):
         self.apply_local(child)
@@ -339,8 +677,244 @@ class Picker(Gtk.Window):
                 self._loop.quit()
                 return
 
+    # ---------- Página Wallhaven ----------
+
+    def on_search_wh(self):
+        query = self.search_wh.get_text().strip()
+        cats = self._wh_categories_mask()
+        self._do_wallhaven_search(query, cats, page=1)
+
+    def _wh_categories_mask(self) -> str:
+        if self.cat_anime.get_active():
+            return "010"
+        if self.cat_personas.get_active():
+            return "001"
+        return "100"
+
+    def _do_wallhaven_search(self, query: str, categories: str, page: int):
+        self.btn_pag_ant.set_sensitive(False)
+        self.btn_pag_sig.set_sensitive(False)
+        self.status_wh.set_text("Buscando en wallhaven.cc…")
+        for child in list(self.result_data_wh.keys()):
+            self.flow_wh.remove(child)
+        self.result_data_wh.clear()
+        for child in list(self.tags_flow_children):
+            self.tags_flow.remove(child)
+        self.tags_flow_children.clear()
+        self.wh_query = query
+        self.wh_page = page
+        threading.Thread(
+            target=self._do_wallhaven_thread,
+            args=(query, categories, page),
+            daemon=True).start()
+
+    def _do_wallhaven_thread(self, query: str, categories: str, page: int):
+        try:
+            results, total, tags, last_page = self._api_search(query, categories, page)
+        except Exception as e:
+            GLib.idle_add(self._fail_wh, f"Error de red: {e}")
+            return
+
+        GLib.idle_add(self._clear_flow_wh)
+
+        if not results:
+            GLib.idle_add(self._search_done_wh, 0, total, tags, last_page)
+            return
+
+        THUMB_DIR.mkdir(parents=True, exist_ok=True)
+        for item in results:
+            wall_id = item["id"]
+            thumb_url = item["thumb_url"]
+            full_url = item["path"]
+            resolution = item.get("resolution", "")
+            thumb_path = THUMB_DIR / f"wh-preview-{wall_id}.jpg"
+            if not (thumb_path.is_file() and thumb_path.stat().st_size > 0):
+                self._download_file(thumb_url, thumb_path, timeout=30)
+            GLib.idle_add(self._add_result_item_wh,
+                          full_url, wall_id, thumb_path, resolution)
+
+        GLib.idle_add(self._search_done_wh, len(results), total, tags, last_page)
+
+    # ---------- Wallhaven helpers (curl) ----------
+
+    def _api_search(self, query: str, categories: str, page: int):
+        q = urllib.parse.quote(query, safe="") if query else ""
+        url = (f"{WH_API}?q={q}&sorting=relevance&order=desc"
+               f"&atleast={WH_RESOLUTION}&ratios=16x9&purity={WH_PURITY}"
+               f"&categories={categories}&page={page}&apikey=")
+        r = run_cmd(["curl", "-s", "--fail", "--max-time", "30",
+                     "-H", "User-Agent: mpv-wall/1.0", url], timeout=35)
+        if r.returncode != 0:
+            raise RuntimeError(r.stderr.strip() or f"curl exited {r.returncode}")
+        data = json.loads(r.stdout)
+        meta = data.get("meta", {})
+        total = meta.get("total", 0)
+        last_page = meta.get("last_page", 1)
+        tags = meta.get("tags", [])
+        results = []
+        for it in data.get("data", []):
+            path = it.get("path"); i = it.get("id")
+            thumbs = it.get("thumbs") or {}
+            thumb_url = thumbs.get("original") or thumbs.get("large") or path
+            dims = it.get("dimensions") or {}
+            resolution = f"{dims.get('width','?')}x{dims.get('height','?')}"
+            if path and i:
+                results.append({
+                    "path": path, "id": str(i),
+                    "thumb_url": thumb_url, "resolution": resolution})
+        return results, total, tags, last_page
+
+    def _download_file(self, url: str, dst: Path, timeout: int = 60) -> bool:
+        try:
+            r = run_cmd(["curl", "-sL", "--fail", "--max-time", str(timeout),
+                         "-H", "User-Agent: mpv-wall/1.0",
+                         "-o", str(dst), url], timeout=timeout + 5)
+            return r.returncode == 0 and dst.is_file() and dst.stat().st_size > 0
+        except Exception:
+            return False
+
+    def _clear_flow_wh(self) -> bool:
+        for child in list(self.result_data_wh.keys()):
+            self.flow_wh.remove(child)
+        self.result_data_wh.clear()
+        for child in list(self.tags_flow_children):
+            self.tags_flow.remove(child)
+        self.tags_flow_children.clear()
+        return False
+
+    def _add_result_item_wh(self, full_url: str, wall_id: str,
+                            thumb_path: Path, resolution: str) -> bool:
+        ext = Path(full_url).suffix or ".jpg"
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        box.set_margin_top(6)
+        box.set_margin_bottom(6)
+        box.set_margin_start(6)
+        box.set_margin_end(6)
+
+        img = Gtk.Image()
+        img.set_pixel_size(WH_PREVIEW_W)
+        img.set_hexpand(True)
+        img.add_css_class("thumb-image")
+        if thumb_path.is_file() and thumb_path.stat().st_size > 0:
+            try:
+                img.set_from_file(str(thumb_path))
+            except GLib.Error:
+                pass
+        box.append(img)
+
+        res_label = Gtk.Label(label=resolution)
+        res_label.add_css_class("resolution-label")
+        res_label.set_halign(Gtk.Align.START)
+        box.append(res_label)
+
+        child = Gtk.FlowBoxChild()
+        child.set_child(box)
+        self.flow_wh.append(child)
+        self.result_data_wh[child] = (full_url, wall_id, ext, resolution)
+        return False
+
+    def _search_done_wh(self, count: int, total: int, tags: list, last_page: int) -> bool:
+        self.status_wh.set_text(f"{count} resultado(s) de wallhaven.cc")
+
+        # Paginación
+        self.pag_lbl.set_text(f"Página {self.wh_page} de {last_page}")
+        self.btn_pag_ant.set_sensitive(self.wh_page > 1)
+        self.btn_pag_sig.set_sensitive(self.wh_page < last_page)
+
+        # Tags
+        for t in tags[:12]:
+            name = t.get("tag", "")
+            btn = Gtk.ToggleButton(label=name)
+            btn.add_css_class("tags-button")
+            btn.connect("toggled", lambda _b, tag=name: self.on_tag_toggled(tag))
+            self.tags_flow.append(btn)
+            self.tags_flow_children.append(btn)
+
+        self.btn_download_wh.set_sensitive(
+            len(self.flow_wh.get_selected_children()) > 0)
+        return False
+
+    def _fail_wh(self, msg: str) -> bool:
+        self.status_wh.set_text(msg)
+        return False
+
+    def on_selection_changed_wh(self, _flow):
+        self.btn_download_wh.set_sensitive(
+            len(self.flow_wh.get_selected_children()) > 0)
+
+    def on_activate_wh(self, _flow, child):
+        # Doble clic: descargar y aplicar el primero seleccionado
+        sel = self.flow_wh.get_selected_children()
+        if sel:
+            self._download_and_apply_one(sel[0])
+
+    def on_tag_toggled(self, tag: str):
+        # Buscar por tag
+        self.search_wh.set_text(tag)
+        self.on_search_wh()
+
+    def on_pag_ant(self, _button):
+        if self.wh_page > 1:
+            self._do_wallhaven_search(self.wh_query, self._wh_categories_mask(),
+                                      self.wh_page - 1)
+
+    def on_pag_sig(self, _button):
+        self._do_wallhaven_search(self.wh_query, self._wh_categories_mask(),
+                                  self.wh_page + 1)
+
+    def on_download_wh_clicked(self, _button):
+        selected = self.flow_wh.get_selected_children()
+        if not selected:
+            return
+        # Descargar y aplicar el primero
+        self._download_and_apply_one(selected[0])
+
+    def _download_and_apply_one(self, child: Gtk.FlowBoxChild):
+        if child not in self.result_data_wh:
+            return
+        full_url, wall_id, ext, _resolution = self.result_data_wh[child]
+        self.btn_download_wh.set_sensitive(False)
+        self.status_wh.set_text("Descargando y aplicando fondo…")
+
+        def worker():
+            WALL_DIR.mkdir(parents=True, exist_ok=True)
+            dst = WALL_DIR / f"wallhaven-{wall_id}{ext}"
+            ok = False
+            if not dst.exists():
+                ok = self._download_file(full_url, dst, timeout=60)
+                if not ok:
+                    try:
+                        dst.unlink(missing_ok=True)
+                    except Exception:
+                        pass
+            else:
+                ok = True
+            GLib.idle_add(self._apply_downloaded, dst if ok else None, wall_id)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _apply_downloaded(self, dst: Path | None, wall_id: str) -> bool:
+        if dst is None:
+            self.status_wh.set_text("Error descargando el wallpaper")
+            self.btn_download_wh.set_sensitive(
+                len(self.flow_wh.get_selected_children()) > 0)
+            return False
+        self.status_wh.set_text(f"wallhaven-{wall_id} aplicado")
+        # Refrescar locales
+        self.refresh_locals()
+        # Aplicar como fondo
+        cmd = picker_cmd() + ["set", str(dst)]
+        env = dict(os.environ)
+        if OUTPUT:
+            env["OUTPUT"] = OUTPUT
+        try:
+            subprocess.run(cmd, env=env, timeout=120)
+        except (OSError, subprocess.SubprocessError):
+            pass
+        self.btn_download_wh.set_sensitive(False)
+        return False
+
     def refresh_locals(self):
-        """Vuelve a escanear WALL_DIR y reconstruye la pestaña Locales."""
         files = sorted(p for p in WALL_DIR.rglob("*")
                        if p.is_file() and p.suffix.lower() in EXTS)
         if not files:
@@ -357,159 +931,22 @@ class Picker(Gtk.Window):
         GLib.idle_add(self.fill_next_thumb_local)
         return False
 
-    # ---------- Página Wallhaven ----------
+    # ---------- Teclado ----------
 
-    def on_search_wh_clicked(self, _button):
-        query = self.search_wh.get_text().strip()
-        if not query:
-            self.status_wh.set_text("Escribe una búsqueda.")
-            return
-        self.btn_search_wh.set_sensitive(False)
-        self.btn_download_wh.set_sensitive(False)
-        self.status_wh.set_text("Buscando en wallhaven.cc…")
-        for child in list(self.result_data_wh.keys()):
-            self.flow_wh.remove(child)
-        self.result_data_wh.clear()
-        limit = int(self.limit_wh.get_value())
-        threading.Thread(target=self._do_wallhaven,
-                         args=(query, limit), daemon=True).start()
-
-    def on_selection_changed_wh(self, _flow):
-        self.btn_download_wh.set_sensitive(
-            len(self.flow_wh.get_selected_children()) > 0)
-
-    def on_download_wh_clicked(self, _button):
-        selected = self.flow_wh.get_selected_children()
-        if not selected:
-            return
-        self.btn_download_wh.set_sensitive(False)
-        self.status_wh.set_text("Descargando seleccionados…")
-        items = [self.result_data_wh[c] for c in selected
-                 if c in self.result_data_wh]
-        threading.Thread(target=self._download_selected_wh,
-                         args=(items,), daemon=True).start()
-
-    # ---------- Wallhaven helpers (curl) ----------
-
-    def _api_search(self, query: str, limit: int) -> list[dict]:
-        q = urllib.parse.quote(query, safe="")
-        url = (f"{WH_API}?q={q}&sorting=relevance&order=desc"
-               f"&atleast={WH_RESOLUTION}&ratios=16x9&purity={WH_PURITY}"
-               f"&categories={WH_CATEGORIES}&apikey=")
-        r = run_cmd(["curl", "-s", "--fail", "--max-time", "30",
-                     "-H", "User-Agent: mpv-wall/1.0", url], timeout=35)
-        if r.returncode != 0:
-            raise RuntimeError(r.stderr.strip() or f"curl exited {r.returncode}")
-        data = json.loads(r.stdout)
-        results = []
-        for it in data.get("data", [])[:limit]:
-            path = it.get("path"); i = it.get("id")
-            thumbs = it.get("thumbs") or {}
-            thumb_url = thumbs.get("original") or thumbs.get("large") or path
-            if path and i:
-                results.append({"path": path, "id": str(i), "thumb_url": thumb_url})
-        return results
-
-    def _download_file(self, url: str, dst: Path, timeout: int = 60) -> bool:
-        try:
-            r = run_cmd(["curl", "-sL", "--fail", "--max-time", str(timeout),
-                         "-H", "User-Agent: mpv-wall/1.0",
-                         "-o", str(dst), url], timeout=timeout + 5)
-            return r.returncode == 0 and dst.is_file() and dst.stat().st_size > 0
-        except Exception:
+    def on_key(self, _ctrl, keyval, _keycode, _state):
+        if self.stack.get_visible_child_name() != "wallhaven":
             return False
-
-    def _do_wallhaven(self, query: str, limit: int):
-        try:
-            results = self._api_search(query, limit)
-        except Exception as e:
-            GLib.idle_add(self._fail_wh, f"Error de red: {e}")
-            return
-
-        GLib.idle_add(self._clear_flow_wh)
-
-        if not results:
-            GLib.idle_add(self._search_done_wh, 0)
-            return
-
-        THUMB_DIR.mkdir(parents=True, exist_ok=True)
-        for item in results:
-            wall_id = item["id"]
-            thumb_url = item["thumb_url"]
-            thumb_path = THUMB_DIR / f"wh-preview-{wall_id}.jpg"
-            if not (thumb_path.is_file() and thumb_path.stat().st_size > 0):
-                self._download_file(thumb_url, thumb_path, timeout=30)
-            GLib.idle_add(self._add_result_item_wh,
-                          item["path"], wall_id, thumb_path)
-
-        GLib.idle_add(self._search_done_wh, len(results))
-
-    def _clear_flow_wh(self) -> bool:
-        for child in list(self.result_data_wh.keys()):
-            self.flow_wh.remove(child)
-        self.result_data_wh.clear()
-        return False
-
-    def _add_result_item_wh(self, full_url: str, wall_id: str,
-                            thumb_path: Path) -> bool:
-        ext = Path(full_url).suffix or ".jpg"
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-        for m in ("margin_top", "margin_bottom", "margin_start", "margin_end"):
-            box.set_property(m, 4)
-
-        img = Gtk.Image()
-        img.set_pixel_size(WH_PREVIEW_W)
-        img.set_hexpand(True)
-        if thumb_path.is_file() and thumb_path.stat().st_size > 0:
-            try:
-                img.set_from_file(str(thumb_path))
-            except GLib.Error:
-                pass
-        box.append(img)
-
-        label = Gtk.Label(label=f"wallhaven-{wall_id}")
-        label.set_ellipsize(Pango.EllipsizeMode.END)
-        label.set_max_width_chars(18)
-        label.add_css_class("dim-label")
-        box.append(label)
-
-        child = Gtk.FlowBoxChild()
-        child.set_child(box)
-        self.flow_wh.append(child)
-        self.result_data_wh[child] = (full_url, wall_id, ext)
-        return False
-
-    def _search_done_wh(self, count: int) -> bool:
-        self.btn_search_wh.set_sensitive(True)
-        self.status_wh.set_text(f"{count} resultado(s) de wallhaven.cc")
-        self.btn_download_wh.set_sensitive(
-            len(self.flow_wh.get_selected_children()) > 0)
-        return False
-
-    def _fail_wh(self, msg: str) -> bool:
-        self.status_wh.set_text(msg)
-        self.btn_search_wh.set_sensitive(True)
-        return False
-
-    def _download_selected_wh(self, items: list[tuple[str, str, str]]):
-        WALL_DIR.mkdir(parents=True, exist_ok=True)
-        saved = 0
-        for full_url, wall_id, ext in items:
-            dst = WALL_DIR / f"wallhaven-{wall_id}{ext}"
-            if dst.exists():
-                continue
-            if self._download_file(full_url, dst, timeout=60):
-                saved += 1
-            else:
-                try:
-                    dst.unlink(missing_ok=True)
-                except Exception:
-                    pass
-        GLib.idle_add(self._finished_wh, saved)
-
-    def _finished_wh(self, saved: int) -> bool:
-        self.status_wh.set_text(f"Descargado(s): {saved}")
-        self.refresh_locals()
+        if keyval in (Gdk.KEY_Left, Gdk.KEY_KP_Left):
+            self.on_pag_ant(None)
+            return True
+        if keyval in (Gdk.KEY_Right, Gdk.KEY_KP_Right):
+            self.on_pag_sig(None)
+            return True
+        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
+            sel = self.flow_wh.get_selected_children()
+            if sel:
+                self._download_and_apply_one(sel[0])
+            return True
         return False
 
 
@@ -533,8 +970,9 @@ def main(argv: list[str]) -> int:
     if not files:
         print(f"Sin fondos en {WALL_DIR} (y subcarpetas)", file=sys.stderr)
         return 1
+    colors = load_matugen_colors()
     loop = GLib.MainLoop()
-    win = Picker(files, loop)
+    win = Picker(files, loop, colors)
     win.connect("close-request", lambda *_: (loop.quit(), False)[1])
     win.present()
     loop.run()
